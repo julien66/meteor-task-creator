@@ -15,16 +15,10 @@ import * as kml from './formats/kml';
 var wpFormats = [ozi, cup, gpx];
 var taskFormats = [xctsk, tsk, kml];
 
-console.log(xctsk.name);
-console.log(kml.name);
-console.log(kml);
-console.log(xctsk);
-
 var exportFile = function(type, formatName, wpSelected) {
 	var entity = (type === 'waypoints') ? wpFormats : taskFormats;
-	var formatObject = $.grep(entity, function(e){ console.log(e.name, formatName);return e.name == formatName; })[0];
-	
-	if (type === 'wps') {
+	var formatObject = $.grep(entity, function(e){ return e.name == formatName; })[0];
+	if (type === 'waypoints') {
 		var waypoints = Waypoints.find({'_id' : {'$in' : wpSelected}}).fetch();
 		var blob = formatObject.exporter(waypoints);
 	}
