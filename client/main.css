@@ -1,0 +1,203 @@
+/**
+ * Main Layout.
+ */
+html, body {
+  height: 100%;
+  font-family : Roboto, Arial, sans-serif;
+	background-color : rgb(229, 227, 223);
+}
+
+.container-fluid, .row, #map-canvas, #sidebar {
+  height : 100%;
+}
+
+.cog {
+	position : absolute;
+	font-size : 200px;
+}
+
+.loader {
+	font-size : 20px;
+}
+
+#sidebar {
+ background-color: #575F4E;
+ color : #FFF;
+ overflow : auto;
+}
+
+#map-canvas {
+	padding : 0px;
+}
+
+.map-canvas {
+	background-color: transparent !important;
+}
+
+#sidebar-inner {
+  padding: 10px;
+}
+
+.sideComponent {
+	margin-bottom : 10px;
+	padding : 5px 0px;
+}
+
+#dz {
+	cursor: pointer;
+	padding: 10px;
+	border: 3px dashed #EEE;
+	text-align: center;
+	font-family: cursive;
+	font-style: italic;
+	background-color : transparent;
+	min-height : 100px;
+}
+
+#toggleWaypoint {
+	text-align : center;
+	border : 1px solid #DDD;
+}
+
+.modal select.form-control {
+	width : 50% !important;
+}
+
+#waypointFiles li {
+	list-style-type : none;
+}
+
+#waypointFiles ul {
+  background: repeating-linear-gradient(45deg, #575F4E, #575F4E 20px, #879279 20px, #879279 40px);
+	border: 1px solid #DDD;
+	padding: 10px;
+}
+
+#waypointFiles li a {
+	color : #FFF;
+}
+
+#taskboard {
+	clear: both;
+  margin: 40px 0px 10px 0px;
+	min-height: 100px;
+	border: 1px solid #EEE;
+	border-radius: 2px;
+	background-color: #879279;
+	background-image: linear-gradient(45deg, #575F4E 25%, transparent 25%, transparent 75%, #575F4E 75%), linear-gradient(45deg, #575F4E 25%, transparent 25%, transparent 75%, #575F4E 75%);
+	background-size: 20px 20px;
+	background-position: 0 0, 50px 50px;
+}
+
+
+#taskboard-header {
+	font-weight: bolder;
+	color: #FFF;
+	text-shadow: 0px 0px 10px #000;
+	font-style: italic;
+	font-family: cursive;
+	font-size: 1.5em;
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+#taskboard .label {
+	text-transform: uppercase;
+	margin-right: 10px;
+}
+
+#taskboard .taskboard-item {
+	clear: both;
+	margin-bottom: 5px;
+}
+
+#taskboard-content li {
+	cursor: pointer;
+	list-style-image: none;
+	list-style-type: none;
+	text-shadow: 0px 0px 10px #000;
+}
+
+/**
+ * Fullboard
+ */
+#full-board {
+  margin-top : 10px;
+}
+
+#task-config .container-fluid {
+  border : 1px solid #CCC;
+  margin : 10px 0px;
+}
+
+#task-config .form-group {
+  padding-top : 10px; 
+}
+
+#task-config .tp-name {
+  font-size : 0.8em;
+} 
+
+#task-config i {
+  margin-right : 10px;
+}
+
+#task-config ol, #task-config ul {
+  padding-left : 15px;
+}
+
+#task-config ol li, #task-config ul li {
+  list-style-type : none;
+  list-style-image : none;
+}
+
+#fullboard-arrow, #fullboard-turn-word {
+  text-align : center;
+}
+
+#fullboard-turnpoint ol {
+  counter-reset: item;
+  list-style-type: decimal;
+}
+
+#fullboard-turnpoint ol li:before {
+  content: 'B' counter(item, decimal) ' ';
+  counter-increment: item;
+  font-weight : bold;
+}
+
+#fullboard-turnpoint ol li {
+  padding : 10px 0px;
+}
+
+#fullboard-turnpoint ol li:not(:last-child) {
+  border-bottom : 1px dashed #CCC;
+}
+
+#fullboard-turnpoint span:first-of-type {
+  margin-left : 10px;
+}
+
+#task-config h5, #task-config label {
+  text-transform : uppercase;
+}
+
+#task-config h5 {
+  color : #ac2925;
+}
+
+#fullboard-content span.tp-id {
+  cursor : pointer;
+} 
+
+#fullboard-times .label {
+  margin-right : 5px;
+}
+
+/**
+ * Xavier Murillo hommage.
+ */
+span#fullboard-xm {
+  float: right;
+  font-size:0.2em;
+}

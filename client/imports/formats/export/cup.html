@@ -1,0 +1,6 @@
+<template name="exportCUP">
+	name,code,country,lat,lon,elev,style,rwdir,rwlen,freq,desc
+	{{#each waypoints}}
+	"{{ this.name }}",{{ this.id }},,{{ this.dms }},{{ this.z }}.0m,1,,,,
+	{{/each}}
+</template>

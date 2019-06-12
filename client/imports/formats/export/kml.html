@@ -1,0 +1,61 @@
+<template name="kml">
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+  <Document>
+    <Folder>
+		<name>T{{taskInfo.num}} {{taskInfo.date}}</name>
+      <Style id="wpStyle">
+        <LineStyle>
+          <color>7fff5500</color>
+        </LineStyle>
+        <PolyStyle>
+          <color>66ffaa00</color>
+        </PolyStyle>
+      </Style>
+      <Style id="rtStyle">
+        <LineStyle>
+          <color>7fff0000</color>
+          <width>2</width>
+        </LineStyle>
+      </Style>
+      <Folder>
+        <name>Cylinders</name>
+					{{#each task.turnpoints}}
+            <Placemark>
+							<name>{{@index}} {{type}} - {{name}}</name>
+              <styleUrl>#rtStyle</styleUrl>
+              <visibility>0</visibility>
+              <LineString>
+                <altitudeMode>clampToGround</altitudeMode>
+                <tessellate>1</tessellate>
+								<coordinates>{{generateKML turnpoint}}</coordinates>
+              </LineString>
+            </Placemark>
+            <Placemark>
+						<name>{{@index}}  {{type}} - {{name}}</name>
+              <styleUrl>#wpStyle</styleUrl>
+              <LineString>
+                <altitudeMode>absolute</altitudeMode>
+                <extrude>1</extrude>
+                <coordinates></coordinates>
+              </LineString>
+            </Placemark>
+					{{/each}}
+        </Folder>
+        <Folder>
+          <name>Route</name>
+					{{#each turnpoints}}
+						{{#if notFirst @index}}
+              <Placemark>
+                <styleUrl>#rtStyle</styleUrl>
+                <LineString>
+                  <altitudeMode>clampToGround</altitudeMode>
+                  <tessellate>1</tessellate>
+                </LineString>
+              </Placemark>
+						{{/if}} 
+					{{/each}}
+        </Folder>
+    </Folder>
+  </Document>
+</kml>
+</template>

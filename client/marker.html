@@ -1,0 +1,44 @@
+<template name="marker">
+	<div class="modal fade">
+		<div id="infoMarker" class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title"> Waypoint Panel : {{name}} </h4>
+				</div>
+				<form>
+				<div class="modal-body">
+					<div class="panel-default">
+						<div class="panel-heading">
+							<div id="wp-name" class="form-group">
+								<span class="label label-default">Name</span>
+								<input name="name" class="wp-edit form-control" type="text" value="{{name}}">
+							</div>	
+						</div>
+						<ul class="list-group">
+							<li class="list-group-item id"> 
+								<div id="wp-id" class="form-group">
+									<span class="label label-default">Id</span>
+									<input name="id" class="wp-edit form-control" inputType="id" type="text" value="{{id}}">
+								</div>		
+							</li>
+							<li class="list-group-item altitude"> <span class="label label-default">Altitude</span> {{z}} m</li>
+							<li class="list-group-item lat"> <span class="label label-default">Latitude</span> {{x}}</li>
+							<li class="list-group-item lon"> <span class="label label-default">Longitude</span> {{y}}</li>
+							<li class="list-group-item filename"> <span class="label label-default">Source File</span> {{filename}}</li>
+						</ul>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button id="configure-turnpoint" data-action="waypoint/callTurnpoint" filename="{{filename}}" tid="{{id}}" class="btn btn-success" type="button" data-toggle="modal" data-target="#turnpoint-config">Add To Task</button>
+					<input type="submit" id="edit-Waypoint" class="btn btn-warning btn-ok" value="Edit">
+					<button id="remove-waypoint" data-action="waypoint/remove"  wpId="{{_id}}" class="btn btn-danger" type="button">
+						<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+						Remove
+					</button>
+				</div>
+				</form>
+			</div>	
+		</div>
+	</div>
+</template>

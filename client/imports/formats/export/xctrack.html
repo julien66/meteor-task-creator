@@ -1,0 +1,31 @@
+<template name="exportXCtrack">
+{
+  "taskType" : "CLASSIC",
+  "version" : 1,
+	"turnpoints" : [{{#each task.turnpoints}} {
+		"radius" : {{radius}}.0,
+		"waypoint" : {
+			"lon" : {{wp.y}},
+			"lat" : {{wp.x}},
+			"altSmoothed" : {{wp.z}}.0,
+			"name" : "{{wp.name}}",
+			"description" : "{{wp.id}}",
+      "isUnknown" : true
+		},
+		"type" : "{{type}}"
+	}
+	{{#if semicolon @index}}
+		, 
+	{{/if}}
+	{{/each}}],
+  "sss" : {
+		"type" : "{{xcInfo.type}}",
+		"direction" : "{{xcInfo.direction}}",
+		"timeGates" : ["{{xcInfo.timeGates}}Z"]
+  },  
+  "goal" : {
+		"type" : "{{xcInfo.goalType}}",
+		"deadline" : "{{xcInfo.deadline}}Z"
+  }
+}
+</template>

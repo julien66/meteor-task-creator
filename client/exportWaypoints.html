@@ -1,0 +1,41 @@
+<template name="exportWaypoints">
+	<div id="waypoints-exporter" class="modal fade" role="dialog" aria-labelledby="wp-export">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="wp-export">Export Waypoints</h4>
+				</div>
+				<div class="modal-body">
+					<h5>Select waypoints to export :</h5>
+					<form action="#" autocomplete="off" id="export-wp-form">
+						<div class="form-group">
+							<div id="export-waypoints-list" class="list-group">
+								{{#each waypoints}}
+									<a class="form-group list-group-item" id="export-wp-format" ref="#"> 
+										<input class="export-single-wp" name="{{_id}}" type="checkbox" checked="checked">
+										<label for="export-single-wp" class="label label-default">{{id}}</label>
+										<span class="text-primary">{{name}}</span>
+									</a>
+								{{/each}}
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="form-group row" id="formatWp"> 
+								<label for="formatWp" class="col-sm-3">Select a format</label>
+								<select id="formatWp" name="formatWp" class="col-sm-6 form-control" autocomplete="off">
+									{{#each exportFormat}}
+										<option>{{this}}</option>
+									{{/each}}
+								</select>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<input type="submit" id="export-wp" class="btn btn-success" value="Export Waypoints">
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>

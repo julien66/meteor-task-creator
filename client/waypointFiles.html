@@ -1,0 +1,15 @@
+<template name="waypointFiles">
+	<div id="waypointFiles">
+		<ul class={{isShown}}>
+			{{#each waypointFiles}}
+			<li>
+				<a href="" rel="{{this}}">
+					<i class="fa fa-trash"></i>
+					{{this}}
+				</a>
+			</li>	
+			{{/each}}
+		</ul>
+		<button class="btn btn-primary {{isShown}} pull-right">Export Waypoints</button>
+	</div>
+</template>

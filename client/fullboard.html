@@ -1,0 +1,167 @@
+<template name="fullboard">
+<div id="task-config" class="modal fade" role="dialog" aria-labelledby="">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div id="fullboard-header" class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="turnpoint-config-label">Task Configuration</h4>
+        <span id="fullboard-xm">XM was here !</span>
+      </div>
+      <div id="fullboard-content" class="modal-body">
+        <form action="#" autocomplete="off" id="task-form-config">
+          <div class="row">
+            <div class="row col-xs-7">
+              <div class="container-fluid">
+                <div id="fullboard-takeoff">
+                  <h5><i class="fa fa-plane"></i>Take off</h5>
+									<ol>
+										{{#each tp 'takeoff'}}
+										<li class="turnpoint tp-takeoff" index="{{@index}}">
+											<span class="tp-id label label-default">{{wp.id}}</span> 
+											<span class="tp-name">{{wp.name}}</span>
+											<span class="tp-radius label label-info">{{radius}}m</span>
+										</li>
+										{{/each}}
+									</ol>
+                </div>
+              </div>
+              <div class="container-fluid">
+                <div id="fullboard-start">
+                  <h5><i class="fa fa-play"></i>Start</h5>
+									<ol>
+										{{#each tp 'start'}}
+										<li class="turnpoint tp-start" index="{{@index}}">
+											<span class="tp-id label label-default">{{wp.id}}</span> 
+											<span class="tp-name">{{wp.name}}</span>
+											<span class="tp-{{mode}} label label-warning">{{mode}}</span>
+											<span class="tp-radius label label-info">{{radius}}m</span>
+										</li>
+										{{/each}}
+									</ol>
+                </div>
+              </div>
+              <div class="container-fluid">
+                <span id="fullboard-turnpoint">
+                  <h5><i class="fa fa-forward"></i>Turnpoint</h5> 
+									<ol>
+										{{#each tp 'turnpoint'}}
+										<li class="turnpoint tp-turnpoint" index="{{@index}}">
+											<span class="tp-id label label-default">{{wp.id}}</span> 
+											<span class="tp-name">{{wp.name}}</span>
+											<span class="tp-radius label label-info">{{radius}}m</span>
+										</li>
+										{{/each}}
+									</ol>
+                </span>
+              </div>
+              <div class="container-fluid">
+                <span id="fullboard-end-of-speed-section">
+                  <h5><i class="fa fa-stop"></i>End of speed section</h5>
+									<ol>
+										{{#each tp 'end-of-speed-section'}}
+										<li class="turnpoint tp-start" index="{{@index}}">
+											<span class="tp-id label label-default">{{wp.id}}</span> 
+											<span class="tp-name">{{wp.name}}</span>
+											<span class="tp-{{mode}} label label-warning">{{mode}}</span>
+											<span class="tp-radius label label-info">{{radius}}m</span>
+										</li>
+										{{/each}}
+									</ol>
+                </span>
+              </div>
+              <div class="container-fluid">
+                <span id="fullboard-goal">
+                  <h5><i class="fa fa-thumbs-up"></i>Goal</h5> 
+									<ol>
+										{{#each tp 'goal'}}
+										<li class="turnpoint tp-goal" index="{{@index}}">
+											<span class="tp-id label label-default">{{wp.id}}</span> 
+											<span class="tp-name">{{wp.name}}</span>
+											<span class="tp-{{goalType}} label label-warning">{{goalType}}</span>
+											{{#if hasCylinder goalType}}
+												<span class="tp-radius label label-info">{{radius}}m</span>
+											{{/if}}
+										</li>
+										{{/each}}
+									</ol>
+                </span>
+              </div>
+            </div>
+            <div class="col-xs-5">
+              <div class="container-fluid">
+                <div class="form-group">
+                  <div class="form-group row" id="fullboard-type">
+                    <label for="fullboard-type-select" class="col-xs-3 form-control-label">Type</label>
+										<select id="fullboard-type-select" class="col-xs-8 form-control" autocomplete="off" name="type">
+											<option>Race To Goal</option>
+											<option>Elapsed Time</option>
+											<option>Clock Start</option>
+										</select>
+                  </div>
+                </div>
+              </div>
+              <div id="fullboard-right-infos">
+                <div class="container-fluid">
+                  <div class="row">
+                    <div id="fullboard-date" class="col-xs-8">
+                      <h5><i class="fa fa-calendar"></i>Date</h5>
+                      <span></span>
+                    </div>
+                    <div id="fullboard-turn" class="col-xs-4">
+                      <h5 id="fullboard-turn-word"></h5>
+                      <div id="fullboard-arrow"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="container-fluid">
+                  <div id="fullboard-times">
+                    <h5><i class="fa fa-clock-o"></i>Times</h5>
+                    <div>
+											<span id="window-open" class="label label-default">Window open</span> 
+											<span id="fullboard-takeoff-open">{{time 'takeoff' 'open'}}</span>
+                    </div>
+                    <div>
+											<span id="window-close" class="label label-default">Window close</span> 
+											<span id="fullboard-takeoff-close">{{time 'takeoff' 'close'}}</span>
+                    </div>
+                    <div>
+											<span id="start-open" class="label label-default">Start open</span> 
+											<span id="fullboard-start-open">{{time 'start' 'open'}}</span>
+                    </div>
+                    <div>
+											<span class="label label-default">ESS close</span>
+											<span id="fullboard-end-of-speed-section-close">{{time 'end-of-speed-section' 'close'}}</span>
+                    </div>
+                    <div>
+											<span class="label label-default">Goal close</span> 
+											<span id="fullboard-goal-close">{{time 'goal' 'close'}}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="container-fluid">
+                  <h5>Distance</h5>
+                  <div id="fullboard-distance"></div> 
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="modal-footer">
+          <button type="button" id="save-task" class="btn btn-default"> 
+            <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> Save
+          </button>
+          <button type="button" id="export-task" class="btn btn-default"> 
+            <span class="glyphicon glyphicon-save-file" aria-hidden="true"></span> Export
+          </button>
+          <button type="button" id="edit-task" class="btn btn-default">
+            <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Edit
+          </button>
+          <!--<button type="button" id="delete-task" class="btn btn-default">
+            <span class="glyphicon glyphicon-trash text-danger" aria-hidden="true"></span> Delete
+					</button>-->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</template>

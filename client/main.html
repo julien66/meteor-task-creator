@@ -1,0 +1,38 @@
+<head>
+	<title>Task Creator</title>
+</head>
+
+<body>
+	<div class="container-fluid"> 
+		<div class="row">
+			<span class="cog col-sm-9">
+				<center>
+					<i class="fa fa-cog fa-spin"></i>
+					<div class="loader">LOADING...</div>
+				</center>
+			</span>
+			{{> map}}
+			<div id="sidebar" class="col-sm-3">
+				<div id="sidebar-inner">
+					<div class="sideComponent">
+						{{> dropzone url='#' 
+							id='dz' 
+							maxFiles='1'
+							acceptedFiles='.txt, .TXT, .wpt, .WPT, .igc, .IGC, .cup, .CUP, .gpx, .GPX, .tsk, .TSK, .geojson, .GEOJSON'
+							dictDefaultMessage='Drop files (or click) here'
+						}}
+					</div>
+					<div class="sideComponent">
+						{{> waypoint}}
+					</div>
+					<div class="sideComponent">
+						{{> waypointFiles}}
+					</div>
+					<div class="sideComponent">
+						{{> taskBoard}}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>

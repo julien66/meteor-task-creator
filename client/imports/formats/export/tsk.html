@@ -1,0 +1,26 @@
+<template name="tsk">
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="Task Planner">
+  <rte>
+		<date>{{taskInfo.date}}</date>
+		<type>{{taskInfo.type}}</type>
+		<num>{{taskInfo.num}}</num>
+		{{#each turnpoints}}
+			<rtept lon="{{turnpoint.y}}" lat="{{turnpoint.x}}">
+				<close>{{close}}</close>
+				<!-- <filename>task_{{ taskInfo.date }}.tsk</filename> -->
+				<fileOrigin>{{wp.filename}}</fileOrigin>
+				<goalType>{{goalType}}</goalType>
+				<id>{{id}}</id>
+				<index>{{index}}</index>
+				<mode>{{mode}}</mode>
+				<name>{{wp.name}}</name>
+				<open>{{open}}</open>
+				<radius>{{radius}}</radius>
+				<type>{{type}}</type>
+				<z>{{wp.z}}</z>
+      </rtept>
+		{{/each}}
+  </rte>
+	</gpx>
+</template>

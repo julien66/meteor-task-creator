@@ -1,0 +1,71 @@
+<template name="turnpoint">
+	<div id="turnpoint-config" class="modal fade" role="dialog" aria-labelledby="turnpoint-config-label">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div id="turnpoint-header" class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="turnpoint-config-label">Turnpoint Configuration</h4>
+				</div>
+				<div id="turnpoint-content" class="modal-body">
+					<form action="#" autocomplete="off" id="turnpoint-form-config">
+						<div class="form-group">
+							<div class="form-group row" id="tp-type">
+								<label for="tp-type-select" class="col-sm-3 form-control-label">Type</label>
+								<select id="tp-type-select" class="form-control col-sm-6" name="type" autocomplete="off">
+									<option data-show="close,mode,open,radius" data-hide="goal-type" {{sel 'type' 'takeoff'}}>takeoff</option>
+									<option data-show="mode,open,radius" data-hide="close,goal-type" {{sel 'type' 'start'}}>start</option>
+									<option data-show="mode,radius" data-hide="close,goal-type,open" {{sel 'type' 'turnpoint'}}>turnpoint</option>
+									<option data-show="close,mode,radius" data-hide="open,goal-type" {{sel 'type' 'end-of-speed-section'}}>end of speed section</option>
+									<option data-show='close,goal-type,radius' data-hide="mode,open" {{sel 'type' 'goal'}}>goal</option>
+								</select>
+							</div>
+							<div class="form-group row hidden" id="tp-goal-type">
+								<label for="tp-goal-type-select" class="col-sm-3 form-control-label">Goal type</label>
+								<select id="tp-goal-type-select" class="form-control col-sm-6" name="goal-type" autocomplete="off">
+									<option data-show="close,radius" data-hide="mode,open" {{sel 'goal-type' 'Cylinder'}}>Cylinder</option>
+									<option data-show="close" data-hide="mode,open,radius" {{sel 'goal-type' 'Line'}}>Line</option>
+								</select>
+							</div>
+							<div class="form-group row" id="tp-radius">
+								<label for="tp-radius-input" class="col-sm-3 form-control-label">Radius</label>
+								<div class="input-group col-sm-6">
+									<input id="tp-radius-input" class="form-control" name="radius" type="number" min="200" step="100" value="{{default 'radius' 400}}">
+									<div class="input-group-addon">Meters</div>
+								</div>
+							</div>
+							<div class="form-group row" id="tp-mode">
+								<label for="tp-mode-select" class="col-sm-3 form-control-label">Mode</label>
+								<select id="tp-mode-select" class="form-control col-sm-6" name="mode" autocomplete="off">
+									<option {{sel 'mode' 'Enter'}}>Enter</option>
+									<option {{sel 'mode' 'Exit'}}>Exit</option>
+								</select>
+							</div>
+							<div class="form-group row" id="tp-open">
+								<label for="tp-open-input" class="col-sm-3 form-control-label">Opening Time</label>
+								<div class="input-group col-sm-6">
+									<input id="tp-open-input" class="form-control" name="opening_time" type="text" value="{{default 'open' '12:00:00'}}">
+									<div class="input-group-addon">hh:mm:ss</div>
+								</div>
+							</div>
+							<div class="form-group row" id="tp-close">
+								<label for="tp-close-input" class="col-sm-3 form-control-label">Closing Time</label>
+								<div class="input-group col-sm-6">
+									<input id="tp-close-input" class="form-control" name="close_time" type="text" value="{{default 'close' '18:00:00'}}">
+									<div class="input-group-addon">hh:mm:ss</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							{{#if notNew }}
+								<input type="submit" id="edit-turnpoint" class="btn btn-warning" value="Edit Turnpoint">
+								<button type="button" id="delete-turnpoint" data-action="turnpoint/remove" class="btn btn-danger">Delete Turnpoint</button>
+							{{else}}
+								<input type="submit" id="add-turnpoint" class="btn btn-success" value="Add Turnpoint">
+							{{/if}}	
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>

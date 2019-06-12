@@ -1,0 +1,24 @@
+<template name="taskBoard">
+	<div id="taskboard">
+		<div id="taskboard-header">Taskboard</div>
+		<div id="taskboard-content">
+			<div>
+				<ul>
+					{{#each turnpoints}}
+					<li class="taskboard-item" rel="{{this._id}}">
+						<span class="label label-default" style="background-color : {{ fillColor this.type }}"> {{ shortName this.type }}</span>
+							{{this.wp.name }}
+							<span class="turnpointDistance">
+								<!--<% if ( taskInfo.distances[i - 1] ) { %>
+									<%- taskInfo.distances[i-1] + 'Km' %> 
+									<% } %>-->
+							</span>
+						</li>
+					{{/each }}
+				</ul>
+				<div id="task-distance"> <!--<%- Math.round(taskInfo.distance) / 1000 %>--></div>	
+			</div>
+		</div>
+	</div>
+	<button class="btn btn-primary {{isShown}} pull-right">FullBoard</button>
+</template>
