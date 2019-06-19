@@ -24,12 +24,12 @@ Template.marker.events({
 
 		// Disallow empty string on name and id.
 		// @To do... Need to check if others waypoints have the same name or id.
-		if (name !== null || name !== '') {
+		if (name == null || name == '') {
 			$('#wp-name').addClass('has-error');
 			return;
 		}
 
-		if (id !== null || id !== '') {
+		if (id == null || id == '') {
 			$('#wp-id').addClass('has-error');
 			return;
 		}

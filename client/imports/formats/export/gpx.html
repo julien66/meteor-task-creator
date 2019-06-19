@@ -1,12 +1,12 @@
 <template name="exportGPX">
-	<gpx xmlns="http://www.topografix.com/GPX/1/1" creator="Task Planner" version="1.1">
-		{{#each waypoints}}
-			<wpt lat="{{this.x}}" lon="{{this.y}}">
-				<ele>{{this.z}}</ele>
-				<name>{{this.id}}</name>
-				<desc>{{this.name}}</desc>
-				<sym>Waypoint</sym>
-			</wpt>	
-		{{/each}}
-	</gpx>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" creator="Task Planner" version="1.1">
+{{#each waypoints}}
+<wpt lat="{{this.x}}" lon="{{this.y}}">
+<ele>{{this.z}}</ele>
+<name>{{this.id}}</name>
+<desc>{{this.name}}</desc>
+<sym>Waypoint</sym>
+</wpt>	
+{{/each}}
+</gpx>
 </template>
