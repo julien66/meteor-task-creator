@@ -1,8 +1,12 @@
 /**
   @file
-  Task importer for the task creator.
+  TSK Task importer / Exporter.
   **/
-  var check = function(text, filename) {
+  
+
+	import './export/tsk.html';  
+
+	var check = function(text, filename) {
     if (filename.split('.').pop() == 'tsk') {
       return true;
     }
@@ -18,7 +22,7 @@
     var rtetp = xmlDoc.getElementsByTagName("rtept");
     var tps = [];
     var wps = [];
-    var array = ['close', 'goalType', 'index', 'mode', 'open', 'radius', 'type'];
+    var array = ['close', 'goaltype', 'index', 'mode', 'open', 'radius', 'type'];
     
     for (var i = 0; i < rtetp.length; i++) {
       var tp = {};
@@ -27,7 +31,7 @@
         tp[e] =  rtetp[i].getElementsByTagName(e)[0].childNodes[0] ? rtetp[i].getElementsByTagName(e)[0].childNodes[0].nodeValue : 0;
       }
       
-      if (tp.type == 'endofspeedsection') {
+      if (tp.type == 'endofspeedsection' || tp.type == 'end of speed section' || tp.type == 'ess') {
         tp.type = 'end-of-speed-section';
       } 
 
@@ -46,17 +50,18 @@
 
     return {
       'task' : {
-        'date' : xmlDoc.getElementsByTagName('date')[0].childNodes[0].nodeValue,
-        'type' : xmlDoc.getElementsByTagName('type')[0].childNodes[0].nodeValue,
-        'num' : xmlDoc.getElementsByTagName('num')[0].childNodes[0].nodeValue,
+        'date' : xmlDoc.getElementsByTagName('date')[0].childNodes[0] ? xmlDoc.getElementsByTagName('date')[0].childNodes[0].nodeValue : "",
+        'type' : xmlDoc.getElementsByTagName('type')[0].childNodes[0] ? xmlDoc.getElementsByTagName('type')[0].childNodes[0].nodeValue : "",
+        'num' : xmlDoc.getElementsByTagName('num')[0].childNodes[0] ? xmlDoc.getElementsByTagName('num')[0].childNodes[0].nodeValue : "",
         'turnpoints' : tps,
       },
       'waypoints' : wps,
     }
   }
   
-  var exporter = function(turnpoints, taskInfo) {
-    var data = Blaze.toHTMLWithData(Template.exportTSK, {turnpoints : turnpoints, taskInfo : taskInfo});
+  var exporter = function(task) {
+		console.log(task);
+    var data = Blaze.toHTMLWithData(Template.exportTSK, {turnpoints : task.turnpoints, taskInfo : task.taskInfo});
     return new Blob([data], {'type': "text/xml"});
   }
 

@@ -27,9 +27,16 @@ var exportFile = function(type, formatName, wpSelected) {
 		var blob = formatObject.exporter(task);
 	}
 
+	var date = new Date();
+	var year = date.getFullYear();
+	var month = date.getMonth() + 1;
+	var day = date.getDate();
+	var hour = date.getHours();
+	var minutes = date.getMinutes();
+
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = "waypoints" + formatObject.extension;
+  a.download = type + "_" + day + '-' + month + '-' + year + '_' + hour + 'H:' + minutes + formatObject.extension;
   var event = document.createEvent("MouseEvents");
 	event.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
 	a.dispatchEvent(event);

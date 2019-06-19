@@ -46,9 +46,10 @@ import * as gpx from './formats/gpx';
 					var tp = parseInfo.task.turnpoints[i];
           var wp = Waypoints.findOne(tp.wp);
 					tp.wp._id = wp._id;
-					console.log(tp);
-					Turnpoints.insert(tp);
-					Task.update({}, {'$push' : {turnpoints : tp}});
+					Turnpoints.insert(tp, function(error, result) {
+						var T = Turnpoints.findOne(result);
+						Task.update({}, {'$push' : {turnpoints : T}});
+					});
 				}
       }
     }
