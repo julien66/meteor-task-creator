@@ -118,6 +118,10 @@ html, body {
 	text-shadow: 0px 0px 10px #000;
 }
 
+.turnpointId {
+	font-weight : bold;
+}
+
 /**
  * Fullboard
  */

@@ -44,8 +44,8 @@ Template.taskBoard.onRendered( function onTaskBoardRendered() {
 });
 
 Template.taskBoard.events({
-	'click li' : function(e) {
-		var tpId = $(e.target).attr('rel');
+	'click li span' : function(e) {
+		var tpId = $(e.target).parent().attr('rel');
 		var turnpoint = Turnpoints.findOne({_id : tpId});
 		Modal.show('turnpoint', turnpoint);
 	},

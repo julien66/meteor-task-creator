@@ -7,7 +7,9 @@
 					{{#each turnpoints}}
 					<li class="taskboard-item" rel="{{this._id}}">
 						<span class="label label-default" style="background-color : {{ fillColor this.type }}"> {{ shortName this.type }}</span>
-							{{this.wp.name }}
+							<span class="turnpointId"> {{this.wp.id}} </span>
+							<span> - </span>
+							<span class="turnpointName"> {{this.wp.name}} </span>
 							<span class="turnpointDistance">
 								<!--<% if ( taskInfo.distances[i - 1] ) { %>
 									<%- taskInfo.distances[i-1] + 'Km' %> 
