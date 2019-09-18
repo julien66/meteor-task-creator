@@ -24,23 +24,24 @@ Template.taskBoard.helpers({
 
 Template.taskBoard.onRendered( function onTaskBoardRendered() {
 	$("#taskboard ul").sortable({
-    start: function(event, ui) {
-      ui.item.startIndex = ui.item.index();
-    },
-    stop: function(event, ui) {
-      var oldIndex = ui.item.startIndex;
-      var index = ui.item.index();
-			// Getting task and inverting array turnpoints.
+    	start: function(event, ui) {
+    	},
+    	stop: function(event, ui) {
+			// Getting new turnpoint order.
+			var tpsId = $('li.taskboard-item').map(function () {
+  				return $(this).attr("rel");
+			}).get();
+			// Getting task and sorting array turnpoints.
 			var task = Task.findOne();
 			var tps = task.turnpoints;
-			var memo  = tps[oldIndex];
-			tps[oldIndex] = tps[index];
-			tps[index] = memo;
+			tps.sort(function(a, b){ 
+  				return tpsId.indexOf(a['_id']) - tpsId.indexOf(b['_id']);
+			});
 			Task.update({}, {'$set' : {
 				turnpoints : tps,
 			}});
 		}
-  });
+  	});
 });
 
 Template.taskBoard.events({
