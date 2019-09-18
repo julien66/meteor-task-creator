@@ -19,7 +19,7 @@ var exportFile = function(type, formatName, wpSelected) {
 	var entity = (type === 'waypoints') ? wpFormats : taskFormats;
 	var formatObject = $.grep(entity, function(e){ return e.name == formatName; })[0];
 	if (type === 'waypoints') {
-		var waypoints = Waypoints.find({'_id' : {'$in' : wpSelected}}).fetch();
+		var waypoints = Waypoints.find({'_id' : {'$in' : wpSelected}}, {sort : {id : 1}}).fetch();
 		var blob = formatObject.exporter(waypoints);
 	}
 	else {

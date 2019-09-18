@@ -199,6 +199,13 @@ html, body {
 }
 
 /**
+ * Waypoint Exporter
+ */
+#export-wp-format .form-control {
+	display : inline-block;
+}
+
+/**
  * Xavier Murillo hommage.
  */
 span#fullboard-xm {

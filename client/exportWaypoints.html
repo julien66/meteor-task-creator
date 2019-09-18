@@ -13,9 +13,11 @@
 							<div id="export-waypoints-list" class="list-group">
 								{{#each waypoints}}
 									<a class="form-group list-group-item" id="export-wp-format" ref="#"> 
-										<input class="export-single-wp" name="{{_id}}" type="checkbox" checked="checked">
-										<label for="export-single-wp" class="label label-default">{{id}}</label>
-										<span class="text-primary">{{name}}</span>
+										<input class="export-single-wp" name="{{_id}}" type="checkbox" checked="checked"> Waypoints # {{indexIt @index}} <br/>
+										<label for="export-single-wp" class="label label-default"> ID </label>
+										<input name="id" class="export-wp-id form-control" type="text" wpId="{{_id}}" value="{{id}}">
+										<label for="export-single-wp" class="label label-default"> NAME </label>
+										<input name="name" class="export-wp-name text-primary form-control" wpId="{{_id}}" type="text" value="{{name}}">
 									</a>
 								{{/each}}
 							</div>
