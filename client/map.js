@@ -2,6 +2,7 @@ import Parameters from './param';
 import Optimiser from './imports/betterOptimiser.js';
 
 Template.map.onCreated( function onGmap() {
+	Session.set('taskDistance', null);
 	// We can use the `ready` callback to interact with the map API once the map is ready.
 	GoogleMaps.ready('raceMap', function(map) {
 		var param = Parameters.param;
@@ -143,6 +144,25 @@ Template.map.onCreated( function onGmap() {
 						map: map.instance,
 					});
 				}
+				// Get distance information.
+				var distances = [];
+				for (var i = 0; i< infos.fastWaypoints.length - 1; i++) {
+      				var distance = google.maps.geometry.spherical.computeDistanceBetween(infos.fastWaypoints[i], infos.fastWaypoints[i+1]);
+					distances.push(distance);
+				}
+				// Set new distance to next turnpoint.
+				for (var j = 0; j < task.turnpoints.length; j++) {
+					Turnpoints.update( {'_id' : task.turnpoints[j]['_id']}, {'$set' : 
+						{
+							distanceToNext : distances[j],
+							distanceFromPrevious : ((j-1 >= 0) ? distances[j-1] : 0) 
+						}
+					});
+				}
+				// Store total distance into session.
+				Session.set('taskDistance', distances.reduce(function(acc, value, index, array) {
+					return acc + value;
+				}));
 			},
 		});
 

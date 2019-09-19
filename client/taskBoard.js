@@ -7,6 +7,9 @@ import * as Parameters from './param.js';
 var Param = Parameters.param;
 
 Template.taskBoard.helpers({
+	getTaskDistance : function() {
+		return Math.round(Session.get('taskDistance')/10)/100;
+	},
 	turnpoints : function() {
 		return Turnpoints.find();
 	},
@@ -16,6 +19,10 @@ Template.taskBoard.helpers({
 	isShown : function() {
 		return (!Turnpoints.find().fetch().length > 0) ? 'hidden' : '';
 		//return (!Turnpoints.find().fetch().length > 0) : 'hidden' : '';
+	},
+	roundDistance : function(distance) {
+		console.log(distance);
+		return Math.round(distance/10)/100;
 	},
 	shortName : function(type) {
 		return Param.turnpoint.shortName[type.toLowerCase()];

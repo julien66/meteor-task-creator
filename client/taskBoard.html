@@ -11,14 +11,12 @@
 							<span> - </span>
 							<span class="turnpointName"> {{this.wp.name}} </span>
 							<span class="turnpointDistance">
-								<!--<% if ( taskInfo.distances[i - 1] ) { %>
-									<%- taskInfo.distances[i-1] + 'Km' %> 
-									<% } %>-->
+								{{roundDistance this.distanceFromPrevious}} km
 							</span>
 						</li>
 					{{/each }}
 				</ul>
-				<div id="task-distance"> <!--<%- Math.round(taskInfo.distance) / 1000 %>--></div>	
+				<div id="task-distance"> {{getTaskDistance}} Km <!--<%- Math.round(taskInfo.distance) / 1000 %>--></div>	
 			</div>
 		</div>
 	</div>
