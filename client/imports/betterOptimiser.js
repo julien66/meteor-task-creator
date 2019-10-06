@@ -105,7 +105,16 @@ let optimize = function(google, map, turnpoints) {
 		// Storing this hardly gained fastPoint.
 		fastWaypoints.push(fastPoint);
 		for (i = 0; i < fastWaypoints.length; i++) {
-			console.log(fastWaypoints[i].lat(), fastWaypoints[i].lng());
+			console.log(i + ':', fastWaypoints[i].lat(), fastWaypoints[i].lng());
+			var wp = {
+				name : 'custom',
+				id : 'Fast ' + i,
+				x : fastWaypoints[i].lat(),
+				y : fastWaypoints[i].lng(),
+				z : 0,
+				filename : 'fastWaypoints',  
+			};		
+			Waypoints.insert(wp);
 		}
 		/*
 		// Debugging block. Displaying middle point on map
