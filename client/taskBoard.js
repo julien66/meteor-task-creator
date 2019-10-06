@@ -21,7 +21,6 @@ Template.taskBoard.helpers({
 		//return (!Turnpoints.find().fetch().length > 0) : 'hidden' : '';
 	},
 	roundDistance : function(distance) {
-		console.log(distance);
 		return Math.round(distance/10)/100;
 	},
 	shortName : function(type) {

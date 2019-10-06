@@ -104,7 +104,9 @@ let optimize = function(google, map, turnpoints) {
 		var fastPoint = google.maps.geometry.spherical.computeOffset(two.LatLng, minLeg, legHeading);	
 		// Storing this hardly gained fastPoint.
 		fastWaypoints.push(fastPoint);
-		console.log(fastWaypoints);
+		for (i = 0; i < fastWaypoints.length; i++) {
+			console.log(fastWaypoints[i].lat(), fastWaypoints[i].lng());
+		}
 		/*
 		// Debugging block. Displaying middle point on map
 		var wp = {
