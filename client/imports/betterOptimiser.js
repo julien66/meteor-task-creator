@@ -64,7 +64,7 @@ let optimize = function(google, map, turnpoints) {
 	
 		if(heading) {
 			var fastPoint = google.maps.geometry.spherical.computeOffset(two.LatLng, two.radius, heading);
-			//fastWaypoints.push(fastPoint);
+			fastWaypoints.push(fastPoint);
 			continue;
 		}
 	
