@@ -9,9 +9,11 @@ import * as igc from './formats/igc';
 import * as geoJson from './formats/geoJson';
 import * as tsk from './formats/tsk';
 import * as gpx from './formats/gpx';
+import * as zip from './formats/zip';
 
-  var formats = [oziOld, ozi, cup, igc, geoJson, tsk, gpx]; 
+  var formats = [oziOld, ozi, cup, igc, geoJson, tsk, gpx, zip]; 
   var parse = function(text, filename) {
+	console.log(text, filename);
     var result = formatCheck(text, filename);
     var format = result.format;
 

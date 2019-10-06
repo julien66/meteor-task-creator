@@ -95,7 +95,7 @@ let optimize = function(google, map, turnpoints) {
 		//console.log(two.wp.name, aHeading, bHeading,  angle, legHeading, test);
 		// Calculating bissectrix length (2 * AB * Cos(two/2)) / (A+B).
 		var aDistance = google.maps.geometry.spherical.computeDistanceBetween(one, two.LatLng);
-    var bDistance = google.maps.geometry.spherical.computeDistanceBetween(two.LatLng, three.LatLng);
+		var bDistance = google.maps.geometry.spherical.computeDistanceBetween(two.LatLng, three.LatLng);
 		var leg = (2 * aDistance * bDistance * Math.cos((angle * 0.5) * (Math.PI /180))) / (aDistance + bDistance);
 		var middlePoint =  google.maps.geometry.spherical.computeOffset(two.LatLng, leg, legHeading);
 		// Choosing beetween this length or radius length.
@@ -104,7 +104,7 @@ let optimize = function(google, map, turnpoints) {
 		var fastPoint = google.maps.geometry.spherical.computeOffset(two.LatLng, minLeg, legHeading);	
 		// Storing this hardly gained fastPoint.
 		fastWaypoints.push(fastPoint);
-		
+		console.log(fastWaypoints);
 		/*
 		// Debugging block. Displaying middle point on map
 		var wp = {
