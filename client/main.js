@@ -6,6 +6,7 @@ import './main.html';
 Modal.allowMultiple = true;
 
 Task = new Mongo.Collection('task', {connection: null});
+delete Session.keys['taskInfos'];
 Task.insert({
 	turnpoints : [],
 });
@@ -14,7 +15,7 @@ Waypoints = new Mongo.Collection('waypoints', {connection: null});
 
 Meteor.startup(function() {		
 	GoogleMaps.load({
-		key : 'AIzaSyDNrTc1a1WM07PlACypa2WbEAthHXIk-_A',
+		key : 'AIzaSyDNrTc1a1WM07PlACypa2WbEAthHXIk-_A', 
 		libraries : 'geometry,elevation', 
 	});
 });

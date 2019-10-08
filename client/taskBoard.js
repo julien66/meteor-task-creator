@@ -8,7 +8,10 @@ var Param = Parameters.param;
 
 Template.taskBoard.helpers({
 	getTaskDistance : function() {
-		return Math.round(Session.get('taskDistance')/10)/100;
+		var infos = Session.get('taskInfos');
+		if (infos) {
+			return Math.round(infos['optimized_distance']/10)/100;
+		}
 	},
 	turnpoints : function() {
 		return Turnpoints.find();

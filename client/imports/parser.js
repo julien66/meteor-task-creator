@@ -13,7 +13,6 @@ import * as zip from './formats/zip';
 
   var formats = [oziOld, ozi, cup, igc, geoJson, tsk, gpx, zip]; 
   var parse = function(text, filename) {
-	console.log(text, filename);
     var result = formatCheck(text, filename);
     var format = result.format;
 

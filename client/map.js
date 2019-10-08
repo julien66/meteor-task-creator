@@ -1,5 +1,6 @@
 import Parameters from './param';
-import Optimiser from './imports/betterOptimiser.js';
+//import Optimiser from './imports/betterOptimiser.js';
+import Optimiser from './imports/teoOptimiser.js';
 
 Template.map.onCreated( function onGmap() {
 	Session.set('taskDistance', null);
@@ -56,8 +57,8 @@ Template.map.onCreated( function onGmap() {
 				// Change marker reference to this waypoint.
 				marker.wp = waypoint;
 				// Set new label.
-        marker.label.text = waypoint.id;
-        marker.setLabel(marker.label);
+        			marker.label.text = waypoint.id;
+        			marker.setLabel(marker.label);
 			},
 			removed: function(waypoint) {
 				//Remove the marker from the map
@@ -112,7 +113,7 @@ Template.map.onCreated( function onGmap() {
 				circle.setOptions({
 					strokeColor: param.turnpoint.strokeColor[turnpoint.type.toLowerCase()],
 					fillColor: param.turnpoint.fillColor[turnpoint.type.toLowerCase()],
-					radius : turnpoint.radius,
+					radius : parseInt(turnpoint.radius),
 					tp : turnpoint,
 				});
 			},
@@ -144,25 +145,17 @@ Template.map.onCreated( function onGmap() {
 						map: map.instance,
 					});
 				}
-				// Get distance information.
-				var distances = [];
-				for (var i = 0; i< infos.fastWaypoints.length - 1; i++) {
-      				var distance = google.maps.geometry.spherical.computeDistanceBetween(infos.fastWaypoints[i], infos.fastWaypoints[i+1]);
-					distances.push(distance);
-				}
 				// Set new distance to next turnpoint.
 				for (var j = 0; j < task.turnpoints.length; j++) {
 					Turnpoints.update( {'_id' : task.turnpoints[j]['_id']}, {'$set' : 
 						{
-							distanceToNext : distances[j],
-							distanceFromPrevious : ((j-1 >= 0) ? distances[j-1] : 0) 
+							distanceToNext : infos.legDistances[j],
+							distanceFromPrevious : ((j-1 >= 0) ? infos.legDistances[j-1] : 0) 
 						}
 					});
 				}
-				// Store total distance into session.
-				Session.set('taskDistance', distances.reduce(function(acc, value, index, array) {
-					return acc + value;
-				}));
+				// Store total distances into session.
+				Session.set('taskInfos',  infos);
 			},
 		});
 

@@ -9,7 +9,6 @@ var filename;
 
 reader.onload = function(e) {
 	var text = reader.result;
-	console.log(text);
 	parse(text);
 }
   
