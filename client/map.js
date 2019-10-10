@@ -1,6 +1,7 @@
 import Parameters from './param';
 //import Optimiser from './imports/betterOptimiser.js';
 import Optimiser from './imports/teoOptimiser.js';
+import  * as fileExporter from './imports/exporter';
 
 Template.map.onCreated( function onGmap() {
 	Session.set('taskDistance', null);
@@ -128,6 +129,9 @@ Template.map.onCreated( function onGmap() {
 		Task.find().observe({
 			changed : function(task) {
 				// Draw the lines!!
+				fileExporter.exportFile('task', 'XCtrack', null, true);
+				//Meteor.call('task.newTask', task);
+				
 				var infos = Optimiser.optimize(google, map.instance, task.turnpoints);
 				if (fastTrack) fastTrack.setMap(null);
 				if (infos && infos.fastWaypoints) {

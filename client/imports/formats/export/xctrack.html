@@ -2,7 +2,7 @@
 {
   "taskType" : "CLASSIC",
   "version" : 1,
-	"turnpoints" : [{{#each task.turnpoints}} {
+  "turnpoints" : [{{#each task.turnpoints}} {
 		"radius" : {{radius}}.0,
 		"waypoint" : {
 			"lon" : {{wp.y}},
@@ -10,13 +10,11 @@
 			"altSmoothed" : {{wp.z}}.0,
 			"name" : "{{wp.name}}",
 			"description" : "{{wp.id}}",
-      "isUnknown" : true
+		      	"isUnknown" : true
 		},
 		"type" : "{{type}}"
 	}
-	{{#if semicolon @index}}
-		, 
-	{{/if}}
+	, 
 	{{/each}}],
   "sss" : {
 		"type" : "{{xcInfo.type}}",

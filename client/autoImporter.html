@@ -1,0 +1,24 @@
+<template name="autoImporter">
+	<div id="autoImporter">
+		<h4> <i class="fa fa-lg fa-file" aria-hidden="true"></i> Task auto Importer <i class="fa fa-lg fa-expand" aria-hidden="true"></i></h4>
+		<div class="form-group">
+			<div class="form-group row" id="aIProvider">
+				<label for="provider" class="col-sm-3 form-control-label">Provider</label>
+				<select id="provider" class="form-control col-sm-6" name="provider" autocomplete="off">
+				{{#each getProvider}}
+    					<option value="{{this}}">{{this}}</option>
+				{{/each }}
+				</select>
+			</div>
+			<div class="form-group row" id="aIYear">
+				<label for="year" class="col-sm-3 form-control-label">Year</label>
+				<select id="year" class="form-control col-sm-6" name="year" autocomplete="off">
+					{{#each getYears}}
+    						<option value="{{this}}">{{this}}</option>
+					{{/each }}
+				</select>
+			</div>
+			<button class="btn btn-warning">Request Tasks</button>
+		</div>	
+	</div>
+</template>

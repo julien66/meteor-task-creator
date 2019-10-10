@@ -15,9 +15,12 @@ import * as kml from './formats/kml';
 var wpFormats = [ozi, cup, gpx];
 var taskFormats = [xctsk, tsk, kml];
 
-var exportFile = function(type, formatName, wpSelected) {
+var exportFile = function(type, formatName, wpSelected, server) {
+	console.log(formatName);
 	var entity = (type === 'waypoints') ? wpFormats : taskFormats;
+	console.log(entity);
 	var formatObject = $.grep(entity, function(e){ return e.name == formatName; })[0];
+	console.log(formatObject);
 	if (type === 'waypoints') {
 		var waypoints = Waypoints.find({'_id' : {'$in' : wpSelected}}, {sort : {id : 1}}).fetch();
 		var blob = formatObject.exporter(waypoints);
@@ -34,14 +37,22 @@ var exportFile = function(type, formatName, wpSelected) {
 	var hour = date.getHours();
 	var minutes = date.getMinutes();
 
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = type + "_" + day + '-' + month + '-' + year + '_' + hour + 'H:' + minutes + formatObject.extension;
-  var event = document.createEvent("MouseEvents");
-	event.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-	a.dispatchEvent(event);
+	if (!server) {
+ 		var a = document.createElement('a');
+  		a.href = URL.createObjectURL(blob);
+  		a.download = type + "_" + day + '-' + month + '-' + year + '_' + hour + 'H:' + minutes + formatObject.extension;
+  		var event = document.createEvent("MouseEvents");
+		event.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+		a.dispatchEvent(event);
+	}
+	else {
+		blob.arrayBuffer().then(function(data) {
+			console.log(data);
+			var buffer = new Uint8Array(data);
+			Meteor.call('task.writeTask', buffer, 'optimize');
+		});
+	}
 }
-
 export {
 	exportFile,
 }

@@ -54,6 +54,26 @@ html, body {
 	min-height : 100px;
 }
 
+#autoImporter h4 {
+	text-align : center;
+	border :1px solid #DDD;
+	padding : 15px;
+}
+
+#autoImporter h4 .fa-expand {
+	font-size : 12px;
+	float :right;
+}
+
+#autoImporter h4 .fa-expand:hover {
+	cursor: pointer;
+	font-size : 14px;
+}
+
+#autoImporter .form-group {
+	display : none;
+}
+
 #toggleWaypoint {
 	text-align : center;
 	border : 1px solid #DDD;
