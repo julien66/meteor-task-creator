@@ -1,7 +1,7 @@
 <template name="autoImporter">
 	<div id="autoImporter">
 		<h4> <i class="fa fa-lg fa-file" aria-hidden="true"></i> Task auto Importer <i class="fa fa-lg fa-expand" aria-hidden="true"></i></h4>
-		<div class="form-group">
+		<div id="stage1" class="form-group">
 			<div class="form-group row" id="aIProvider">
 				<label for="provider" class="col-sm-3 form-control-label">Provider</label>
 				<select id="provider" class="form-control col-sm-6" name="provider" autocomplete="off">
@@ -18,7 +18,36 @@
 					{{/each }}
 				</select>
 			</div>
-			<button class="btn btn-warning">Request Tasks</button>
-		</div>	
+			<button id="requestTask" class="btn btn-warning">	
+				<i class="fa fa-cog fa-spin"></i>
+				Request Tasks
+			</button>
+			<div class=stage> 1 / 2</div>
+		</div>
+		<div id="stage2" class="form-group">
+			<div class="form-group row" id="aIcomp">
+				<label for="comp" class="col-sm-3 form-control-label">Competition</label>
+				<select id="comp" class="form-control col-sm-6" name="provider" autocomplete="off">
+				{{#each getCompetition}}
+    					<option value="{{this}}">{{this}}</option>
+				{{/each }}
+				</select>
+			</div>
+			<div class="form-group row" id="aITask">
+				<label for="task" class="col-sm-3 form-control-label">Task</label>
+				<select id="task" class="form-control col-sm-6" name="task" autocomplete="off">
+					{{#each getTask}}
+    						<option value="{{this}}">{{this}}</option>
+					{{/each }}
+				</select>
+			</div>
+			<button id="importBack" class="btn btn-warning">
+				<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Back
+			</button>
+			<button id="importTask" class="btn btn-warning">
+				<span class="glyphicon glyphicon-flash" aria-hidden="true"></span> Import Task
+			</button>
+			<div class=stage> 2 / 2</div>
+		</div>
 	</div>
 </template>

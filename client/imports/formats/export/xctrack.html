@@ -9,20 +9,19 @@
 			"lat" : {{wp.x}},
 			"altSmoothed" : {{wp.z}}.0,
 			"name" : "{{wp.name}}",
-			"description" : "{{wp.id}}",
-		      	"isUnknown" : true
+			"description" : "{{wp.id}}"
 		},
-		"type" : "{{type}}"
+		"type" : "{{upperCase type}}"
 	}
-	, 
+	{{#unless isLast @index}},{{/unless}} 
 	{{/each}}],
   "sss" : {
-		"type" : "{{xcInfo.type}}",
+		"type" : "{{upperCase xcInfo.type}}",
 		"direction" : "{{xcInfo.direction}}",
 		"timeGates" : ["{{xcInfo.timeGates}}Z"]
   },  
   "goal" : {
-		"type" : "{{xcInfo.goalType}}",
+		"type" : "{{upperCase xcInfo.goalType}}",
 		"deadline" : "{{xcInfo.deadline}}Z"
   }
 }

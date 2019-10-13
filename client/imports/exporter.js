@@ -16,11 +16,8 @@ var wpFormats = [ozi, cup, gpx];
 var taskFormats = [xctsk, tsk, kml];
 
 var exportFile = function(type, formatName, wpSelected, server) {
-	console.log(formatName);
 	var entity = (type === 'waypoints') ? wpFormats : taskFormats;
-	console.log(entity);
 	var formatObject = $.grep(entity, function(e){ return e.name == formatName; })[0];
-	console.log(formatObject);
 	if (type === 'waypoints') {
 		var waypoints = Waypoints.find({'_id' : {'$in' : wpSelected}}, {sort : {id : 1}}).fetch();
 		var blob = formatObject.exporter(waypoints);
@@ -47,9 +44,23 @@ var exportFile = function(type, formatName, wpSelected, server) {
 	}
 	else {
 		blob.arrayBuffer().then(function(data) {
-			console.log(data);
 			var buffer = new Uint8Array(data);
-			Meteor.call('task.writeTask', buffer, 'optimize');
+			Meteor.call('task.writeTask', buffer, function(err, res) {
+				if (!err && res === 'success') {
+					if (!Session.get('requestOpti')) {
+						Session.set('requestOpti', true);
+						Meteor.call('task.optimize', function(error, response){
+							if (!error) {
+								var data = JSON.parse(response.stdout);
+								data.timestamp = Math.floor(Date.now() / 1000);
+								Task.update({}, {'$set' : {'opti' : data}});
+								console.log(data);
+							}
+							Session.set('requestOpti', false);
+						});
+					}
+				};
+			});
 		});
 	}
 }

@@ -126,42 +126,74 @@ Template.map.onCreated( function onGmap() {
 			},
 		});
 
+		var checkTaskChange = function(task, pastTask) {
+			if (task.turnpoints.length != pastTask.turnpoints.length) {
+				return true;
+			}
+			for (var i = 0; i < task.turnpoints.length; i++) {
+				var e = task.turnpoints[i];
+				var t = pastTask.turnpoints[i];
+				if ((e.radius !== t.radius) || (e.name !== t.name) || (e.id !== t.id)) {
+					return false
+				} 
+			};
+		};
+
 		Task.find().observe({
-			changed : function(task) {
-				// Draw the lines!!
-				fileExporter.exportFile('task', 'XCtrack', null, true);
-				//Meteor.call('task.newTask', task);
-				
-				var infos = Optimiser.optimize(google, map.instance, task.turnpoints);
-				if (fastTrack) fastTrack.setMap(null);
-				if (infos && infos.fastWaypoints) {
-					fastTrack = new google.maps.Polyline({
-						path: infos.fastWaypoints,
-						geodesic: true,
-						strokeColor: param.task.courseColor.fast,
-						strokeOpacity: 1.0,
-						strokeWeight: 2,
-						icons: [{
-							icon: {path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW},
-							offset: '0',
-							repeat: '100px'
-						}],
-						map: map.instance,
-					});
+			changed : function(task, pastTask) {
+				// If the task has really changed. Not just an opti added...
+				if (checkTaskChange(task, pastTask)) {
+					fileExporter.exportFile('task', 'XCtrack', null, true);
+					
+					var infos = Optimiser.optimize(google, map.instance, task.turnpoints);
+					if (infos && infos.fastWaypoints) {
+						drawOpti(infos.fastWaypoints);
+						setLegsDistances(task, infos.legDistances);
+					}
 				}
-				// Set new distance to next turnpoint.
-				for (var j = 0; j < task.turnpoints.length; j++) {
-					Turnpoints.update( {'_id' : task.turnpoints[j]['_id']}, {'$set' : 
-						{
-							distanceToNext : infos.legDistances[j],
-							distanceFromPrevious : ((j-1 >= 0) ? infos.legDistances[j-1] : 0) 
-						}
-					});
+				else {
+				// The task is the same, an opti has been returned from igclib! 
+					var fastWaypoints = [];
+					task.opti['fast_waypoints'].forEach(function(el) {
+						var latLng = new google.maps.LatLng(el.lat, el.lon);
+						fastWaypoints.push(latLng);
+					}) 
+					drawOpti(fastWaypoints);
+					setLegsDistances(task, task.opti['leg_distances']);
 				}
 				// Store total distances into session.
 				Session.set('taskInfos',  infos);
 			},
 		});
+
+		var drawOpti = function(fastWaypoints) {
+			if (fastTrack) fastTrack.setMap(null);
+			fastTrack = new google.maps.Polyline({
+				path: fastWaypoints,
+				geodesic: true,
+				strokeColor: param.task.courseColor.fast,
+				strokeOpacity: 1.0,
+				strokeWeight: 2,
+				icons: [{
+					icon: {path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW},
+					offset: '0',
+					repeat: '100px'
+				}],
+				map: map.instance,
+			});
+		};
+
+		var setLegsDistances = function(task, legsDistances) {
+			// Set new distance to next turnpoint.
+			for (var j = 0; j < task.turnpoints.length; j++) {
+				Turnpoints.update( {'_id' : task.turnpoints[j]['_id']}, {'$set' : 
+					{
+						distanceToNext : legsDistances[j],
+						distanceFromPrevious : ((j-1 >= 0) ? legsDistances[j-1] : 0) 
+					}
+				});
+			}
+		};
 
 		Tracker.autorun(function() {
 			var customWp = Session.get('customWaypoint');

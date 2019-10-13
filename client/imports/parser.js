@@ -9,52 +9,55 @@ import * as igc from './formats/igc';
 import * as geoJson from './formats/geoJson';
 import * as tsk from './formats/tsk';
 import * as gpx from './formats/gpx';
+import * as xctsk from './formats/xctrack';
 import * as zip from './formats/zip';
+import * as pwca from './formats/pwca';
 
-  var formats = [oziOld, ozi, cup, igc, geoJson, tsk, gpx, zip]; 
-  var parse = function(text, filename) {
-    var result = formatCheck(text, filename);
-    var format = result.format;
+	var formats = [pwca, oziOld, ozi, cup, igc, geoJson, tsk, xctsk, gpx, zip]; 
+	var parse = function(text, filename) {
+ 	var result = formatCheck(text, filename);
+ 	var format = result.format;
 
-    var fileInfo = format.parse(text, filename);
-    var parseInfo = {};
+    	var fileInfo = format.parse(text, filename);
+    	var parseInfo = {};
 
-    if (fileInfo.waypoints) {
-      //var waypointsInfos = fileInfo.waypoints;
-      for (var i = 0; i < fileInfo.waypoints.length; i++) {
-				// Prevent insert same waypoint multiple time.
-				if (!Waypoints.find(fileInfo.waypoints[i]).fetch().length > 0) {
-					Waypoints.insert(fileInfo.waypoints[i]);
-				}
+    	if (fileInfo.waypoints) {
+    		//var waypointsInfos = fileInfo.waypoints;
+      		for (var i = 0; i < fileInfo.waypoints.length; i++) {
+			// Prevent insert same waypoint multiple time.
+			if (!Waypoints.find(fileInfo.waypoints[i]).fetch().length > 0) {
+				Waypoints.insert(fileInfo.waypoints[i]);
 			}
 		}
+	}
     
-    /*if (fileInfo.tracks) {
-      var tracksInfos = fileInfo.tracks;
-      var l = tracksInfos.length;
-      var tracksArray = Array();
-      for (var i = 0; i < l; i++) {
-        var track = tracks.addTrack(tracksInfos[i]);
-        tracksArray.push(track);
-      }
-      parseInfo.tracks = tracksArray;
-    }*/
+   	/*if (fileInfo.tracks) {
+      		var tracksInfos = fileInfo.tracks;
+      		var l = tracksInfos.length;
+      		var tracksArray = Array();
+      		for (var i = 0; i < l; i++) {
+        		var track = tracks.addTrack(tracksInfos[i]);
+        		tracksArray.push(track);
+      		}
+      		parseInfo.tracks = tracksArray;
+    	}*/
    
-    if (fileInfo.task) {
-      parseInfo.task = fileInfo.task;
-      if (parseInfo.task.turnpoints.length > 0) {
-				for (var i = 0; i < parseInfo.task.turnpoints.length; i++ ) {
-					var tp = parseInfo.task.turnpoints[i];
-          var wp = Waypoints.findOne(tp.wp);
-					tp.wp._id = wp._id;
-					Turnpoints.insert(tp, function(error, result) {
-						var T = Turnpoints.findOne(result);
-						Task.update({}, {'$push' : {turnpoints : T}});
-					});
-				}
-      }
-    }
-    return parseInfo;
+    	if (fileInfo.task) {
+      		parseInfo.task = fileInfo.task;
+      		if (parseInfo.task.turnpoints.length > 0) {
+			Turnpoints.remove({});
+			for (var i = 0; i < parseInfo.task.turnpoints.length; i++ ) {
+				var tp = parseInfo.task.turnpoints[i];
+          			var wp = Waypoints.findOne(tp.wp);
+				tp.wp._id = wp._id;
+				Turnpoints.insert(tp, function(error, result) {
+					var T = Turnpoints.findOne(result);
+					Task.update({}, {'$push' : {turnpoints : T}});
+				});
+			}
+      		}
+    	}
+    	return parseInfo;
   }
 
   var formatCheck = function(text, filename) {

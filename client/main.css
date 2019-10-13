@@ -54,6 +54,16 @@ html, body {
 	min-height : 100px;
 }
 
+/*#autoImporter {
+	background : repeating-linear-gradient(
+  		45deg,
+  		#575F4E,
+  		#575F4E 10px,
+  		#879279 10px,
+  		#879279 20px
+	);
+}*/
+
 #autoImporter h4 {
 	text-align : center;
 	border :1px solid #DDD;
@@ -72,6 +82,13 @@ html, body {
 
 #autoImporter .form-group {
 	display : none;
+}
+
+.stage {
+	float: right;
+	line-height: 3;
+	font-weight: bold;
+	font-size: 10px;
 }
 
 #toggleWaypoint {

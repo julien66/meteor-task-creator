@@ -9,47 +9,63 @@ Meteor.startup(() => {
 	var progress = require('progress-stream');
 	var basePath = '/home/julien/meteor-task-creator/server/igclib';	
 	
-	Task = new Mongo.Collection('task');
 	//ZipProgress = new Mongo.Collection('zipProgress');
 	
 	// Child Process for IGCLIB.
 	const { exec } = require('child_process');
-	/*exec('race_export --task ' + basePath +'/test_data/tasks/task.xctsk --flights ' + basePath + '/test_data/large_tracks  --n_jobs -1 --export ' + basePath + '/test_data/race.pkl', (error, stdout, stderr) => {
-		 if (error) {
-    			console.error(`exec error: ${error}`);
-    			return;
-  		}
-  		console.log(`stdout: ${stdout}`);
-  		console.log(`stderr: ${stderr}`);
-  		console.error(`stderr: ${stderr}`);
-	});*/
-	
+
+
+	// Helper function to write a file. Ready to be wrapped. 
+	var fileWrite = function(path, buffer, callback) {
+  		// callback has the form function (err, res) {}
+		fs.writeFile(path, buffer, function(error){
+			if (!error) {
+				callback(null, 'success');
+			}
+		});
+	};	
+
+	// Helper function to command igc lib
+	var igclib = function(mode, data, callback) {
+		var command = 'igclib --mode ' + mode;
+		for (let [key, value] of Object.entries(data)) {
+  			command += ' --' + key + ' ' + value;
+		};
+		console.log(command);
+		exec(command, function(error, stdout, stderr) {
+			console.log(error);
+			console.log(stdout);
+			console.log(stderr);
+			if (!error) {
+				callback(null, {
+					stdout : stdout,
+					stderr : stderr,
+				});
+			}
+		});
+	}
+
+	// Wrapped function
+	var syncFileWrite = Meteor.wrapAsync(fileWrite);
+	var syncIgclib = Meteor.wrapAsync(igclib);
+
 	Meteor.methods({
-		'task.writeTask' : function(buffer, instruction) {
-			fs.writeFile('/tmp/toOptimize.xctsk', new Buffer(buffer), function(error){
-				console.log(error);
-				if (instruction == 'optimize') {
-					exec('igclib --mode optimize --task /tmp/toOptimize.xctsk', function(error, stdout, stderr) {
-						if (error) {
-							console.log(error);
-						}
-  						console.log(`stdout: ${stdout}`);
-  						console.log(`stderr: ${stderr}`);
-  						console.error(`stderr: ${stderr}`);
-					});
-				}
-			});
+		'task.writeTask' : function(buffer) {
+			// Method called from exporter.js after task is ready to write on xctrack format.
+			// We'll send it to igclib for optimisation.
+			// Calling wrapped function so the result can be returned to client.	
+			var res = syncFileWrite('/tmp/toOptimize.xctsk', new Buffer(buffer));
+			return res;
+		},
+		'task.optimize' : function() {
+			// Method called from exporter.js after task has been succesfully written to server.
+			var res = syncIgclib('optimize', {task : '/tmp/toOptimize.xctsk'});
+			return res;
 		},
 		'task.request' : function(provider, year) {
-			/*exec('igclib -- ' + provider + '--year' + year, function(error, stdout, stderr) => {
-				if (error) {
-					console.log(error);
-				}
-  				console.log(`stdout: ${stdout}`);
-  				console.log(`stderr: ${stderr}`);
-  				console.error(`stderr: ${stderr}`);
-			});*/
-			console.log(provider, year);
+			// Method called from autoImporter.js after the form is submitted.
+			var res = syncIgclib('crawl', {provider: provider, year : year});
+			return res;
 		},
 		'task.newZip' : function(buffer) {
 			// Get new zip data and write it all on /tmp.
@@ -79,13 +95,4 @@ Meteor.startup(() => {
 			return 1;
 		}
 	});
-	
-	/*Meteor.methods({
-		'task.sendUpdate' : function(task) {
-			pyshell.send(JSON.stringify({
-				message : 'newTask',
-				data : task
-			}));
-		}
-	});*/
 });
