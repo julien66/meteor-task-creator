@@ -116,7 +116,7 @@ var parseTask = function(provider, year, gotComp, taskNum) {
 	console.log(provider, year, gotComp, taskNum);
 	var query = importQuery(provider, year);
 	if (query.comps) {
-		var task = query.comps[gotComp][taskNum];
+		var task = query.comps[gotComp][taskNum - 1];
 		task[provider] = true;
 		parser.parse(task, null);
 	}
