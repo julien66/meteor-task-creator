@@ -2,7 +2,7 @@
   "name": "race",
   "private": true,
   "scripts": {
-    "start": "meteor run",
+    "start": "meteor run"
   },
   "dependencies": {
     "@babel/runtime": "^7.5.5",
