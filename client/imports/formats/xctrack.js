@@ -39,7 +39,7 @@ import './export/xctrack.html';
 				
 			var tp = {
 				radius : elem.radius,
-				role : converter(elem.type, true),
+				role : converter(elem.type, true).toUpperCase(),
 				wp : wp,
 			}
 			tp = Object.assign(tp, wp);
@@ -89,7 +89,6 @@ import './export/xctrack.html';
 		if (!xcInfo.type) {xcInfo.type = 'RACE'};
     		
 		var data = Blaze.toHTMLWithData(Template.exportXCtrack, {task : task, xcInfo : xcInfo});
-    		console.log(data);
 		return new Blob([data], {'type': "text/plain"});
   	};
 	

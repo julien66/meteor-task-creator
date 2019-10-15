@@ -128,6 +128,7 @@ Template.map.onCreated( function onGmap() {
 		});
 
 		var checkTaskChange = function(task, pastTask) {
+			if (!pastTask) {return true};
 			if (task.turnpoints.length != pastTask.turnpoints.length) {
 				return true;
 			}
@@ -156,6 +157,7 @@ Template.map.onCreated( function onGmap() {
 				}
 				else if (task.IGCLibOpti){
 				// The task is the same, an opti has been returned from igclib! 
+					if (!task.opti) {return;}
 					var fastWaypoints = [];
 					task.opti.points.forEach(function(el) {
 						var latLng = new google.maps.LatLng(el.lat, el.lon);

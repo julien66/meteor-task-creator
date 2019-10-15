@@ -15,7 +15,7 @@
                 <div id="fullboard-takeoff">
                   <h5><i class="fa fa-plane"></i>Take off</h5>
 									<ol>
-										{{#each tp 'takeoff'}}
+										{{#each tp 'TAKEOFF'}}
 										<li class="turnpoint tp-takeoff" index="{{@index}}">
 											<span class="tp-name label label-default">{{name}}</span> 
 											<span class="tp-description">{{description}}</span>
@@ -29,7 +29,7 @@
                 <div id="fullboard-start">
                   <h5><i class="fa fa-play"></i>Start</h5>
 									<ol>
-										{{#each tp 'start'}}
+										{{#each tp 'START'}}
 										<li class="turnpoint tp-start" index="{{@index}}">
 											<span class="tp-name label label-default">{{name}}</span> 
 											<span class="tp-description">{{description}}</span>
@@ -44,7 +44,7 @@
                 <span id="fullboard-turnpoint">
                   <h5><i class="fa fa-forward"></i>Turnpoint</h5> 
 									<ol>
-										{{#each tp 'turnpoint'}}
+										{{#each tp 'TURNPOINT'}}
 										<li class="turnpoint tp-turnpoint" index="{{@index}}">
 											<span class="tp-name label label-default">{{name}}</span> 
 											<span class="tp-description">{{description}}</span>
@@ -58,7 +58,7 @@
                 <span id="fullboard-ess">
                   <h5><i class="fa fa-stop"></i>End of speed section</h5>
 									<ol>
-										{{#each tp 'ess'}}
+										{{#each tp 'ESS'}}
 										<li class="turnpoint tp-ess" index="{{@index}}">
 											<span class="tp-name label label-default">{{name}}</span> 
 											<span class="tp-description">{{description}}</span>
@@ -73,7 +73,7 @@
                 <span id="fullboard-goal">
                   <h5><i class="fa fa-thumbs-up"></i>Goal</h5> 
 									<ol>
-										{{#each tp 'goal'}}
+										{{#each tp 'GOAL'}}
 										<li class="turnpoint tp-goal" index="{{@index}}">
 											<span class="tp-name label label-default">{{id}}</span> 
 											<span class="tp-description">{{description}}</span>
