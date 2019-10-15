@@ -2,7 +2,8 @@
   "name": "race",
   "private": true,
   "scripts": {
-    "start": "meteor run"
+    "start": "meteor run",
+    "postbuild" : "customBuild.sh"
   },
   "dependencies": {
     "@babel/runtime": "^7.5.5",
