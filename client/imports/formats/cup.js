@@ -4,7 +4,7 @@
  */
 import './export/cup.html';
 
-  var check = function(text, filename) {
+  var check = function(text, source) {
     var lines = text.split("\n");
     var words = [];
     // Replace all bad formated whitespace at the begining and end of the line..
@@ -18,7 +18,7 @@ import './export/cup.html';
     return false;
   }
 
-  var parse = function(text, filename) {
+  var parse = function(text, source) {
     var lines = text.split("\n");
     var words = [];
     // Replace all bad formated whitespace at the begining and end of the line..
@@ -34,12 +34,12 @@ import './export/cup.html';
     var tps = [];
     for (var i = 0; i < words.length; i++) {
       var tp =  {
-        filename : filename,
-        id : words[i][1],
-        x : formatLatLng(words[i][3]),
-        y : formatLatLng(words[i][4]),
-        z : elevation(words[i][5]),
-        name : words[i][0],
+        source : source,
+        name : words[i][1],
+        lat : formatLatLng(words[i][3]),
+        lon : formatLatLng(words[i][4]),
+        altitude : elevation(words[i][5]),
+        description : words[i][0],
       };
       tps.push(tp);
     }

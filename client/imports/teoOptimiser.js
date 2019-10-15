@@ -32,7 +32,7 @@ function get_distance(wptA, wptB) {
 // Add google map LatLng object to turnpoints.
 function latLng(wpt) {
 	if (typeof wpt.lat !== "function") {
-		var latLng = new google.maps.LatLng(wpt.wp.x, wpt.wp.y)
+		var latLng = new google.maps.LatLng(wpt.lat, wpt.lon);
 		wpt.LatLng = latLng;
 	};
 	return wpt;
@@ -102,9 +102,9 @@ function get_fast_waypoints(google, turnpoints) {
 	onlyLat = fast_waypoints.map(function(item) {return item['LatLng']});
 	
 	return {
-		optimized_distance : optimized_distance,
-		fastWaypoints : onlyLat,
-		legDistances : legDistances,
+		distance : optimized_distance,
+		points : onlyLat,
+		legs : legDistances,
 	}
 }
 

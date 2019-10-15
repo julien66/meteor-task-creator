@@ -8,7 +8,7 @@ import './export/ozi.html';
    * @todo
    * Worse check ever : File containing "OziExplorer" !
    */
-  var check = function(text, filename) {
+  var check = function(text, source) {
     var lines = text.split("\n");
     var nb = 0;
     var searchOzi = lines[0].match(/oziexplorer/i);
@@ -36,12 +36,12 @@ import './export/ozi.html';
     var tps = [];
     for (var i = 0; i < words.length; i++) {
       var tp =  {
-        filename : filename,
-        id : words[i][1],
-        x : words[i][2],
-        y : words[i][3],
-        z : ftToMeter(words[i][14]),
-        name : words[i][10],
+        source : source,
+        name : words[i][1],
+        lat : words[i][2],
+        lon : words[i][3],
+        altitude : ftToMeter(words[i][14]),
+        description : words[i][10],
       };
       tps.push(tp);
     }

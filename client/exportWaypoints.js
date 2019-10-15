@@ -21,14 +21,14 @@ Template.exportWaypoints.events({
 		e.preventDefault();
 		var wpSelected = [];
 		$('input.export-single-wp:checked').each(function() {
-			wpSelected.push($(this).attr('name'));
+			wpSelected.push($(this).attr('description'));
     		});
 		var format = e.target.formatWp.value;
 		fileExporter.exportFile('waypoints', format, wpSelected);
 	},
 	'focusout' : function(e) {
 		var _id = $(e.target).attr('wpId');
-		var attribute = e.target.name;
+		var attribute = e.target.description;
 		var value = e.target.value;
 		var obj = {};
 		obj[attribute] = value;

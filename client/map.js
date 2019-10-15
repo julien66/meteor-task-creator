@@ -3,6 +3,7 @@ import Parameters from './param';
 import Optimiser from './imports/teoOptimiser.js';
 import  * as fileExporter from './imports/exporter';
 
+
 Template.map.onCreated( function onGmap() {
 	Session.set('taskDistance', null);
 	// We can use the `ready` callback to interact with the map API once the map is ready.
@@ -22,7 +23,7 @@ Template.map.onCreated( function onGmap() {
 				// Create a marker for this waypoints
 				var marker = new google.maps.Marker({
 					label: {
-						text : waypoint.id,
+						text : waypoint.name,
 						color : "#000",
 						fontSize: "11px",
 						fontWeight: "bold",
@@ -37,7 +38,7 @@ Template.map.onCreated( function onGmap() {
 						scale: 1,
 						labelOrigin : new google.maps.Point(0, 10),
 					}, 
-					position: new google.maps.LatLng(waypoint.x, waypoint.y),
+					position: new google.maps.LatLng(waypoint.lat, waypoint.lon),
 					map: map.instance,
 					// Store waypoints _id on the marker. 
 					id: waypoint._id,
@@ -46,7 +47,7 @@ Template.map.onCreated( function onGmap() {
 				// Store this marker instance within the markers object.
 				markers[waypoint._id] = marker;
 				google.maps.event.addListener(marker, 'click', function() {
-					Modal.show('marker', marker.wp);
+					Modal.show('waypoint', marker.wp);
 				});
 				// Fit map bounds to markers.
 				bounds.extend(marker.position);
@@ -58,7 +59,7 @@ Template.map.onCreated( function onGmap() {
 				// Change marker reference to this waypoint.
 				marker.wp = waypoint;
 				// Set new label.
-        			marker.label.text = waypoint.id;
+        			marker.label.text = waypoint.name;
         			marker.setLabel(marker.label);
 			},
 			removed: function(waypoint) {
@@ -90,15 +91,15 @@ Template.map.onCreated( function onGmap() {
 
 		Turnpoints.find().observe({
 			added : function(turnpoint) {
-				if (turnpoint.type !== 'goal' || turnpoint.goalType !== 'line') {
+				if (turnpoint.role !== 'goal' || turnpoint.finish !== 'line') {
 					var circleOptions = {
-						strokeColor: param.turnpoint.strokeColor[turnpoint.type.toLowerCase()],
+						strokeColor: param.turnpoint.strokeColor[turnpoint.role.toLowerCase()],
 						strokeOpacity: 0.8,
 						strokeWeight: 2,
-						fillColor: param.turnpoint.fillColor[turnpoint.type.toLowerCase()],
+						fillColor: param.turnpoint.fillColor[turnpoint.role.toLowerCase()],
 						fillOpacity: 0.35,
 						map: map.instance,
-						center: new google.maps.LatLng(turnpoint.wp.x, turnpoint.wp.y),
+						center: new google.maps.LatLng(turnpoint.lat, turnpoint.lon),
 						radius: parseInt(turnpoint.radius),
 						tp: turnpoint,
 					};
@@ -112,8 +113,8 @@ Template.map.onCreated( function onGmap() {
 			changed : function(turnpoint) {
 				var circle = circles[turnpoint._id];
 				circle.setOptions({
-					strokeColor: param.turnpoint.strokeColor[turnpoint.type.toLowerCase()],
-					fillColor: param.turnpoint.fillColor[turnpoint.type.toLowerCase()],
+					strokeColor: param.turnpoint.strokeColor[turnpoint.role.toLowerCase()],
+					fillColor: param.turnpoint.fillColor[turnpoint.role.toLowerCase()],
 					radius : parseInt(turnpoint.radius),
 					tp : turnpoint,
 				});
@@ -133,36 +134,38 @@ Template.map.onCreated( function onGmap() {
 			for (var i = 0; i < task.turnpoints.length; i++) {
 				var e = task.turnpoints[i];
 				var t = pastTask.turnpoints[i];
-				if ((e.radius !== t.radius) || (e.name !== t.name) || (e.id !== t.id)) {
-					return false
+				if ((e.radius !== t.radius) || (e.description !== t.description) || (e.name !== t.name)) {
+					return true;
 				} 
 			};
 		};
 
 		Task.find().observe({
 			changed : function(task, pastTask) {
-				// If the task has really changed. Not just an opti added...
+				// If the task has really changed. Not just an IGCLibOpti added...
+				console.log(checkTaskChange(task, pastTask));
 				if (checkTaskChange(task, pastTask)) {
+					// Export task a XC Track format to get Server side optimizer.
 					fileExporter.exportFile('task', 'XCtrack', null, true);
-					
-					var infos = Optimiser.optimize(google, map.instance, task.turnpoints);
-					if (infos && infos.fastWaypoints) {
-						drawOpti(infos.fastWaypoints);
-						setLegsDistances(task, infos.legDistances);
+					// Use client side optimizer	
+					var opti = Optimiser.optimize(google, map.instance, task.turnpoints);
+					if (opti && opti.points) {
+						drawOpti(opti.points);
+						setLegsDistances(task, opti.legs);
 					}
 				}
-				else {
+				else if (task.IGCLibOpti){
 				// The task is the same, an opti has been returned from igclib! 
 					var fastWaypoints = [];
-					task.opti['fast_waypoints'].forEach(function(el) {
+					task.opti.points.forEach(function(el) {
 						var latLng = new google.maps.LatLng(el.lat, el.lon);
 						fastWaypoints.push(latLng);
 					}) 
 					drawOpti(fastWaypoints);
-					setLegsDistances(task, task.opti['leg_distances']);
+					setLegsDistances(task, task.opti.legs);
 				}
 				// Store total distances into session.
-				Session.set('taskInfos',  infos);
+				//Session.set('taskInfos',  infos);
 			},
 		});
 
@@ -188,8 +191,8 @@ Template.map.onCreated( function onGmap() {
 			for (var j = 0; j < task.turnpoints.length; j++) {
 				Turnpoints.update( {'_id' : task.turnpoints[j]['_id']}, {'$set' : 
 					{
-						distanceToNext : legsDistances[j],
-						distanceFromPrevious : ((j-1 >= 0) ? legsDistances[j-1] : 0) 
+						next : legsDistances[j],
+						previous : ((j-1 >= 0) ? legsDistances[j-1] : 0) 
 					}
 				});
 			}
@@ -214,12 +217,12 @@ Template.map.onCreated( function onGmap() {
 					var adress = results[1] ? results[1].address_components[0].short_name : 'Unknown';
 					geocoder.geocode({'location': {lat, lng}}, function(results, status) { 
 						var wp = {
-							id : 'TP' + Number(Waypoints.find().fetch().length + 1),
-							filename : 'custom',
-							name : adress,
-							x : lat,
-							y : lng,
-							z : alt, 
+							name : 'TP' + Number(Waypoints.find().fetch().length + 1),
+							source : 'custom',
+							description : adress,
+							lat : lat,
+							lon : lng,
+							altitude : alt, 
 						};
 						Waypoints.insert(wp);
 					});

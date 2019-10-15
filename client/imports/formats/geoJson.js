@@ -2,20 +2,20 @@
   @file
   geoJson format for the taskCreator
   **/
-  var check = function(text, filename) {
-    if (filename.split('.').pop() == 'geojson') {
+  var check = function(text, source) {
+    if (source.split('.').pop() == 'geojson') {
       return true;
     }
     return false;
   }
 
-  var parse = function (text, filename) {
+  var parse = function (text, source) {
     var geo = JSON.parse(text);
     var points = geo.geometry.coordinates.map(function(elem, index){
       var point = geo.properties.turnpoints[index];
-      point.x = elem[1];
-      point.y = elem[0];
-      point.filename = filename;
+      point.lat = elem[1];
+      point.lon = elem[0];
+      point.source = source;
       point.wp = point;
       return point;
     });
@@ -23,7 +23,7 @@
     return {
       task : {
         date : geo.properties.date,
-        type : geo.properties.type,
+        style : geo.properties.style,
         turnpoints : points,
       },
       waypoints : points,
@@ -50,18 +50,18 @@
     });
 
     geo.properties.date = taskInfo.date;
-    geo.properties.type = taskInfo.type;
+    geo.properties.style = taskInfo.style;
     geo.properties.turnpoints = turnpoints.map(function(elem){ 
       return {
         close : elem.close,
-        goalType : elem.goalType,
+        finish : elem.finish,
         id : elem.wp.id,
-        mode : elem.mode,
-        name : elem.wp.name,
+        direction : elem.direction,
+        description : elem.description.name,
         open : elem.open,
         radius : elem.radius,
-        type : elem.type,
-        z : elem.wp.z,
+        role : elem.role,
+        altitude : elem.altitude,
       }
     });
     

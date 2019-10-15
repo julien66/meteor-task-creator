@@ -2,22 +2,21 @@
 <tsk xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="Task Planner">
 <rte>
 <date>{{taskInfo.date}}</date>
-<type>{{taskInfo.type}}</type>
-<num>{{taskInfo.num}}</num>
+<type>{{taskInfo.style}}</type>
+<num>{{taskInfo.number}}</num>
 {{#each turnpoints}}
-<rtept lon="{{wp.y}}" lat="{{wp.x}}">
+<rtept lon="{{wp.lon}}" lat="{{wp.lat}}">
 <close>{{close}}</close>
 <!-- <filename>task_{{ taskInfo.date }}.tsk</filename> -->
-<fileOrigin>{{wp.filename}}</fileOrigin>
-<goalType>{{goalType}}</goalType>
-<id>{{wp.id}}</id>
+<finish>{{finish}}</finish>
+<name>{{name}}</name>
 <index>{{index}}</index>
-<mode>{{mode}}</mode>
-<name>{{wp.name}}</name>
+<direction>{{direction}}</direction>
+<description>{{description}}</description>
 <open>{{open}}</open>
 <radius>{{radius}}</radius>
-<type>{{type}}</type>
-<z>{{wp.z}}</z>
+<role>{{role}}</role>
+<altitude>{{altitude}}</altitude>
 </rtept>
 {{/each}}
 </rte>

@@ -14,11 +14,11 @@ import * as zip from './formats/zip';
 import * as pwca from './formats/pwca';
 
 	var formats = [pwca, oziOld, ozi, cup, igc, geoJson, tsk, xctsk, gpx, zip]; 
-	var parse = function(text, filename) {
- 	var result = formatCheck(text, filename);
+	var parse = function(text, source) {
+ 	var result = formatCheck(text, source);
  	var format = result.format;
 
-    	var fileInfo = format.parse(text, filename);
+    	var fileInfo = format.parse(text, source);
     	var parseInfo = {};
 
     	if (fileInfo.waypoints) {
@@ -60,7 +60,7 @@ import * as pwca from './formats/pwca';
     	return parseInfo;
   }
 
-  var formatCheck = function(text, filename) {
+  var formatCheck = function(text, source) {
     var formatsName = [];
     for (var i = 0; i < formats.length; i++) {
       formatsName.push(formats[i].name);
@@ -79,7 +79,7 @@ import * as pwca from './formats/pwca';
     }*/
     
     for (var i = 0; i < formats.length; i++) {
-      if (formats[i].check(text, filename) == true) {
+      if (formats[i].check(text, source) == true) {
         result.format = formats[i];
         return result;
       }

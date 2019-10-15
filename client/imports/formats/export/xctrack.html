@@ -5,13 +5,13 @@
   "turnpoints" : [{{#each task.turnpoints}} {
 		"radius" : {{radius}}.0,
 		"waypoint" : {
-			"lon" : {{wp.y}},
-			"lat" : {{wp.x}},
-			"altSmoothed" : {{wp.z}}.0,
-			"name" : "{{wp.name}}",
-			"description" : "{{wp.id}}"
+			"lon" : {{wp.lon}},
+			"lat" : {{wp.lat}},
+			"altSmoothed" : {{wp.altitude}}.0,
+			"name" : "{{wp.description}}",
+			"description" : "{{wp.name}}"
 		},
-		"type" : "{{upperCase type}}"
+		"type" : "{{upperCase role}}"
 	}
 	{{#unless isLast @index}},{{/unless}} 
 	{{/each}}],

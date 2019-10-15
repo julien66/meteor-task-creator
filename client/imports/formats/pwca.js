@@ -2,16 +2,14 @@
  * @file
  * pwcHtml parser module for the task creator.
  */
-var check = function(data, filename) {
-	console.log(data, filename)
-	if (!filename && data.PWCA == true) {
+var check = function(data, source) {
+	if (!source && data.PWCA == true) {
 		return true;
 	}
 	return false;
 }  
 
-var parse = function(data, filename) {
-	console.log(data);
+var parse = function(data, source) {
 	var task = data.task;
 	var tps = [];
 	var wps = [];
@@ -19,20 +17,20 @@ var parse = function(data, filename) {
 	for (var i = 0; i < task.points.length; i++) {
 		var pt = task.points[i];
 		var wp = {
-			name : pt.id,
-			id :  pt.name,
-			x : pt.center[0],
-			y : pt.center[1],
-			z : 0,
-			filename : 'PWCA',
+			description : pt.id,
+			name :  pt.name,
+			lat : pt.center[0],
+			lon : pt.center[1],
+			altitude : 0,
+			source : 'PWCA',
 		}
 		wps.push(wp);
 		var tp = {
 			radius : (pt.radius == 0) ? pt.radius = 200 : pt.radius,
-			type : convertType(pt),
+			role : convertType(pt),
 			wp : wp,
 		}
-		
+	        tp = Object.assign(tp, wp);	
 		if (tp.type === "end-of-speed-section") {
 			tp.close = task.details.end + ':00';
 			tp.goalType = '';
@@ -60,26 +58,26 @@ var parse = function(data, filename) {
 
 var convertType = function (pt) {
 	if (pt.id == 'TO') {
-		return 'takeoff';
+		return 'TAKEOFF';
 	} 
 
 	if (pt.id == 'GOAL') {
-		return 'goal';
+		return 'GOAL';
 	}
 
 	if (pt.ss == 'ES') {
-		return 'end-of-speed-section';
+		return 'ESS';
 	}
 	
 	if (pt.ss == 'SS') {
-		return 'start';
+		return 'START';
 	}
 
-	return 'turnpoint';
+	return 'TURNPOINT';
 }
 
 var converter = {
-	'Race to Goal' : 'race-to-goal',
+	'Race to Goal' : 'RACE',
 }
 
 let name = 'pwca';

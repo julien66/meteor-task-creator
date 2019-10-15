@@ -7,7 +7,7 @@
    * @todo
    * Perform Better check : If there is a line with B and 35 char.
    */
-  var check = function(text, filename) {
+  var check = function(text, source) {
     var lines = text.split("\n");
     var words = [];
     // for each lines.
@@ -33,9 +33,9 @@
       if (lines[i].length == 35 && lines[i].charAt(0) == 'B') {
         var point = {
           'time' : lines[i].substring(1, 7),
-          'x' : formatLatLng(lines[i].substring(7, 15)),
-          'y' : formatLatLng(lines[i].substring(15, 24)),
-          'alt' : lines[i].charAt(24), 
+          'lat' : formatLatLng(lines[i].substring(7, 15)),
+          'lon' : formatLatLng(lines[i].substring(15, 24)),
+          'altitude' : lines[i].charAt(24), 
           'z' : parseInt(lines[i].substring(25, 30), 10),
           'zGps' : parseInt(lines[i].substring(30, 35), 10),
         }
@@ -46,7 +46,7 @@
     return {
       'tracks' : Array({
         'points' : points,
-        'filename' : filename,
+        'source' : source,
       }),
     }
   };

@@ -7,15 +7,14 @@
   /**
    * @todo
    */
-	var check = function(text, filename) {
-    	console.log(text, filename);
-		if (filename.split('.').pop() == 'zip') {
+	var check = function(text, source) {
+		if (source.split('.').pop() == 'zip') {
 			return true;
 		}
 		return false;
 	};
 
-	var parse = function(text, filename) {	
+	var parse = function(text, source) {	
 		console.log('send to server');
 	};
 

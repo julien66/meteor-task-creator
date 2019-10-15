@@ -2,7 +2,7 @@
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
   <Document>
     <Folder>
-		<name>T{{taskInfo.num}} {{taskInfo.date}}</name>
+		<name>T{{taskInfo.number}} {{taskInfo.date}}</name>
       <Style id="wpStyle">
         <LineStyle>
           <color>7fff5500</color>
@@ -21,7 +21,7 @@
         <name>Cylinders</name>
 					{{#each task.turnpoints}}
             <Placemark>
-							<name>{{@index}} {{type}} - {{name}}</name>
+							<name>{{@index}} {{role}} - {{description}}</name>
               <styleUrl>#rtStyle</styleUrl>
               <visibility>0</visibility>
               <LineString>
@@ -31,7 +31,7 @@
               </LineString>
             </Placemark>
             <Placemark>
-						<name>{{@index}}  {{type}} - {{name}}</name>
+						<name>{{@index}}  {{role}} - {{description}}</name>
               <styleUrl>#wpStyle</styleUrl>
               <LineString>
                 <altitudeMode>absolute</altitudeMode>

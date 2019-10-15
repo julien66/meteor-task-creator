@@ -53,7 +53,7 @@ var exportFile = function(type, formatName, wpSelected, server) {
 							if (!error) {
 								var data = JSON.parse(response.stdout);
 								data.timestamp = Math.floor(Date.now() / 1000);
-								Task.update({}, {'$set' : {'opti' : data}});
+								Task.update({}, {'$set' : {'IGCLibOpti' : data}});
 								console.log(data);
 							}
 							Session.set('requestOpti', false);

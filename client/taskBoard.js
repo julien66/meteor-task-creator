@@ -53,6 +53,11 @@ Template.taskBoard.onRendered( function onTaskBoardRendered() {
   	});
 });
 
+Template.taskBoard.onCreated = function onTaskBoardCreated() {
+	var T = Template.instance();
+	console.log(T);
+}
+
 Template.taskBoard.events({
 	'click li span' : function(e) {
 		var tpId = $(e.target).parent().attr('rel');

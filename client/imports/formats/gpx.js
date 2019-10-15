@@ -1,6 +1,6 @@
 /**
  * @file
- * Ozi parser module for the task creator.
+ * Gpx parser module for the task creator.
  */
 import './export/gpx.html';
 
@@ -8,7 +8,7 @@ import './export/gpx.html';
    * @todo
    * Poor check : Able to parse xml or not
    */
-  var check = function(text, filename) {
+  var check = function(text, source) {
     if (window.DOMParser) {
       var parser = new DOMParser();
       var xmlDoc = parser.parseFromString(text, "text/xml");
@@ -36,12 +36,12 @@ import './export/gpx.html';
     var tps = [];
     for (var i = 0; i < wpts.length; i++) {
       var tp = {
-        filename : filename,
-        id :  wpts[i].getElementsByTagName('name')[0].childNodes[0].nodeValue,
-	name : wpts[i].getElementsByTagName('desc')[0].childNodes[0].nodeValue,
-        x : wpts[i].getAttribute('lat'),
-        y : wpts[i].getAttribute('lon'),
-        z : wpts[i].getElementsByTagName('ele')[0].childNodes[0].nodeValue,
+        source : source,
+        name :  wpts[i].getElementsByTagName('name')[0].childNodes[0].nodeValue,
+	description : wpts[i].getElementsByTagName('desc')[0].childNodes[0].nodeValue,
+        lat : wpts[i].getAttribute('lat'),
+        lon : wpts[i].getAttribute('lon'),
+        altitude : wpts[i].getElementsByTagName('ele')[0].childNodes[0].nodeValue,
       }
       tps.push(tp);
     }

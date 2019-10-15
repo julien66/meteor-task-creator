@@ -10,45 +10,45 @@
 					<form action="#" autocomplete="off" id="turnpoint-form-config">
 						<div class="form-group">
 							<div class="form-group row" id="tp-type">
-								<label for="tp-type-select" class="col-sm-3 form-control-label">Type</label>
-								<select id="tp-type-select" class="form-control col-sm-6" name="type" autocomplete="off">
-									<option data-show="close,mode,open,radius" data-hide="goal-type" {{sel 'type' 'takeoff'}}>takeoff</option>
-									<option data-show="mode,open,radius" data-hide="close,goal-type" {{sel 'type' 'start'}}>start</option>
-									<option data-show="mode,radius" data-hide="close,goal-type,open" {{sel 'type' 'turnpoint'}}>turnpoint</option>
-									<option data-show="close,mode,radius" data-hide="open,goal-type" {{sel 'type' 'end-of-speed-section'}}>end-of-speed-section</option>
-									<option data-show='close,goal-type,radius' data-hide="mode,open" {{sel 'type' 'goal'}}>goal</option>
+								<label for="tp-role-select" class="col-sm-3 form-control-label">ROLE</label>
+								<select id="tp-role-select" class="form-control col-sm-6" name="role" autocomplete="off">
+									<option data-show="close,direction,open,radius" data-hide="finish" {{sel 'mode' 'TAKEOFF'}}>TAKEOFF</option>
+									<option data-show="direction,open,radius" data-hide="close,finish" {{sel 'mode' 'START'}}>START</option>
+									<option data-show="direction,radius" data-hide="close,finish,open" {{sel 'mode' 'TURNPOINT'}}>TURNPOINT</option>
+									<option data-show="close,direction,radius" data-hide="open,finish" {{sel 'mode' 'ESS'}}>ESS</option>
+									<option data-show='close,finish,radius' data-hide="direction,open" {{sel 'mode' 'GOAL'}}>GOAL</option>
 								</select>
 							</div>
-							<div class="form-group row hidden" id="tp-goal-type">
-								<label for="tp-goal-type-select" class="col-sm-3 form-control-label">Goal type</label>
-								<select id="tp-goal-type-select" class="form-control col-sm-6" name="goal-type" autocomplete="off">
-									<option data-show="close,radius" data-hide="mode,open" {{sel 'goal-type' 'Cylinder'}}>Cylinder</option>
-									<option data-show="close" data-hide="mode,open,radius" {{sel 'goal-type' 'Line'}}>Line</option>
+							<div class="form-group row hidden" id="tp-finish">
+								<label for="tp-finish-select" class="col-sm-3 form-control-label">Goal type</label>
+								<select id="tp-finish-select" class="form-control col-sm-6" name="finish" autocomplete="off">
+									<option data-show="close,radius" data-hide="mode,open" {{sel 'finish' 'CYLINDER'}}>Cylinder</option>
+									<option data-show="close" data-hide="mode,open,radius" {{sel 'finish' 'LINE'}}>Line</option>
 								</select>
 							</div>
 							<div class="form-group row" id="tp-radius">
-								<label for="tp-radius-input" class="col-sm-3 form-control-label">Radius</label>
+								<label for="tp-radius-input" class="col-sm-3 form-control-label">RADIUS</label>
 								<div class="input-group col-sm-6">
 									<input id="tp-radius-input" class="form-control" name="radius" type="number" min="200" step="100" value="{{default 'radius' 400}}">
 									<div class="input-group-addon">Meters</div>
 								</div>
 							</div>
 							<div class="form-group row" id="tp-mode">
-								<label for="tp-mode-select" class="col-sm-3 form-control-label">Mode</label>
-								<select id="tp-mode-select" class="form-control col-sm-6" name="mode" autocomplete="off">
-									<option {{sel 'mode' 'Enter'}}>Enter</option>
-									<option {{sel 'mode' 'Exit'}}>Exit</option>
+								<label for="tp-direction-select" class="col-sm-3 form-control-label">DIRECTION</label>
+								<select id="tp-direction-select" class="form-control col-sm-6" name="direction" autocomplete="off">
+									<option {{sel 'direction' 'ENTER'}}>ENTER</option>
+									<option {{sel 'direction' 'EXIT'}}>EXIT</option>
 								</select>
 							</div>
 							<div class="form-group row" id="tp-open">
-								<label for="tp-open-input" class="col-sm-3 form-control-label">Opening Time</label>
+								<label for="tp-open-input" class="col-sm-3 form-control-label">OPENING TIME</label>
 								<div class="input-group col-sm-6">
 									<input id="tp-open-input" class="form-control" name="opening_time" type="text" value="{{default 'open' '12:00:00'}}">
 									<div class="input-group-addon">hh:mm:ss</div>
 								</div>
 							</div>
 							<div class="form-group row" id="tp-close">
-								<label for="tp-close-input" class="col-sm-3 form-control-label">Closing Time</label>
+								<label for="tp-close-input" class="col-sm-3 form-control-label">CLOSING TIME</label>
 								<div class="input-group col-sm-6">
 									<input id="tp-close-input" class="form-control" name="close_time" type="text" value="{{default 'close' '18:00:00'}}">
 									<div class="input-group-addon">hh:mm:ss</div>

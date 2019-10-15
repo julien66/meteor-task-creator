@@ -116,7 +116,7 @@ html, body {
 
 #taskboard {
 	clear: both;
-    margin: 40px 0px 10px 0px;
+        margin: 40px 0px 10px 0px;
 	min-height: 100px;
 	border: 1px solid #EEE;
 	border-radius: 2px;

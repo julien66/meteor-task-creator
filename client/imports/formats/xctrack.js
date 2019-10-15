@@ -6,10 +6,9 @@ import './export/xctrack.html';
 
 	var converter = function (key, opposite) {
 		var conv = {
-    			"race-to-goal" : "RACE",
-    			"entry" : "ENTER",
-			"start" : "SSS",
-			"end-of-speed-section" : "ESS"
+    			"RACE" : "RACE",
+    			"ENTER" : "ENTER",
+			"START" : "SSS",
 		}
 		if (opposite) {
 			var test = Object.keys(conv).find(entry => conv[entry] === key);
@@ -18,40 +17,40 @@ import './export/xctrack.html';
 		return (conv[key]) ? conv[key] : key;
   	};
   
-  	var check = function(text, filename) {
-    		if (filename.split('.').pop() == 'xctsk') {
+  	var check = function(text, source) {
+    		if (source.split('.').pop() == 'xctsk') {
       			return true;
     		}
     		return false;
   	};
 
-  	var parse = function(text, filename) {
+  	var parse = function(text, source) {
 		var data = JSON.parse(text);
 		var wps = [];
     		var tps = data.turnpoints.map(function(elem, index){
 			var wp = {
-				name : elem.waypoint.name,
-				id :  elem.waypoint.description,
-				x : elem.waypoint.lat,
-				y : elem.waypoint.lon,
-				z : elem.waypoint.altSmoothed,
-				filename : filename,
+				description : elem.waypoint.name,
+				name :  elem.waypoint.description,
+				lat : elem.waypoint.lat,
+				lon : elem.waypoint.lon,
+				altitude : elem.waypoint.altSmoothed,
+				source : source,
 			}
-			
+				
 			var tp = {
 				radius : elem.radius,
-				type : converter(elem.type, true),
+				role : converter(elem.type, true),
 				wp : wp,
 			}
-
-			if (tp.type === "end-of-speed-section") {
+			tp = Object.assign(tp, wp);
+			if (tp.role === "ESS") {
 				tp.close = data.goal.deadline.slice(0, -1);
-				tp.goalType = data.goal.type;
+				tp.finish = data.goal.type;
 			} 
 			
-			if (tp.type === 'start') {
+			if (tp.type === 'START') {
 				tp.open = data.sss.timeGates[0].slice(0, -1);
-				tp.mode = data.sss.type;
+				tp.direction = data.sss.type;
 			}
 			wps.push(wp);
 			return tp; 
@@ -59,8 +58,8 @@ import './export/xctrack.html';
 		return {
 			task : {
 				date : "",
-				type : data.sss.race,
-				num : 1,
+				style : data.sss.race,
+				number : 1,
 				turnpoints : tps 
 			}, 
 			waypoints : wps 
@@ -70,17 +69,18 @@ import './export/xctrack.html';
   	var exporter = function(task) {
 		var xcInfo =  {};
     		for (var i = 0; i < task.turnpoints.length; i++) {
-      			if (task.turnpoints[i].type == "start") {
+      			if (task.turnpoints[i].role == "START") {
         			xcInfo.timeGates = task.turnpoints[i].open;
         			//xcInfo.type = converter[taskInfo.type] ? converter[taskInfo.type] : taskInfo.type;
-        			xcInfo.direction = converter[task.turnpoints[i].mode] ? converter[task.turnpoints[i].mode] : task.turnpoints[i].mode;
+        			xcInfo.direction = converter[task.turnpoints[i].direction] ? converter[task.turnpoints[i].direction] : task.turnpoints[i].direction;
+
       			}
     		}
     
 		for (var i = 0; i < task.turnpoints.length; i++) {
-      			if (task.turnpoints[i].type == "goal") {
+      			if (task.turnpoints[i].role == "GOAL") {
         			xcInfo.deadline = task.turnpoints[i].close;
-        			xcInfo.goalType = converter[task.turnpoints[i].goalType] ? converter[task.turnpoints[i].goalType] : task.turnpoints[i].goalType;
+        			xcInfo.goalType = converter[task.turnpoints[i].finish] ? converter[task.turnpoints[i].finish] : task.turnpoints[i].finish;
       			}
     		}
 		if (!xcInfo.timeGates) {xcInfo.timeGates = '12:30:00'};
@@ -89,7 +89,8 @@ import './export/xctrack.html';
 		if (!xcInfo.type) {xcInfo.type = 'RACE'};
     		
 		var data = Blaze.toHTMLWithData(Template.exportXCtrack, {task : task, xcInfo : xcInfo});
-    		return new Blob([data], {'type': "text/plain"});
+    		console.log(data);
+		return new Blob([data], {'type': "text/plain"});
   	};
 	
 	let name = "XCtrack";

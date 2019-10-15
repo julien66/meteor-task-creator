@@ -7,7 +7,7 @@ Template.waypointFiles.helpers({
 		var distinctFile = _.uniq(Waypoints.find({}, {
 			sort: {filename : 1}, field: {filename : true}
 		}).fetch().map(function(x) {
-			    return x.filename;
+			    return x.source;
 		}), true);
 		return distinctFile;
 	},
@@ -19,9 +19,9 @@ Template.waypointFiles.helpers({
 Template.waypointFiles.events({
 	'click a' : function(e) {
 		e.preventDefault();
-		var filename = $(e.target).attr('rel');
-		Waypoints.remove({filename : filename});
-		Turnpoints.remove({'wp.filename' : filename});
+		var source = $(e.target).attr('rel');
+		Waypoints.remove({source : source});
+		Turnpoints.remove({'wp.source' : source});
 	},
 	'click button' : function(e) {
 		e.preventDefault();

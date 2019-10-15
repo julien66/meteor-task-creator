@@ -6,7 +6,7 @@
    * @todo :
    * Worse check ever: If 2 consecutive first line letter are 'W'
    */
-  var check = function(text, filename) {
+  var check = function(text, source) {
     var lines = text.split("\n");
     var nbW = 0;
     for (var i = 0; i < lines.length; i++) {
@@ -59,12 +59,12 @@
     var tps = [];
     for (var i = 0; i < words.length; i++) {
       var tp = {
-        filename: filename,
-        id : words[i][1],
-        x : formatLatLng(words[i][2]),
-        y : formatLatLng(words[i][3]),
-        z : words[i][6],
-        name : words[i][words[i].length - 1],
+        source: source,
+        name : words[i][1],
+        lat : formatLatLng(words[i][2]),
+        lon : formatLatLng(words[i][3]),
+        altitude : words[i][6],
+        description : words[i][words[i].length - 1],
       };
       tps.push(tp);
     }

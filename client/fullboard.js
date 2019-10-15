@@ -3,16 +3,16 @@
  * JS file for fullboard.
  */
 Template.fullboard.helpers({
-	'tp' : function(type) {
-		return Turnpoints.find({'type' : type});
+	'tp' : function(role) {
+		return Turnpoints.find({'role' : role});
 	},
-	'hasCylinder' : function(goalType) {
-		return goalType !== 'line';
+	'hasCylinder' : function(finish) {
+		return finish !== 'line';
 	},
-	'time' : function(type, mode) {
-		var tp = Turnpoints.findOne({type : type});
+	'time' : function(role, direction) {
+		var tp = Turnpoints.findOne({role : role});
 		if (typeof tp !== 'undefined') {
-			return tp[mode];
+			return tp[direction];
 		}
 		return '00:00:00';
 	}

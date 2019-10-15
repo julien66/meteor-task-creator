@@ -6,12 +6,12 @@
 				<ul>
 					{{#each turnpoints}}
 					<li class="taskboard-item" rel="{{this._id}}">
-						<span class="label label-default" style="background-color : {{ fillColor this.type }}"> {{ shortName this.type }}</span>
-							<span class="turnpointId"> {{this.wp.id}} </span>
+						<span class="label label-default" style="background-color : {{ fillColor this.role }}"> {{ shortName this.role }}</span>
+							<span class="turnpointId"> {{this.name}} </span>
 							<span> - </span>
-							<span class="turnpointName"> {{this.wp.name}} </span>
+							<span class="turnpointName"> {{this.description}} </span>
 							<span class="turnpointDistance">
-								{{roundDistance this.distanceFromPrevious}} km
+								{{roundDistance this.previous}} km
 							</span>
 						</li>
 					{{/each }}
