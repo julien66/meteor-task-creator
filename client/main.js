@@ -5,11 +5,14 @@ import './main.html';
 
 Modal.allowMultiple = true;
 
-Task = new Mongo.Collection('task', {connection: null});
+Task = new Mongo.Collection('task');
 delete Session.keys['taskInfos'];
-Task.insert({
+var taskId = Task.insert({
+	uid : Meteor.userId(),
 	turnpoints : [],
 });
+Session.set('taskId', taskId);
+
 Turnpoints = new Mongo.Collection('turnpoints', {connection: null});
 Waypoints = new Mongo.Collection('waypoints', {connection: null});
 

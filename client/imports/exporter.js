@@ -34,6 +34,7 @@ var exportFile = function(type, formatName, wpSelected, server) {
 	var hour = date.getHours();
 	var minutes = date.getMinutes();
 
+	// Exporter can return a direct file to the client.
 	if (!server) {
  		var a = document.createElement('a');
   		a.href = URL.createObjectURL(blob);
@@ -42,25 +43,29 @@ var exportFile = function(type, formatName, wpSelected, server) {
 		event.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
 		a.dispatchEvent(event);
 	}
-	else {
+	else { // Or send an XCtrack file to the server.
 		blob.arrayBuffer().then(function(data) {
 			var buffer = new Uint8Array(data);
-			Meteor.call('task.writeTask', buffer, function(err, res) {
-				if (!err && res === 'success') {
-					if (!Session.get('requestOpti')) {
-						Session.set('requestOpti', true);
-						Meteor.call('task.optimize', function(error, response){
-							if (!error) {
-								var data = JSON.parse(response.stdout);
-								data.timestamp = Math.floor(Date.now() / 1000);
-								Task.update({}, {'$set' : {'IGCLibOpti' : data}});
-								console.log(data);
+			// Runing into some kind of Meteor bugs (maybe because I used Observe).
+			// @see https://stackoverflow.com/questions/18645334/meteor-meteor-call-from-within-observe-callback-does-not-execute 
+			setTimeout( function() {
+				// If the task is valid.
+				if (Session.get('validTask') === true) {
+					// Write it as XCTrack.
+					Meteor.call('task.writeTask', buffer, function(err, res) {
+						// On success...
+						if (!err && res === 'success') {
+							// Prevent multiple call.
+							if (!Session.get('requestOpti')) {
+								Session.set('requestOpti', true);
+								// Call IGCLIB Optimisation.
+								Meteor.call('task.optimize', Session.get('taskId'), function(error, response){
+								});
 							}
-							Session.set('requestOpti', false);
-						});
-					}
-				};
-			});
+						};
+					});
+				}
+			}, 0);
 		});
 	}
 }

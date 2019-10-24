@@ -7,14 +7,24 @@ import  * as fileParser from './imports/parser';
 var reader = new FileReader();
 var filename;
 
-
 reader.onload = function(e) {
 	var data = reader.result;
 	if (data instanceof ArrayBuffer) {
 		// If data is an ArrayBuffer, send to server we'll replicate the zip there.
 		var buffer = new Uint8Array(data);
+		$('.dz-message').html('<i class="fa fa-inbox fa-3x"></i> Unzipping.');
+	
 		Meteor.call('task.newZip', buffer, function(error, result) {
-			console.log(result);
+			if (result) {
+				$('.dz-message').html('Drop files (or click) here')
+				Session.set('trackFile', true);
+				// @todo check if task is valid
+				if (Session.get('validTask')) {
+					Meteor.call('task.race', function(error, result) {
+						console.log("race");
+					});
+				}
+			}
 		});
 	}
 	else {
@@ -60,6 +70,8 @@ Template.dropzone.onRendered(function () {
 			filename = file.name;
 			if (filename.split('.').pop().toLowerCase() == 'zip') {
 				reader.readAsArrayBuffer(file);
+				dzMessage = $('dz.message').html();
+				$('.dz-message').html('<i class="fa fa-cog fa-spin fa-3x"></i> Uploading.');
 			}
 			else {
 				reader.readAsText(file);
@@ -71,5 +83,6 @@ Template.dropzone.onRendered(function () {
 });
 
 function handleProgress(event) {
-	console.log(Math.round((event.loaded*100)/event.total) +'%');
+	var percent = (event.loaded*100)/event.total;
+	console.log(percent);
 }

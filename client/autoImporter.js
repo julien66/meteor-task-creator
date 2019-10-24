@@ -6,12 +6,8 @@ import * as Parameters from './param.js';
 import { ReactiveVar } from 'meteor/reactive-var'
 import * as parser from './imports/parser';
 
-importedTasks = new Mongo.Collection('importedTasks', {connection: null});
-
-// Main query. Find Actual request returned by IGCLIB.
-var importQuery = function(provider, year) {
-	return importedTasks.findOne({provider : provider, year : year});
-}
+ImportedTasks = new Mongo.Collection('importedTasks');
+Progress = new Mongo.Collection('progress');
 
 Template.autoImporter.helpers({
 	//@todo Format proper Parameters for every provider with allowed years.
@@ -23,13 +19,11 @@ Template.autoImporter.helpers({
 	},
 	getCompetition : function() {
 		var T = Template.instance();
-		if (T.gotImport.get() === true) {
-			var query = importQuery(T.provider, T.year);
-			if (query.comps) {
-				var events = Object.keys(query.comps);
-				T.gotComp.set(events[0]);
-				return events;
-			}
+		var comps = T.importedTask.get();
+		if (comps.data) {
+			var events = Object.keys(comps.data);
+			T.gotComp.set(events[0]);
+			return events;
 		}
 		else{
 			return ['Select a provider and a year first']
@@ -39,10 +33,10 @@ Template.autoImporter.helpers({
 		var T = Template.instance();
 		var gotComp = T.gotComp.get();
 		if (gotComp) {
-			var query = importQuery(T.provider, T.year);
-			if (query.comps) {
-				var events = Object.keys(query.comps);
-				var taskNum = query.comps[gotComp].length;
+			var comps = T.importedTask.get();
+			if (comps.data) {
+				var events = Object.keys(comps.data);
+				var taskNum = comps.data[gotComp].length;
 				var choices = [];
 				for (var i = 1; i < taskNum + 1; i++) {
 					choices.push(i);
@@ -55,14 +49,31 @@ Template.autoImporter.helpers({
 			return ['Select a competition first'];
 		}
 	},
+	getProgress : function() {
+		var uid = Meteor.userId();
+		var query = Progress.findOne({uid : uid, type : 'crawler'}, {sort : {created : -1}});
+		if (query) {
+			// Return Progress to be displayed.
+			return Math.round(eval(query.progress)*100) + ' %';
+		}; 
+	},
 });
 
 Template.autoImporter.onCreated(function autoImporterOnCreated() {
 	this.year = null;
 	this.provider = null;
-	this.gotImport = new ReactiveVar(false);
 	this.gotComp = new ReactiveVar(false);
 	this.taskNum = new ReactiveVar(false);
+	this.importedTask = new ReactiveVar({});
+	var T = this;
+	ImportedTasks.find({uid : Meteor.userId()}).observe({
+		added : function(task) {
+			T.importedTask.set(task);
+			$('#stage1 .fa-cog').hide();
+			$('#stage1').hide();	
+			$('#stage2').show();
+		}
+	});
 });
 
 Template.autoImporter.events({
@@ -82,20 +93,11 @@ Template.autoImporter.events({
 		var T = Template.instance();
 		T.provider = provider;
 		T.year = year;
-		Meteor.call('task.request', provider, year, function(err, res) {
-			$('#stage1 .fa-cog').hide();
-			if (!err) {
-				var data = JSON.parse(res.stdout);
-				importedTasks.insert({
-					provider : provider,
-					year : year,
-					comps : data,
-				});
-				T.gotImport.set(true);
-				$('#stage1').hide();
-				$('#stage2').show();
-			}
-		});
+		//var query = ImportedTask.findOne({provider : provider, year : year});
+		Meteor.call('task.request', provider, year);
+	},
+	'click button#requestTrack' : function(e, template) {
+		console.log('ok');
 	},
 	'change #comp' : function(e) {
 		var T = Template.instance();
@@ -107,16 +109,16 @@ Template.autoImporter.events({
 	},
 	'click button#importTask' : function(e, template) {
 		var T = Template.instance();
-		console.log(T);
 		parseTask(T.provider, T.year, T.gotComp.get(), T.taskNum.get());
 	}
 });
 
 var parseTask = function(provider, year, gotComp, taskNum) {
 	console.log(provider, year, gotComp, taskNum);
-	var query = importQuery(provider, year);
-	if (query.comps) {
-		var task = query.comps[gotComp][taskNum - 1];
+	var T = Template.instance();
+	var comps = T.importedTask.get();
+	if (comps.data) {
+		var task = comps.data[gotComp][taskNum - 1];
 		task[provider] = true;
 		parser.parse(task, null);
 	}

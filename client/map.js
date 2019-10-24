@@ -123,10 +123,11 @@ Template.map.onCreated( function onGmap() {
 				circles[turnpoint._id].setMap(null);	
 				google.maps.event.clearInstanceListeners(circles[turnpoint._id]);
 				delete circles[turnpoint._id];
-				Task.update({}, {'$pull' : {'turnpoints' : {'wp._id' : turnpoint.wp._id}}});
+				Task.update({_id : Session.get('taskId')}, {'$pull' : {'turnpoints' : {'wp._id' : turnpoint.wp._id}}});
 			},
 		});
 
+		// Function that check if a task has changed.
 		var checkTaskChange = function(task, pastTask) {
 			if (!pastTask) {return true};
 			if (task.turnpoints.length != pastTask.turnpoints.length) {
@@ -141,10 +142,12 @@ Template.map.onCreated( function onGmap() {
 			};
 		};
 
-		Task.find().observe({
+		Task.find({_id : Session.get('taskId')}).observe({
 			changed : function(task, pastTask) {
 				// If the task has really changed. Not just an IGCLibOpti added...
-				console.log(checkTaskChange(task, pastTask));
+				//console.log(checkTaskChange(task, pastTask));
+				console.log(task);
+				console.log(pastTask);
 				if (checkTaskChange(task, pastTask)) {
 					// Export task a XC Track format to get Server side optimizer.
 					fileExporter.exportFile('task', 'XCtrack', null, true);
@@ -157,17 +160,15 @@ Template.map.onCreated( function onGmap() {
 				}
 				else if (task.IGCLibOpti){
 				// The task is the same, an opti has been returned from igclib! 
-					if (!task.opti) {return;}
+					Session.set('requestOpti', false);
 					var fastWaypoints = [];
-					task.opti.points.forEach(function(el) {
+					task.IGCLibOpti.points.forEach(function(el) {
 						var latLng = new google.maps.LatLng(el.lat, el.lon);
 						fastWaypoints.push(latLng);
 					}) 
 					drawOpti(fastWaypoints);
-					setLegsDistances(task, task.opti.legs);
+					setLegsDistances(task, task.IGCLibOpti.legs);
 				}
-				// Store total distances into session.
-				//Session.set('taskInfos',  infos);
 			},
 		});
 

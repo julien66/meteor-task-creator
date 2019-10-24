@@ -32,7 +32,6 @@ function get_distance(wptA, wptB) {
 // Add google map LatLng object to turnpoints.
 function latLng(wpt) {
 	if (typeof wpt.lat !== "function") {
-		console.log(wpt);
 		var latLng = new google.maps.LatLng(wpt.lat, wpt.lon);
 		wpt.LatLng = latLng;
 	};

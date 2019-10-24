@@ -52,7 +52,7 @@ import * as pwca from './formats/pwca';
 				tp.wp._id = wp._id;
 				Turnpoints.insert(tp, function(error, result) {
 					var T = Turnpoints.findOne(result);
-					Task.update({}, {'$push' : {turnpoints : T}});
+					Task.update({_id: Session.get('taskId')}, {'$push' : {turnpoints : T}});
 				});
 			}
       		}

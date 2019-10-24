@@ -3,14 +3,16 @@
  * JS Taskboard
  */
 import * as Parameters from './param.js';
+import * as Validator from './imports/validateTask.js';
+Task = new Mongo.Collection('task', {connection: null});
 
 var Param = Parameters.param;
 
 Template.taskBoard.helpers({
 	getTaskDistance : function() {
-		var infos = Session.get('taskInfos');
-		if (infos) {
-			return Math.round(infos['optimized_distance']/10)/100;
+		var task = Task.findOne();
+		if (task.IGCLibOpti) {
+			return Math.round(task.IGCLibOpti['distance']/10)/100;
 		}
 	},
 	turnpoints : function() {
@@ -67,4 +69,9 @@ Template.taskBoard.events({
 	'click button' : function(e) {
 		Modal.show('fullboard');
 	},
+});
+
+Task.find().observe({
+	inserted : function(task) {Validator.check(task)},
+	changed : function(task) {Validator.check(task)}		
 });

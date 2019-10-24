@@ -12,11 +12,11 @@
 							<div class="form-group row" id="tp-type">
 								<label for="tp-role-select" class="col-sm-3 form-control-label">ROLE</label>
 								<select id="tp-role-select" class="form-control col-sm-6" name="role" autocomplete="off">
-									<option data-show="close,direction,open,radius" data-hide="finish" {{sel 'mode' 'TAKEOFF'}}>TAKEOFF</option>
-									<option data-show="direction,open,radius" data-hide="close,finish" {{sel 'mode' 'START'}}>START</option>
-									<option data-show="direction,radius" data-hide="close,finish,open" {{sel 'mode' 'TURNPOINT'}}>TURNPOINT</option>
-									<option data-show="close,direction,radius" data-hide="open,finish" {{sel 'mode' 'ESS'}}>ESS</option>
-									<option data-show='close,finish,radius' data-hide="direction,open" {{sel 'mode' 'GOAL'}}>GOAL</option>
+									<option data-show="close,direction,open,radius" data-hide="finish" {{sel 'role' 'TAKEOFF'}}>TAKEOFF</option>
+									<option data-show="direction,open,radius" data-hide="close,finish" {{sel 'role' 'START'}}>START</option>
+									<option data-show="direction,radius" data-hide="close,finish,open" {{sel 'role' 'TURNPOINT'}}>TURNPOINT</option>
+									<option data-show="close,direction,radius" data-hide="open,finish" {{sel 'role' 'ESS'}}>ESS</option>
+									<option data-show='close,finish,radius' data-hide="direction,open" {{sel 'role' 'GOAL'}}>GOAL</option>
 								</select>
 							</div>
 							<div class="form-group row hidden" id="tp-finish">

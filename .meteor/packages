@@ -29,3 +29,5 @@ mrt:jquery-ui
 underscore@1.0.10
 jquery
 twbs:bootstrap@3.3.5
+artwells:accounts-guest
+accounts-ui
