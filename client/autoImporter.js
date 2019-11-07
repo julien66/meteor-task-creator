@@ -57,6 +57,17 @@ Template.autoImporter.helpers({
 			return Math.round(eval(query.progress)*100) + ' %';
 		}; 
 	},
+	importable : function() {
+		var T = Template.instance();
+		var current = T.currentTaskParam.get();
+		return (current.taskNum  !== T.taskNum.get()  || current.gotComp !== T.gotComp.get());
+	
+	},
+	raceable : function() {
+		var T = Template.instance();
+		var current = T.currentTaskParam.get();
+		return (current.taskNum  == T.taskNum.get()  && current.gotComp == T.gotComp.get());
+	} 
 });
 
 Template.autoImporter.onCreated(function autoImporterOnCreated() {
@@ -65,6 +76,7 @@ Template.autoImporter.onCreated(function autoImporterOnCreated() {
 	this.gotComp = new ReactiveVar(false);
 	this.taskNum = new ReactiveVar(false);
 	this.importedTask = new ReactiveVar({});
+	this.currentTaskParam = new ReactiveVar({});
 	var T = this;
 	ImportedTasks.find({uid : Meteor.userId()}).observe({
 		added : function(task) {
@@ -109,7 +121,22 @@ Template.autoImporter.events({
 	},
 	'click button#importTask' : function(e, template) {
 		var T = Template.instance();
-		parseTask(T.provider, T.year, T.gotComp.get(), T.taskNum.get());
+		var num = T.taskNum.get();
+		var comp = T.gotComp.get();
+		parseTask(T.provider, T.year, comp, num);
+		T.currentTaskParam.set({taskNum : num, gotComp : comp});
+	},
+	'click button#importRace' : function(e, template) {
+		Session.set('importTrack', true);
+		var T = Template.instance();
+		var comps = T.importedTask.get();
+		var current = T.currentTaskParam.get();
+		if (comps.data) {
+			var task = comps.data[current.gotComp][current.taskNum - 1];
+			Meteor.call('task.race', {task : btoa(JSON.stringify(task))}, function() {
+				console.log('e');
+			});
+		}
 	}
 });
 

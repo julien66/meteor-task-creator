@@ -44,9 +44,16 @@
 			<button id="importBack" class="btn btn-warning">
 				<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Back
 			</button>
+			{{#if importable}}
 			<button id="importTask" class="btn btn-warning">
 				<span class="glyphicon glyphicon-flash" aria-hidden="true"></span> Import Task
 			</button>
+			{{/if}}
+			{{#if raceable}}
+			<button id="importRace" class="btn btn-warning">
+				<span class="glyphicon glyphicon-road" aria-hidden="true"></span> Import Tracks
+			</button>
+			{{/if}}
 			<div class=stage> 2 / 2</div>
 		</div>
 	</div>

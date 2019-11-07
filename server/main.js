@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import {DecompressZip} from 'decompress-zip';
 
 Meteor.startup(() => {
   	// code to run on server at startup
@@ -9,12 +8,12 @@ Meteor.startup(() => {
 	AccountsGuest.anonymous = true;
 
 	var fs = Npm.require('fs');
-	var nodePickle = require('node-pickle');
-	var DecompressZip = require('decompress-zip');
+	var JSONStream = require('JSONStream')
 	var basePath = '/home/julien/meteor-task-creator/server/igclib';	
 	Progress = new Mongo.Collection('progress');
 	ImportedTasks = new Mongo.Collection('importedTasks');
 	Task = new Mongo.Collection('task');
+	Race = new Mongo.Collection('race');
 	
 	//ZipProgress = new Mongo.Collection('zipProgress');
 	
@@ -33,7 +32,7 @@ Meteor.startup(() => {
 
 	// Helper function to command igc lib
 	var igclib = function(mode, data, callback) {
-		var command = 'igclib --progress ratio --mode ' + mode;
+		var command = 'igclib ' + mode + ' --progress ratio';
 		for (let [key, value] of Object.entries(data)) {
   			command += ' --' + key + ' ' + value;
 		};
@@ -59,6 +58,7 @@ Meteor.startup(() => {
 			var uid = Meteor.userId();
 			var child = igclib('optimize', {task : '/tmp/toOptimize.xctsk'});
 			child.stdout.on('data', Meteor.bindEnvironment(function(data) {
+				console.log(data);
   				Task.update({_id : taskId, uid : uid}, {'$set' : {'IGCLibOpti' : JSON.parse(data.toString())}});
 				console.log(data.toString());
 			}));
@@ -115,7 +115,7 @@ Meteor.startup(() => {
 					Progress.remove({uid : uid, type : 'zip'});
                 		});
                 
-                		// At progress... Store Progress collection.
+                		// On progress... Store Progress collection.
                 		unzipper.on('progress', function (fileIndex, fileCount) {
                     			console.log('Extracted file ' + (fileIndex + 1) + ' of ' + fileCount);
 					var percent = (fileIndex + 1) / fileCount ;
@@ -130,18 +130,25 @@ Meteor.startup(() => {
 			return true;
 		},
 		'task.test' : function() {
-			/*var child = fs.createReadStream('/tmp/race.pkl');
-			child.on('data', function(data) {
-				//console.log(data);
-				nodePickle.load(data).then(function(j) {
-					// json is a JSON object here
-					console.log(j);
-				});
-			});*/
-		},
-		'task.race' : function() {
 			var uid = Meteor.userId();
-			var child = igclib('race', {task : '/tmp/toOptimize.xctsk', flights : '/tmp/flights', output: '/tmp/race.pkl' });
+			var read = fs.createReadStream('/tmp/race.json');
+			var stream = JSONStream.parse( ["snapshots", {'emitKey' : true}]);	
+			read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
+				// Insert json race into mongodb race collection.
+				Race.insert({uid : uid, time : data['key'], snapshot :  data['value']});
+				console.log(data['value']);
+			})).on('end', Meteor.bindEnvironment(function() {
+				// Ready.
+			}));
+		},
+		'task.race' : function(commands) {
+			var uid = Meteor.userId();
+			var param = {
+				task : '/tmp/toOptimize.xctsk',
+				//flights : '/tmp/flights',
+				output : '/tmp/race.json',
+			};
+			var child = igclib('race', Object.assign(param, commands));
 			child.stdout.on('data', Meteor.bindEnvironment(function(data) {
 				// Nothing here.
 			}));
@@ -154,7 +161,8 @@ Meteor.startup(() => {
 			child.on('close', Meteor.bindEnvironment(function() {
 				//On process close, clean all Progress document for this uid.
 				Progress.remove({uid : uid, type : 'race'});
-				//
+				// Get Race JSON.
+				
 			}));
 		}
 	});

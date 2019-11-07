@@ -21,14 +21,14 @@ Template.validateTask.helpers({
 	},
 	'missZip' : function() {
 		var t = Template.instance();
-		return t.valid.get() && !Session.get('trackFile');
+		return t.valid.get() && (!Session.get('trackFile') && !Session.get('importTrack'));
 	},	
 	'opti' : function() {
 		return Session.get('requestOpti');
 	},
 	'ready' : function() {
 		var t = Template.instance();
-		return Session.get('trackFile') && t.valid.get();
+		return (Session.get('trackFile') || Session.get('importTrack')) && t.valid.get();
 	},
 	'getProgress' : function() {
 		var uid = Meteor.userId();
