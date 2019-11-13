@@ -4,14 +4,13 @@
  */
 import * as Parameters from './param.js';
 import * as Validator from './imports/validateTask.js';
-Task = new Mongo.Collection('task', {connection: null});
 
 var Param = Parameters.param;
 
 Template.taskBoard.helpers({
 	getTaskDistance : function() {
 		var task = Task.findOne();
-		if (task.IGCLibOpti) {
+		if (task && task.IGCLibOpti) {
 			return Math.round(task.IGCLibOpti['distance']/10)/100;
 		}
 	},

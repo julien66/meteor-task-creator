@@ -7,7 +7,7 @@ html, body {
 	background-color : rgb(229, 227, 223);
 }
 
-.container-fluid, .row, #map-canvas, #sidebar {
+.container-fluid, .main, #map-canvas, #sidebar {
   height : 100%;
 }
 
@@ -63,6 +63,54 @@ html, body {
 #validateTask .status {
 	font-weight : bold;
 	text-transform : capitalize;
+}
+
+#player {
+	position : absolute;
+	bottom : 0;
+	background-color : #333;
+	border-top : 1px solid #000;
+	box-shadow : 0px 0px 10px #000;
+	width : 100%;
+	color :#AAA; 
+}
+
+#player span.glyphicon {
+	cursor : pointer;
+}
+
+#player span.glyphicon:hover {
+    	color: #f0ad4e;
+}
+
+#player #controls {
+	height : 40px;
+}
+
+#player #contains {
+	width: 90%;
+	display: inline-block;
+	margin-bottom : -15px; 
+}
+
+#innerTime {
+	background-color: #575F4E;
+    	margin: 10px 0px;
+    	border: 1px solid #000;
+    	border-radius: 5px;
+    	position: relative;
+    	height: 20px;
+	cursor : pointer;
+}
+
+#cursorNow {
+	position: absolute;
+    	left: 30%;
+    	font-size: 30px;
+    	line-height: 20px;
+    	color: #f0ad4e;
+    	text-shadow: 0px 0px 10px #000;
+	cursor : grab;
 }
 
 /*#autoImporter {

@@ -11,13 +11,59 @@ Template.map.onCreated( function onGmap() {
 		var param = Parameters.param;
 		var markers = [];
 		var circles = [];
+		var pilots = {};
 		var fastTrack = null;
 
 		var bounds = new google.maps.LatLngBounds();
 		
 		var elevator = new google.maps.ElevationService();
 		var geocoder = new google.maps.Geocoder;
-		
+
+		window.addEventListener('newPilots', addPilots);
+		window.addEventListener('movePilots', movePilots);
+		function addPilots(e) {
+			var ids = e.detail;
+			for (var i = 0; i < ids.length -1; i++) {
+				if (!pilots[ids[i]]) {
+					var marker = new google.maps.Marker({
+						label: {
+							text : ids[i],
+							color : "#000",
+							fontSize: "11px",
+							fontWeight: "bold",
+							'text-shadow': "0px 0px 10px #000",
+						},
+						icon : {
+							path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0',
+							fillColor: "#FE7569",
+							fillOpacity: 1,
+							strokeColor: '#CB4236',
+							strokeWeight: 1,
+							scale: 1,
+							labelOrigin : new google.maps.Point(0, 10),
+						}, 
+						//position: new google.maps.LatLng(waypoint.lat, waypoint.lon),
+						map: map.instance,
+						// Store pilot id on the marker. 
+						id: ids[i],
+					});
+					pilots[ids[i]] = marker;
+				}
+			}
+		};
+	
+		function movePilots(e) {
+			var snap = e.detail.snap;
+			for (let [id, value] of Object.entries(snap)) {
+				if (pilots[id]) {
+					pilots[id].setPosition(new google.maps.LatLng(value.lat, value.lon));
+				}
+				else {
+					console.log(id);
+				}
+			}
+		}; 	
+	
 		Waypoints.find().observe({  
 			added: function(waypoint) {
 				// Create a marker for this waypoints
@@ -146,8 +192,8 @@ Template.map.onCreated( function onGmap() {
 			changed : function(task, pastTask) {
 				// If the task has really changed. Not just an IGCLibOpti added...
 				//console.log(checkTaskChange(task, pastTask));
-				console.log(task);
-				console.log(pastTask);
+				//console.log(task);
+				//console.log(pastTask);
 				if (checkTaskChange(task, pastTask)) {
 					// Export task a XC Track format to get Server side optimizer.
 					fileExporter.exportFile('task', 'XCtrack', null, true);

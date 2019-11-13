@@ -11,16 +11,23 @@ var taskId = Task.insert({
 	uid : Meteor.userId(),
 	turnpoints : [],
 });
+
+// Reset Session.
+Session.set('requestOpti', false);
 Session.set('taskId', taskId);
 
 Turnpoints = new Mongo.Collection('turnpoints', {connection: null});
 Waypoints = new Mongo.Collection('waypoints', {connection: null});
 
-Meteor.startup(function() {		
+Meteor.subscribe('Task');
+Meteor.subscribe('Progress');
+
+Meteor.startup(function() {	
 	GoogleMaps.load({
 		key : 'AIzaSyDNrTc1a1WM07PlACypa2WbEAthHXIk-_A', 
 		libraries : 'geometry,elevation', 
 	});
+
 });
 
 Template.map.helpers({

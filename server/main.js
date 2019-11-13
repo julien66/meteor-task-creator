@@ -11,11 +11,30 @@ Meteor.startup(() => {
 	var JSONStream = require('JSONStream')
 	var basePath = '/home/julien/meteor-task-creator/server/igclib';	
 	Progress = new Mongo.Collection('progress');
-	ImportedTasks = new Mongo.Collection('importedTasks');
+	RaceEvents = new Mongo.Collection('raceEvents');
 	Task = new Mongo.Collection('task');
-	Race = new Mongo.Collection('race');
+	SnapRace = new Mongo.Collection('snapRace');
 	
 	//ZipProgress = new Mongo.Collection('zipProgress');
+
+	Meteor.publish('raceEvent', function(provider, year) {
+		console.log(year);
+  		return RaceEvents.find({provider : provider, year : year}); 
+	});
+
+	Meteor.publish('Task', function() {
+		return Task.find({uid : Meteor.userId()});
+	});
+
+	Meteor.publish('Progress', function() {
+		return Progress.find({uid : Meteor.userId()});
+	});
+
+	Meteor.publish('SnapRace', function(compId, task, time) {
+		console.log(compId, task, time);
+		var query = SnapRace.find({compId : compId, task : task, time : {$gte : time}}, {sort :{time : 1}, limit : 30});
+		return query;
+	});	
 	
 	// Child Process for IGCLIB.
 	const { spawn } = require('child_process');
@@ -32,7 +51,7 @@ Meteor.startup(() => {
 
 	// Helper function to command igc lib
 	var igclib = function(mode, data, callback) {
-		var command = 'igclib ' + mode + ' --progress ratio';
+		var command = 'igclib --progress ratio ' + mode;
 		for (let [key, value] of Object.entries(data)) {
   			command += ' --' + key + ' ' + value;
 		};
@@ -77,13 +96,19 @@ Meteor.startup(() => {
 			child.stdout.on('data', Meteor.bindEnvironment(function(data) {
 				// insert ImportedTask.
 				if (data) {
-					ImportedTasks.insert({
-						uid: uid, 
-						provider : provider, 
-						year :  year, 
-						data: JSON.parse(data.toString()), 
-					});
-					//console.log('stdout : ' + data);
+					console.log(data);
+					let json = JSON.parse(data.toString());
+					console.log('stdout : ' + json);
+					for (raceEvent in json) {
+						var comp = json[raceEvent];
+						var query = RaceEvents.findOne({provider : comp.provider, year : comp.year, event : comp.event, tasks : {$size : comp.tasks.length}});
+						console.log(query);
+						if (!query) {
+							console.log('insert');
+							RaceEvents.insert(json[raceEvent]);
+						}
+					}
+					//data: JSON.parse(data.toString()), 
 				}
 			}));
 			child.stderr.on('data', Meteor.bindEnvironment(function(data) {
@@ -96,7 +121,7 @@ Meteor.startup(() => {
 				//On process close, clean all Progress document for this uid.
 				// Clean all importedTasks as well.
 				Progress.remove({uid : uid, type : 'crawler'});
-				ImportedTasks.remove({uid : uid});
+				//ImportedTasks.remove({uid : uid});
 			})); 
 		},
 		'task.newZip' : function(buffer) {
@@ -130,25 +155,39 @@ Meteor.startup(() => {
 			return true;
 		},
 		'task.test' : function() {
-			var uid = Meteor.userId();
-			var read = fs.createReadStream('/tmp/race.json');
-			var stream = JSONStream.parse( ["snapshots", {'emitKey' : true}]);	
+			/*SnapRace.remove({});
+			RaceEvents.remove({});*/
+			
+			/*var read = fs.createReadStream('/tmp/race_sadgEvPYAYtmy5BPq_5.json');
+			// Using JSONStream.
+			//var stream = JSONStream.parse( ["snapshots", {'emitKey' : true}]);	
+			var stream = JSONStream.parse( ["race", {'emitKey' : true}]);	
+			// Piping streams.
 			read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
+				// Convert hh:mm:ss to timestamp as s from midnight.
+				var time = new Date('1970-01-01T' + data['key']);
 				// Insert json race into mongodb race collection.
-				Race.insert({uid : uid, time : data['key'], snapshot :  data['value']});
-				console.log(data['value']);
+				console.log('insert :' + time);
+				SnapRace.insert({compId : 'sadgEvPYAYtmy5BPq', task : taskIndex, time : time, snapshot :  data['value']});
 			})).on('end', Meteor.bindEnvironment(function() {
 				// Ready.
-			}));
+			}));*/
 		},
-		'task.race' : function(commands) {
+		'task.race' : function(commands, compId, taskIndex) {
 			var uid = Meteor.userId();
 			var param = {
 				task : '/tmp/toOptimize.xctsk',
 				//flights : '/tmp/flights',
 				output : '/tmp/race.json',
 			};
-			var child = igclib('race', Object.assign(param, commands));
+			if (compId && taskIndex) {
+				commands.output = '/tmp/race_' + compId + '_' + taskIndex + '.json';
+			}	
+			// Check if this task hasn't been raced already
+			var query = SnapRace.findOne({compId : compId, task : taskIndex});
+			if (!query) {
+				var child = igclib('race', Object.assign(param, commands));
+			}
 			child.stdout.on('data', Meteor.bindEnvironment(function(data) {
 				// Nothing here.
 			}));
@@ -161,8 +200,27 @@ Meteor.startup(() => {
 			child.on('close', Meteor.bindEnvironment(function() {
 				//On process close, clean all Progress document for this uid.
 				Progress.remove({uid : uid, type : 'race'});
-				// Get Race JSON.
-				
+				// Stream full race to database.
+				// Remove all past snapRace docs for this task...
+				SnapRace.remove({compId : compId, task : taskIndex});
+				// Read Files.
+				var read = fs.createReadStream('/tmp/race_' + compId + '_' + taskIndex +'.json');
+				// Using JSONStream.
+				var stream = JSONStream.parse( ["race", {'emitKey' : true}]);	
+				// Piping streams.
+				read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
+					// Convert hh:mm:ss to timestamp as s from midnight.
+					var time = new Date('1970-01-01T' + data['key']);
+					// Insert json race into mongodb race collection.
+					console.log('insert :' + compId + ' / ' + time);
+					SnapRace.insert({compId : compId, task : taskIndex, time : time, snapshot :  data['value']});
+				})).on('end', Meteor.bindEnvironment(function() {
+					// Ready.
+				}));
+				// if any source provided. Update RaceEvent Collection :
+				var update = {'$set' : {}};
+				update["$set"]["tasks." + taskIndex + '.raced'] = true;
+				RaceEvents.update({'_id' : compId}, update);
 			}));
 		}
 	});

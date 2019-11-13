@@ -1,4 +1,5 @@
 <template name='validateTask'>
+	{{#if display}}
 	<div id="validateTask" class="alert alert-{{status}}">
 		<span class="status">{{status}}!</span> Task is {{#if notValid}} not {{/if}} valid. 
 		{{#if notValid}} Here's the latest report : {{report}} {{/if}}
@@ -11,4 +12,5 @@
 			{{getProgress}}
 		{{/if}}
 	</div>
+	{{/if}}
 </template>

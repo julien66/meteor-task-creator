@@ -1,0 +1,24 @@
+<template name="player">
+	<div id="player">
+		<div id="controls">
+			<span id="play" class="glyphicon glyphicon-play" aria-hidden="true"></span>
+			<span id="pause" class="glyphicon glyphicon-pause" aria-hidden="true"></span>	
+			<span id="previous" class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+			<span id="next" class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+			<span id="timeline">
+				<div id="contains">
+					<div id="innerTime">
+						<div id="cursorNow">
+							I
+						</div>
+					</div>
+				</div>
+			</span>
+		</div>
+		<div id="pilotList">
+			{{#each pilots}}
+				<span id="pilot-{{this}}">{{this}}</span>
+			{{/each}}
+		</div>
+	</div>
+</template>

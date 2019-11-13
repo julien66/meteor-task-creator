@@ -7,6 +7,13 @@ import { ReactiveVar } from 'meteor/reactive-var'
 //Progress = new Mongo.Collection('progress');
 
 Template.validateTask.helpers({
+	'display' : function() {
+		var task = Task.findOne();
+		if (task && task.turnpoints.length > 0) {
+			return true;
+		}
+		return false;
+	},
 	'status' : function() {
 		var t = Template.instance();
 		return (t.valid.get()) ? 'success' : 'danger';
@@ -88,7 +95,7 @@ var check = function () {
 
 	}
 
-	console.log(valid, report);
+	//console.log(valid, report);
 	return {
 		valid : valid,
 		report : report 

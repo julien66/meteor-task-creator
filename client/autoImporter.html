@@ -29,7 +29,7 @@
 				<label for="comp" class="col-sm-3 form-control-label">Competition</label>
 				<select id="comp" class="form-control col-sm-6" name="provider" autocomplete="off">
 				{{#each getCompetition}}
-    					<option value="{{this}}">{{this}}</option>
+    					<option value="{{this.event}}">{{this.event}}</option>
 				{{/each }}
 				</select>
 			</div>
