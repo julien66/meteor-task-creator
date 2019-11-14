@@ -77,7 +77,7 @@
 
   export {
     check,
-		extension,
+    extension,
     name,
     parse,
   }

@@ -53,11 +53,17 @@ html, body {
 	background-color : transparent;
 	min-height : 100px;
 }
-
 #validateTask {
 	position : absolute;
 	margin: 70px 0px;
+}
+
+#buildRace, #validation {
 	box-shadow: 0px 0px 5px #000;
+}
+
+#buildRace {
+	margin-top : 20px;
 }
 
 #validateTask .status {
@@ -73,6 +79,7 @@ html, body {
 	box-shadow : 0px 0px 10px #000;
 	width : 100%;
 	color :#AAA; 
+	padding : 15px;
 }
 
 #player span.glyphicon {
@@ -84,33 +91,54 @@ html, body {
 }
 
 #player #controls {
-	height : 40px;
+	padding : 0px 15px;
+	font-size :20px;
+	user-select: none; 
 }
 
 #player #contains {
-	width: 90%;
 	display: inline-block;
-	margin-bottom : -15px; 
+	width : 100%;
+}
+
+#player #speed {
+	margin : 0px 0px 0px 30px;
+}
+
+#timeMark {
+	height: 20px;
+	font-size: 10px;
+	font-weight: bold;
+	color: #fff;
+}
+
+#timeMark span {
+	position : absolute;
+}
+
+#timeMark-end {
+	margin-left : -40px;
 }
 
 #innerTime {
 	background-color: #575F4E;
-    	margin: 10px 0px;
     	border: 1px solid #000;
     	border-radius: 5px;
     	position: relative;
     	height: 20px;
 	cursor : pointer;
+	user-select: none; 
 }
 
 #cursorNow {
 	position: absolute;
-    	left: 30%;
+    	left: 0%;
     	font-size: 30px;
     	line-height: 20px;
     	color: #f0ad4e;
     	text-shadow: 0px 0px 10px #000;
 	cursor : grab;
+	user-select: none; 
 }
 
 /*#autoImporter {

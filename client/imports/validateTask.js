@@ -34,22 +34,37 @@ Template.validateTask.helpers({
 		return Session.get('requestOpti');
 	},
 	'ready' : function() {
-		var t = Template.instance();
-		return (Session.get('trackFile') || Session.get('importTrack')) && t.valid.get();
+		var T = Template.instance();
+		return (Session.get('trackFile') || Session.get('importTrack')) && T.valid.get();
 	},
 	'getProgress' : function() {
+		var T = Template.instance();
 		var uid = Meteor.userId();
 		var query = Progress.findOne({uid : uid, type : 'race'}, {sort : {created : -1}});
 		if (query) {
 			// Return Progress to be displayed.
-			return Math.round(eval(query.progress)*100) + ' %';
+			var percent = Math.round(eval(query.progress) * 100);
+			if (percent < 5 )  {
+				T.percentThreshold = true;
+				T.racingIndex.set(T.racingIndex.get() + 1);
+				T.percentThreshold = false;
+			}
+			return percent + ' %';
 		};
-	} 
+	},
+	'getRacingStage' : function() {
+		var T = Template.instance();
+		console.log(T.racingIndex.get());
+		return T.racingStatus[T.racingIndex.get()];
+	},
 }); 
 
 
 Template.validateTask.onCreated (function validateOnCreated() {
 	$('#validateTask').hide();
+	this.percentThreshold = false;
+	this.racingIndex = new ReactiveVar(0);
+	this.racingStatus = ['Importing Tracks', 'Reading Tracks', 'Validating Tracks', 'Preparing Race'];
 	this.valid = new ReactiveVar(false);
 	this.report = new ReactiveVar('');
 	var t = Template.instance();

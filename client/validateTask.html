@@ -1,16 +1,21 @@
 <template name='validateTask'>
+<div id="validateTask">
 	{{#if display}}
-	<div id="validateTask" class="alert alert-{{status}}">
+	<div id="validation" class="alert alert-{{status}}">
 		<span class="status">{{status}}!</span> Task is {{#if notValid}} not {{/if}} valid. 
 		{{#if notValid}} Here's the latest report : {{report}} {{/if}}
 		{{#if opti}}<div id="showOptimiser"><span class="fa fa-2x fa-rocket" aria-hidden="true"></span> Optimizing Task</div>{{/if}}
 		{{#if missZip}}
 			<div id='trackAdvice'>You may want to join track files now. Drop a zip file!</div> 
 		{{/if}}
-		{{#if ready}} 
-			Preparing  race!
-			{{getProgress}}
-		{{/if}}
 	</div>
 	{{/if}}
+	{{#if ready}} 
+	<div id="buildRace" class="alert alert-warning">Preparing  race. Please Wait.
+		<div>
+			<span id="racingStage">{{getRacingStage}}</span> : <span id="racingProgress">{{getProgress}}</span>
+		</div>
+	</div>
+	{{/if}}
+</div>
 </template>

@@ -1,23 +1,27 @@
 <template name="player">
 	<div id="player">
-		<div id="controls">
-			<span id="play" class="glyphicon glyphicon-play" aria-hidden="true"></span>
-			<span id="pause" class="glyphicon glyphicon-pause" aria-hidden="true"></span>	
-			<span id="previous" class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-			<span id="next" class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-			<span id="timeline">
-				<div id="contains">
-					<div id="innerTime">
-						<div id="cursorNow">
-							I
-						</div>
+		<div id="timeline" class="row">
+			<div id="contains">
+				<div id="innerTime">
+					<div id="cursorNow">
+						I
 					</div>
 				</div>
-			</span>
+			</div>
 		</div>
-		<div id="pilotList">
+		<div id="timeMark" class="row">
+			{{#each timeMark}}
+				<span id="timeMark-{{key}}" class="timeMark" style="left : {{percent}}%">{{hh}}</span>
+			{{/each}}
+		</div>
+		<div id="controls" class="row">
+			<span id="play" class="button glyphicon glyphicon-play" aria-hidden="true"></span>
+			<span id="pause" class="button glyphicon glyphicon-pause" aria-hidden="true"></span>		
+			<span id="speed" class="button glyphicon glyphicon-dashboard" aria-hidden="true"></span><span id="speedValue">{{getSpeed}}</span>
+		</div>
+		<div id="pilotList" class="row">
 			{{#each pilots}}
-				<span id="pilot-{{this}}">{{this}}</span>
+				<span class="pilot" id="pilot-{{uid}}">{{name}}</span>
 			{{/each}}
 		</div>
 	</div>

@@ -18,7 +18,6 @@ Meteor.startup(() => {
 	//ZipProgress = new Mongo.Collection('zipProgress');
 
 	Meteor.publish('raceEvent', function(provider, year) {
-		console.log(year);
   		return RaceEvents.find({provider : provider, year : year}); 
 	});
 
@@ -31,9 +30,14 @@ Meteor.startup(() => {
 	});
 
 	Meteor.publish('SnapRace', function(compId, task, time) {
-		console.log(compId, task, time);
-		var query = SnapRace.find({compId : compId, task : task, time : {$gte : time}}, {sort :{time : 1}, limit : 30});
-		return query;
+		//console.log(compId, task, time);
+		/* @todo
+		30 is hard coded. Could be better to set more or less.
+		Too much means bigger data to push to client.
+		Too few means smaller but more frequent push to client.
+		Don't know which is better.
+		*/
+		return SnapRace.find({compId : compId, task : task, time : {$gte : time}}, {sort :{time : 1}, limit : 30});
 	});	
 	
 	// Child Process for IGCLIB.
@@ -155,8 +159,29 @@ Meteor.startup(() => {
 			return true;
 		},
 		'task.test' : function() {
-			/*SnapRace.remove({});
-			RaceEvents.remove({});*/
+			SnapRace.remove({});
+			//RaceEvents.remove({});
+			
+			var compId = 'tgkXbdKZCYdae8d7H';
+			var taskIndex = 0;	
+			var read = fs.createReadStream('/tmp/race_' + compId + '_' + taskIndex +'.json');
+			
+			var stream = JSONStream.parse( ["race", {'emitKey' : true}]);	
+			// Piping streams.
+			read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
+				// Convert hh:mm:ss to timestamp as s from midnight.
+				var time = new Date('1970-01-01T' + data['key']);
+				// Insert json race into mongodb race collection.
+				SnapRace.insert({compId : compId, task : taskIndex, time : time, snapshot :  data['value']});
+			})).on('header', Meteor.bindEnvironment(function(data) {
+				var mapping = data.mapping;
+				console.log(mapping);
+				var update = {'$set' : {}};
+				update['$set']['tasks.' + taskIndex + '.task.mapping'] = mapping;
+				RaceEvents.update({'_id' : compId}, update);
+			})).on('end', Meteor.bindEnvironment(function() {
+			}));
+			
 			
 			/*var read = fs.createReadStream('/tmp/race_sadgEvPYAYtmy5BPq_5.json');
 			// Using JSONStream.
@@ -175,53 +200,65 @@ Meteor.startup(() => {
 		},
 		'task.race' : function(commands, compId, taskIndex) {
 			var uid = Meteor.userId();
+			// Default params for IGCLIB Race.
 			var param = {
 				task : '/tmp/toOptimize.xctsk',
 				//flights : '/tmp/flights',
 				output : '/tmp/race.json',
 			};
-			if (compId && taskIndex) {
+			// If this race has a raceEvents _id... Then switch the output to store the file properly.
+			if (compId) {
 				commands.output = '/tmp/race_' + compId + '_' + taskIndex + '.json';
-			}	
+			}
+			
 			// Check if this task hasn't been raced already
 			var query = SnapRace.findOne({compId : compId, task : taskIndex});
+			// If not, then proceed with igclib to "Race".
+			// Merge defaut and custom parameters with Object.assign.
 			if (!query) {
 				var child = igclib('race', Object.assign(param, commands));
-			}
-			child.stdout.on('data', Meteor.bindEnvironment(function(data) {
-				// Nothing here.
-			}));
-			child.stderr.on('data', Meteor.bindEnvironment(function(data) {
-				// Keep track of process progress via "Progress Collection".
-				// IGCLib return Progress on stderr.
-				Progress.insert({uid : uid, type : 'race', created : new Date().toISOString(), progress : data.toString()});
-				console.log('stderr : ' + data);
-			}));
-			child.on('close', Meteor.bindEnvironment(function() {
-				//On process close, clean all Progress document for this uid.
-				Progress.remove({uid : uid, type : 'race'});
-				// Stream full race to database.
-				// Remove all past snapRace docs for this task...
-				SnapRace.remove({compId : compId, task : taskIndex});
-				// Read Files.
-				var read = fs.createReadStream('/tmp/race_' + compId + '_' + taskIndex +'.json');
-				// Using JSONStream.
-				var stream = JSONStream.parse( ["race", {'emitKey' : true}]);	
-				// Piping streams.
-				read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
-					// Convert hh:mm:ss to timestamp as s from midnight.
-					var time = new Date('1970-01-01T' + data['key']);
-					// Insert json race into mongodb race collection.
-					console.log('insert :' + compId + ' / ' + time);
-					SnapRace.insert({compId : compId, task : taskIndex, time : time, snapshot :  data['value']});
-				})).on('end', Meteor.bindEnvironment(function() {
-					// Ready.
+				child.stdout.on('data', Meteor.bindEnvironment(function(data) {
+					// Nothing here.
 				}));
-				// if any source provided. Update RaceEvent Collection :
-				var update = {'$set' : {}};
-				update["$set"]["tasks." + taskIndex + '.raced'] = true;
-				RaceEvents.update({'_id' : compId}, update);
-			}));
+				child.stderr.on('data', Meteor.bindEnvironment(function(data) {
+					// Keep track of process progress via "Progress Collection".
+					// IGCLib return Progress on stderr.
+					Progress.insert({uid : uid, type : 'race', created : new Date().toISOString(), progress : data.toString()});
+					console.log('stderr : ' + data);
+				}));
+				child.on('close', Meteor.bindEnvironment(function() {
+					//On process close, clean all Progress document for this uid.
+					Progress.remove({uid : uid, type : 'race'});
+					// Stream full race to database.
+					// Remove all past snapRace docs for this task...
+					SnapRace.remove({compId : compId, task : taskIndex});
+					// Read Files.
+					var read = fs.createReadStream('/tmp/race_' + compId + '_' + taskIndex +'.json');
+					// Using JSONStream.
+					var stream = JSONStream.parse( ["race", {'emitKey' : true}]);	
+					// Piping streams.
+					read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
+						// Convert hh:mm:ss to timestamp as s from midnight.
+						var time = new Date('1970-01-01T' + data['key']);
+						// Insert json race into mongodb race collection.
+						SnapRace.insert({compId : compId, task : taskIndex, time : time, snapshot :  data['value']});
+					})).on('header', Meteor.bindEnvironment(function(data) {
+						var mapping = data.mapping;
+						console.log(mapping);
+						var up = {'$set' : {}};
+						// uid <--> name mapping.
+						up['$set']['tasks.' + taskIndex + '.task.mapping'] = mapping;
+						// @todo insert time at turnpoint (timeline display).
+						RaceEvents.update({'_id' : compId}, up);
+					})).on('end', Meteor.bindEnvironment(function() {
+						// Ready.
+					}));
+					// if any source provided. Update RaceEvent Collection :
+					var update = {'$set' : {}};
+					// Raced attribute so we know tis task has been processed.
+					RaceEvents.update({'_id' : compId}, update);
+				}));
+			}
 		}
 	});
 });

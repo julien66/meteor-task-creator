@@ -65,6 +65,8 @@ Template.autoImporter.helpers({
 	importable : function() {
 		var T = Template.instance();
 		var current = T.currentTaskParam.get();
+		console.log(current.taskNum);
+		console.log(T.taskNum.get());
 		return (current.taskNum  !== T.taskNum.get()  || current.gotComp !== T.gotComp.get());
 	
 	},

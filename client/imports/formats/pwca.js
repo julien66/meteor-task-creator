@@ -14,7 +14,7 @@ var parse = function(data, source) {
 	var tps = [];
 	var wps = [];
 	
-	console.log(data);
+	//console.log(data);
 	for (var i = 0; i < task.points.length; i++) {
 		var pt = task.points[i];
 		var wp = {

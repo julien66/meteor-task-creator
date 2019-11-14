@@ -22,7 +22,12 @@ import * as pwca from './formats/pwca';
     	var parseInfo = {};
 
     	if (fileInfo.waypoints) {
-    		//var waypointsInfos = fileInfo.waypoints;
+		// We destroy past waypoints if there is a task to display.	
+		// Or maybe better to keep past Waypoints anyway?
+		if (fileInfo.task) {
+			Waypoints.remove({});
+		}
+		// Now inserting current Waypoints.
       		for (var i = 0; i < fileInfo.waypoints.length; i++) {
 			// Prevent insert same waypoint multiple time.
 			if (!Waypoints.find(fileInfo.waypoints[i]).fetch().length > 0) {
