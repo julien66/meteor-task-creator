@@ -3,8 +3,8 @@
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<h4 class="modal-title" id="wp-export">Export Waypoints</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				</div>
 				<div class="modal-body">
 					<h5>Select waypoints to export :</h5>
@@ -15,7 +15,7 @@
 									<a class="form-group list-group-item" id="export-wp-format" ref="#"> 
 										<input class="export-single-wp" name="{{_id}}" type="checkbox" checked="checked"> Waypoints # {{indexIt @index}} <br/>
 										<label for="export-single-wp" class="label label-default"> NAME </label>
-										<input name="id" class="export-wp-id form-control" type="text" wpId="{{_id}}" value="{{id}}">
+										<input name="id" class="export-wp-id form-control" type="text" wpId="{{_id}}" value="{{description}}">
 										<label for="export-single-wp" class="label label-default"> DESCRIPTION </label>
 										<input name="name" class="export-wp-name text-primary form-control" wpId="{{_id}}" type="text" value="{{name}}">
 									</a>
@@ -24,8 +24,8 @@
 						</div>
 						<div class="form-group">
 							<div class="form-group row" id="formatWp"> 
-								<label for="formatWp" class="col-sm-3">Select a format</label>
-								<select id="formatWp" name="formatWp" class="col-sm-6 form-control" autocomplete="off">
+								<label for="formatWp" class="col-sm-4 col-form-label">Select a format</label>
+								<select id="formatWp" name="formatWp" class="col-sm-8 form-control" autocomplete="off">
 									{{#each exportFormat}}
 										<option>{{this}}</option>
 									{{/each}}
@@ -33,7 +33,7 @@
 							</div>
 						</div>
 						<div class="modal-footer">
-							<input type="submit" id="export-wp" class="btn btn-success" value="Export Waypoints">
+							<input type="submit" id="export-wp" class="btn btn-dark" value="Export Waypoints">
 						</div>
 					</form>
 				</div>

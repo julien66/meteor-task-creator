@@ -21,8 +21,7 @@ Template.taskBoard.helpers({
 		return Param.turnpoint.fillColor[type.toLowerCase()];
 	},
 	isShown : function() {
-		return (!Turnpoints.find().fetch().length > 0) ? 'hidden' : '';
-		//return (!Turnpoints.find().fetch().length > 0) : 'hidden' : '';
+		return Turnpoints.find().fetch().length > 0;
 	},
 	roundDistance : function(distance) {
 		return Math.round(distance/10)/100;

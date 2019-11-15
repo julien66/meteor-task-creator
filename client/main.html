@@ -12,7 +12,7 @@
 				</center>
 			</span>
 			{{> map}}
-			<div id="sidebar" class="col-sm-3">
+			<div id="sidebar" data-toggle="collapse"  class="col-sm-3 collapse show">
 				<div id="sidebar-inner">
 					<div class="sideComponent">
 						{{> dropzone url='/upload' 
@@ -36,10 +36,8 @@
 					</div>
 				</div>
 			</div>
-			<div class="absoluteComponent">
-				{{> validateTask}}
-				{{> player}}
-			</div>
+			{{> validateTask}}
+			{{> player}}
 		</div>
 	</div>
 </body>

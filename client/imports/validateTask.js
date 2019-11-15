@@ -46,6 +46,8 @@ Template.validateTask.helpers({
 			var percent = Math.round(eval(query.progress) * 100);
 			if (percent < 5 )  {
 				T.percentThreshold = true;
+			}
+			if (percent == 100 && T.percentThreshold) {
 				T.racingIndex.set(T.racingIndex.get() + 1);
 				T.percentThreshold = false;
 			}
@@ -64,7 +66,7 @@ Template.validateTask.onCreated (function validateOnCreated() {
 	$('#validateTask').hide();
 	this.percentThreshold = false;
 	this.racingIndex = new ReactiveVar(0);
-	this.racingStatus = ['Importing Tracks', 'Reading Tracks', 'Validating Tracks', 'Preparing Race'];
+	this.racingStatus = ['Importing Tracks', 'Reading Tracks', 'Validating Tracks', 'Streaming to database'];
 	this.valid = new ReactiveVar(false);
 	this.report = new ReactiveVar('');
 	var t = Template.instance();

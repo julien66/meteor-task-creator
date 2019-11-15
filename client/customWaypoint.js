@@ -13,8 +13,8 @@ Template.customWaypoint.rendered = function() {
 	var input = this.find("input[type=checkbox][data-toggle^=toggle]");
 	var $input = $(input).bootstrapToggle({
 		size : "small",
-		onstyle : "success",
-		offstyle: "warning",
+		onstyle : "light",
+		offstyle: "dark",
 	});
 	
 	$input.change(function(e){

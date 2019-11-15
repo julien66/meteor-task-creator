@@ -1,6 +1,7 @@
 <template name="waypointFiles">
+	{{#if isShown}}
 	<div id="waypointFiles">
-		<ul class={{isShown}}>
+		<ul>
 			{{#each waypointFiles}}
 			<li>
 				<a href="" rel="{{this}}">
@@ -10,6 +11,7 @@
 			</li>	
 			{{/each}}
 		</ul>
-		<button class="btn btn-primary {{isShown}} pull-right">Export Waypoints</button>
+		<button class="btn btn-dark pull-right">Export Waypoints</button>
 	</div>
+	{{/if}}
 </template>

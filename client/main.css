@@ -2,17 +2,17 @@
  * Main Layout.
  */
 html, body {
-  height: 100%;
-  font-family : Roboto, Arial, sans-serif;
+	height: 100%;
+  	font-family : Roboto, Arial, sans-serif;
 	background-color : rgb(229, 227, 223);
 }
 
 .container-fluid, .main, #map-canvas, #sidebar {
-  height : 100%;
+ 	height : 100%;
 }
 
 .cog {
-	position : absolute;
+	position : absolute !important;
 	font-size : 200px;
 }
 
@@ -21,9 +21,11 @@ html, body {
 }
 
 #sidebar {
- background-color: #575F4E;
- color : #FFF;
- overflow : auto;
+ 	background-color: darkslategrey;
+ 	color : #FFF;
+ 	overflow : auto;
+	border-left : 15px solid #f0ad4e;
+	box-shadow : 0px 0px 5px #000;
 }
 
 #map-canvas {
@@ -35,7 +37,7 @@ html, body {
 }
 
 #sidebar-inner {
-  padding: 10px;
+  	padding: 10px;
 }
 
 .sideComponent {
@@ -46,7 +48,7 @@ html, body {
 #dz {
 	cursor: pointer;
 	padding: 10px;
-	border: 3px dashed #EEE;
+	border: 3px dashed #FFF;
 	text-align: center;
 	font-family: cursive;
 	font-style: italic;
@@ -74,20 +76,20 @@ html, body {
 #player {
 	position : absolute;
 	bottom : 0;
-	background-color : #333;
+	background-color : #343A40;
 	border-top : 1px solid #000;
 	box-shadow : 0px 0px 10px #000;
 	width : 100%;
-	color :#AAA; 
-	padding : 15px;
+	color :#FFF; 
+	padding : 5px 15px;
 }
 
-#player span.glyphicon {
+#player i.fa {
 	cursor : pointer;
 }
 
-#player span.glyphicon:hover {
-    	color: #f0ad4e;
+#player i.fa:hover {
+    color: #f0ad4e;
 }
 
 #player #controls {
@@ -101,8 +103,29 @@ html, body {
 	width : 100%;
 }
 
+#player #currentTime {
+	font-size : 10px;
+	position : absolute;
+	left : 0%;
+	color: #FFF;
+    	z-index: 10000;
+    	margin: 4px 0px 0px 10px;
+    	user-select: none;
+	font-weight : bold;
+}
+
+#player #close {
+	position : absolute;
+	right : 5px;
+	font-size: 15px;
+}
+
 #player #speed {
 	margin : 0px 0px 0px 30px;
+}
+
+#speedValue {
+	line-height : initial;
 }
 
 #timeMark {
@@ -121,9 +144,9 @@ html, body {
 }
 
 #innerTime {
-	background-color: #575F4E;
-    	border: 1px solid #000;
-    	border-radius: 5px;
+	background-color: darkslategrey;
+    	border: 2px solid #FFF;
+    	border-radius: 20px;
     	position: relative;
     	height: 20px;
 	cursor : pointer;
@@ -151,18 +174,18 @@ html, body {
 	);
 }*/
 
-#autoImporter h4 {
+#autoImporter h5 {
 	text-align : center;
-	border :1px solid #DDD;
+	border :1px solid #FFF;
 	padding : 15px;
 }
 
-#autoImporter h4 .fa-expand {
+#autoImporter h5 .fa-expand {
 	font-size : 12px;
 	float :right;
 }
 
-#autoImporter h4 .fa-expand:hover {
+#autoImporter h5 .fa-expand:hover {
 	cursor: pointer;
 	font-size : 14px;
 }
@@ -180,7 +203,11 @@ html, body {
 
 #toggleWaypoint {
 	text-align : center;
-	border : 1px solid #DDD;
+	border : 1px solid #FFF;
+}
+
+#toggleWaypoint h5 {
+	padding-top : 10px;
 }
 
 .modal select.form-control {
@@ -192,8 +219,8 @@ html, body {
 }
 
 #waypointFiles ul {
-  background: repeating-linear-gradient(45deg, #575F4E, #575F4E 20px, #879279 20px, #879279 40px);
-	border: 1px solid #DDD;
+  background: repeating-linear-gradient(45deg, #343A40, #343A40 20px, darkslategrey 20px, darkslategrey 40px);
+	border: 1px solid #FFF;
 	padding: 10px;
 }
 
@@ -205,12 +232,16 @@ html, body {
 	clear: both;
         margin: 40px 0px 10px 0px;
 	min-height: 100px;
-	border: 1px solid #EEE;
+	border: 1px solid #FFF;
 	border-radius: 2px;
-	background-color: #879279;
-	background-image: linear-gradient(45deg, #575F4E 25%, transparent 25%, transparent 75%, #575F4E 75%), linear-gradient(45deg, #575F4E 25%, transparent 25%, transparent 75%, #575F4E 75%);
+	background-color: darkslategrey;
+	background-image: linear-gradient(45deg, #343A40 25%, transparent 25%, transparent 75%, #343A40 75%), linear-gradient(45deg, #343A40 25%, transparent 25%, transparent 75%, #343A40 75%);
 	background-size: 20px 20px;
 	background-position: 0 0, 50px 50px;
+}
+
+.sideComponent:last-child {	
+	padding-bottom : 50px;
 }
 
 
@@ -240,6 +271,10 @@ html, body {
 	list-style-image: none;
 	list-style-type: none;
 	text-shadow: 0px 0px 10px #000;
+}
+
+#turnpoint-content {
+	padding : 10px 40px 0px 20px
 }
 
 .turnpointId {

@@ -23,13 +23,14 @@ Template.map.onCreated( function onGmap() {
 		window.addEventListener('movePilots', movePilots);
 		function addPilots(e) {
 			var ids = e.detail.ids;
-			var mapping = e.detail.mapping;
+			var ranking = e.detail.ranking;
 			for (var i = 0; i < ids.length -1; i++) {
 				if (!pilots[ids[i]]) {
+					var rankObj = ranking[ids[i]];
 					var marker = new google.maps.Marker({
 						label: {
-							text : mapping[ids[i]],
-							color : "#000",
+							text : rankObj.name,
+							color : '#000',
 							fontSize: "11px",
 							fontWeight: "bold",
 							'text-shadow': "0px 0px 10px #000",
@@ -37,13 +38,12 @@ Template.map.onCreated( function onGmap() {
 						icon : {
 							//path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0',
 							path: google.maps.SymbolPath.CIRCLE,
-							scale : 10,
-							fillColor: "#FE7569",
+							scale : 4,
+							fillColor: rankObj.color,
 							fillOpacity: 1,
-							strokeColor: '#CB4236',
+							strokeColor: rankObj.darkerColor,
 							strokeWeight: 1,
-							scale: 1,
-							labelOrigin : new google.maps.Point(0, 10),
+							labelOrigin : new google.maps.Point(0, 3),
 						}, 
 						//position: new google.maps.LatLng(waypoint.lat, waypoint.lon),
 						map: map.instance,
@@ -58,12 +58,13 @@ Template.map.onCreated( function onGmap() {
 		function movePilots(e) {
 			if (e.detail && e.detail.snap) {
 				var snap = e.detail.snap;
+				//console.log(snap);
 				for (let [id, value] of Object.entries(snap)) {
 					if (pilots[id]) {
 						pilots[id].setPosition(new google.maps.LatLng(value.lat, value.lon));
 					}
 					else {
-						console.log(id);
+						//console.log(id);
 					}
 				}
 			}

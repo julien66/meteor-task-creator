@@ -1,4 +1,5 @@
 <template name="taskBoard">
+	{{#if isShown}}
 	<div id="taskboard">
 		<div id="taskboard-header">Taskboard</div>
 		<div id="taskboard-content">
@@ -6,7 +7,7 @@
 				<ul>
 					{{#each turnpoints}}
 					<li class="taskboard-item" rel="{{this._id}}">
-						<span class="label label-default" style="background-color : {{ fillColor this.role }}"> {{ shortName this.role }}</span>
+						<span class="badge badge-default" style="background-color : {{ fillColor this.role }}"> {{ shortName this.role }}</span>
 							<span class="turnpointId"> {{this.name}} </span>
 							<span> - </span>
 							<span class="turnpointName"> {{this.description}} </span>
@@ -20,5 +21,6 @@
 			</div>
 		</div>
 	</div>
-	<button class="btn btn-primary {{isShown}} pull-right">FullBoard</button>
+	<button class="btn btn-dark pull-right">FullBoard</button>
+	{{/if}}
 </template>

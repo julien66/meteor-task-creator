@@ -1,8 +1,12 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap4-toggle/css/bootstrap4-toggle.min.css';
 
 import './main.html';
 
+const pkg = require('bootstrap4-toggle');
 Modal.allowMultiple = true;
 
 Task = new Mongo.Collection('task');

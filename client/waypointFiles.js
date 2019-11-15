@@ -12,7 +12,7 @@ Template.waypointFiles.helpers({
 		return distinctFile;
 	},
 	isShown : function() {
-		return (!Waypoints.find().fetch().length > 0) ? 'hidden' : '';
+		return Waypoints.find().fetch().length > 0;
 	}
 });
 

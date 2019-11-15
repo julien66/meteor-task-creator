@@ -3,15 +3,15 @@
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div id="turnpoint-header" class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<h4 class="modal-title" id="turnpoint-config-label">Turnpoint Configuration</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				</div>
 				<div id="turnpoint-content" class="modal-body">
 					<form action="#" autocomplete="off" id="turnpoint-form-config">
 						<div class="form-group">
 							<div class="form-group row" id="tp-type">
-								<label for="tp-role-select" class="col-sm-3 form-control-label">ROLE</label>
-								<select id="tp-role-select" class="form-control col-sm-6" name="role" autocomplete="off">
+								<label for="tp-role-select" class="col-sm-4 col-form-label">ROLE</label>
+								<select id="tp-role-select" class="form-control col-sm-8" name="role" autocomplete="off">
 									<option data-show="close,direction,open,radius" data-hide="finish" {{sel 'role' 'TAKEOFF'}}>TAKEOFF</option>
 									<option data-show="direction,open,radius" data-hide="close,finish" {{sel 'role' 'START'}}>START</option>
 									<option data-show="direction,radius" data-hide="close,finish,open" {{sel 'role' 'TURNPOINT'}}>TURNPOINT</option>
@@ -20,47 +20,50 @@
 								</select>
 							</div>
 							<div class="form-group row hidden" id="tp-finish">
-								<label for="tp-finish-select" class="col-sm-3 form-control-label">Goal type</label>
-								<select id="tp-finish-select" class="form-control col-sm-6" name="finish" autocomplete="off">
+								<label for="tp-finish-select" class="col-sm-4 col-form-label">GOAL TYPE</label>
+								<select id="tp-finish-select" class="form-control col-sm-8" name="finish" autocomplete="off">
 									<option data-show="close,radius" data-hide="mode,open" {{sel 'finish' 'CYLINDER'}}>Cylinder</option>
 									<option data-show="close" data-hide="mode,open,radius" {{sel 'finish' 'LINE'}}>Line</option>
 								</select>
 							</div>
 							<div class="form-group row" id="tp-radius">
-								<label for="tp-radius-input" class="col-sm-3 form-control-label">RADIUS</label>
-								<div class="input-group col-sm-6">
+								<label for="tp-radius-input" class="col-sm-4 col-form-label">RADIUS</label>
+								<div class="input-group col-sm-8">
 									<input id="tp-radius-input" class="form-control" name="radius" type="number" min="200" step="100" value="{{default 'radius' 400}}">
-									<div class="input-group-addon">Meters</div>
+									<div class="input-group-append"><span class="input-group-text">Meters</span></div>
 								</div>
 							</div>
 							<div class="form-group row" id="tp-mode">
-								<label for="tp-direction-select" class="col-sm-3 form-control-label">DIRECTION</label>
-								<select id="tp-direction-select" class="form-control col-sm-6" name="direction" autocomplete="off">
+								<label for="tp-direction-select" class="col-sm-4 col-form-label">DIRECTION</label>
+								<select id="tp-direction-select" class="form-control col-sm-8" name="direction" autocomplete="off">
 									<option {{sel 'direction' 'ENTER'}}>ENTER</option>
 									<option {{sel 'direction' 'EXIT'}}>EXIT</option>
 								</select>
 							</div>
 							<div class="form-group row" id="tp-open">
-								<label for="tp-open-input" class="col-sm-3 form-control-label">OPENING TIME</label>
-								<div class="input-group col-sm-6">
+								<label for="tp-open-input" class="col-sm-4 col-form-label">OPENING TIME</label>
+								<div class="input-group col-sm-8">
 									<input id="tp-open-input" class="form-control" name="opening_time" type="text" value="{{default 'open' '12:00:00'}}">
-									<div class="input-group-addon">hh:mm:ss</div>
+									<div class="input-group-append"><span class="input-group-text">HH:MM:SS</span></div>
 								</div>
 							</div>
 							<div class="form-group row" id="tp-close">
-								<label for="tp-close-input" class="col-sm-3 form-control-label">CLOSING TIME</label>
-								<div class="input-group col-sm-6">
+								<label for="tp-close-input" class="col-sm-4 col-form-label">CLOSING TIME</label>
+								<div class="input-group col-sm-8">
 									<input id="tp-close-input" class="form-control" name="close_time" type="text" value="{{default 'close' '18:00:00'}}">
-									<div class="input-group-addon">hh:mm:ss</div>
+									<div class="input-group-append"><span class="input-group-text">HH:MM:SS</span></div>
 								</div>
 							</div>
 						</div>
 						<div class="modal-footer">
 							{{#if notNew }}
-								<input type="submit" id="edit-turnpoint" class="btn btn-warning" value="Edit Turnpoint">
-								<button type="button" id="delete-turnpoint" data-action="turnpoint/remove" class="btn btn-danger">Delete Turnpoint</button>
+								<input type="submit" id="edit-turnpoint" class="btn btn-dark" value="Edit Turnpoint">
+								<button type="button" id="delete-turnpoint" data-action="turnpoint/remove" class="btn btn-dark">
+									<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+									Delete Turnpoint
+								</button>
 							{{else}}
-								<input type="submit" id="add-turnpoint" class="btn btn-success" value="Add Turnpoint">
+								<input type="submit" id="add-turnpoint" class="btn btn-dark" value="Add Turnpoint">
 							{{/if}}	
 						</div>
 					</form>

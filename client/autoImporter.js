@@ -65,8 +65,6 @@ Template.autoImporter.helpers({
 	importable : function() {
 		var T = Template.instance();
 		var current = T.currentTaskParam.get();
-		console.log(current.taskNum);
-		console.log(T.taskNum.get());
 		return (current.taskNum  !== T.taskNum.get()  || current.gotComp !== T.gotComp.get());
 	
 	},
@@ -109,7 +107,7 @@ Template.autoImporter.onCreated(function autoImporterOnCreated() {
 	// Observing RaceEvents as they flow from dynamic subscription.
 	RaceEvents.find().observe({
 		'added' : function(raceEvent) {
-			console.log(raceEvent);
+			//console.log(raceEvent);
 			var events = self.importedEvents.get();
 			events.push(raceEvent);
 			self.importedEvents.set(events);

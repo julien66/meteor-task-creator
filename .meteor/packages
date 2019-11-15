@@ -23,10 +23,8 @@ dbarrett:dropzonejs
 peppelg:bootstrap-3-modal
 fortawesome:fontawesome
 session@1.2.0
-williamledoux:bootstrap-toggle
 mrt:jquery-ui
 underscore@1.0.10
 jquery
-twbs:bootstrap@3.3.5
 artwells:accounts-guest
 accounts-ui
