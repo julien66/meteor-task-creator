@@ -113,6 +113,9 @@ Meteor.startup(() => {
 			child.on('close', Meteor.bindEnvironment(function() {
 				// On process close, clean all Progress document for this uid, this processId and this type.
 			})); 
+			child.on('error', Meteor.bindEnvironment(function(err) {
+				console.log('error : ' + err);
+			}));
 		},
 		'task.request' : function(provider, year, processId) {
 			// Method called from autoImporter.js after the form is submitted.
