@@ -9,7 +9,6 @@ import './main.html';
 const pkg = require('bootstrap4-toggle');
 Modal.allowMultiple = true;
 
-Task = new Mongo.Collection('task');
 delete Session.keys['taskInfos'];
 var taskId = Task.insert({
 	uid : Meteor.userId(),

@@ -10,10 +10,10 @@
 		{{/if}}
 	</div>
 	{{/if}}
-	{{#if ready}} 
+	{{#if ready}}
 	<div id="buildRace" class="alert alert-warning">Preparing  race. Please Wait.
 		<div>
-			<span id="racingStage">{{getRacingStage}}</span> : <span id="racingProgress">{{getProgress}}</span>
+			<span id="replayStage"> {{getStage}}</span> {{#if isProgress}}: <span id="replayProgress">{{getProgress}}</span>{{/if}}
 		</div>
 	</div>
 	{{/if}}

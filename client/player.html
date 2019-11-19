@@ -1,21 +1,23 @@
 <template name="player">
+	{{#if showPlayer}}
 	<div id="player">
 		<div id="controls" class="row">
-			<i id="play" class="button fa fa-play-circle" role="button" data-toggle="collapse" href="#sidebar" aria-hidden="true"></i>
-			<i id="pause" class="button fa fa-pause-circle" aria-hidden="true"></i>		
-			<i id="speed" class="button fa fa-dashboard" aria-hidden="true"></i><div id="speedValue">{{getSpeed}}</div>
-			<i id="close" class="button fa fa-expand" aria-hidden="true"></i>
-		</div>
-		<div id="timeline" class="row">
+			<i id="play" class="button fa fa-play-circle"  aria-hidden="true"></i>
+			<i id="pause" class="button fa fa-pause-circle" aria-hidden="true"></i>
+			<div id="speedControl">
+				<i id="speed" class="button fa fa-dashboard" aria-hidden="true"></i>
+				<input type="range" min="1" max="20" value="{{getSpeed}}" class="speedSlider" id="speedSlide">
+				<span id="speedValue">{{getSpeed}}x</span>
+			</div>
+			<i id="clock" class="button fa fa-clock-o" aria-hidden="true"></i>
 			<span id="currentTime">
 				{{getCurrentTime}}
 			</span>
-			<div id="contains">
-				<div id="innerTime">
-					<div id="cursorNow">
-						I
-					</div>
-				</div>
+			<i id="close" class="button fa fa-expand" aria-hidden="true"></i>
+		</div>
+		<div id="timeline" class="row">
+			<div id="innerTime">
+				<input type="range" min="{{getOpen}}" max="{{getClose}}" value="{{getCurrentSeconds}}" class="replaySlider" id="replaySlide">
 			</div>
 		</div>
 		<div id="timeMark" class="row">
@@ -25,8 +27,18 @@
 		</div>
 		<div id="pilotList" class="row">
 			{{#each pilots}}
-				<span class="pilot" id="pilot-{{id}}">{{name}}</span>
+				<div class="pilot" id="pilot-{{id}}" rel="{{id}}">{{name}}</div>
 			{{/each}}
 		</div>
+		{{#if showRaceProgress}}
+		<div id="raceAlert">
+			<div class="alert alert-warning">
+				<h4><i class="fa fa-bar-chart"></i> Full race analysis launched</h4>
+				Enjoy the replay in the meantime!
+				<span id="raceStage"> {{getStage}}</span> {{#if isProgress}}: <span id="raceProgress">{{getProgress}}</span>{{/if}}
+			</div>
+		</div>
+		{{/if}}
 	</div>
+	{{/if}}
 </template>

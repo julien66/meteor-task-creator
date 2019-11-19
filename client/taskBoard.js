@@ -1,7 +1,10 @@
 /**
  * @file
  * JS Taskboard
+ * Basically Task main model.
  */
+
+Task = new Mongo.Collection('task');
 import * as Parameters from './param.js';
 import * as Validator from './imports/validateTask.js';
 

@@ -9,10 +9,19 @@ Template.player.helpers({
 		var T = Template.instance();
 		var pilots = T.pilots.get();
 		var ranking = T.ranking;
-		// return a mapped object to Blaze. With every pilot id, name, distance, time.
-		return pilots.map(function(uid) {
-			return T.ranking[uid];
-		});
+		if (ranking.length > 0) {
+			// return a mapped object to Blaze. With every pilot id, name, distance, time.
+			return pilots.map(function(uid) {
+				return T.ranking[uid];
+			});
+		}
+		else {
+			// If ranking is still not there...
+			// Well just build a fake object full of uid.
+			return pilots.map(function(uid) {
+				return { id : uid, name : uid};
+			});
+		}
 	},
 	playable : function() {
 		var T = Template.instance();
@@ -20,15 +29,71 @@ Template.player.helpers({
 	},
 	getSpeed : function() {
 		var T = Template.instance();
-		return T.speed.get() + 'x'; 
+		return T.speed.get(); 
 	},
 	getCurrentTime : function() {
 		var T = Template.instance();
 		return secondsToHH(T.raceTime.get());
 	},
+	getOpen : function() {
+		var T = Template.instance();
+		var times = T.times.get();
+		if(times.length > 0) {
+			return times[0].seconds
+		}
+		return 0;
+	},
+	getClose : function() {
+		var T = Template.instance();
+		var times = T.times.get();
+		if(times.length > 0) {
+			return times[2].seconds;
+		}
+		return 24*3600;
+	},
+	getCurrentSeconds : function() {
+		var T = Template.instance();
+		return T.raceTime.get();
+	},
 	timeMark : function() {
 		var T = Template.instance();
 		return T.times.get();
+	},
+	showPlayer : function() {
+		var T = Template.instance();
+		return T.pilots.get().length > 0;	
+	},
+	showRaceProgress : function() {
+		var T = Template.instance();
+		return T.init;
+	},
+	isProgress : function() {
+		var T = Template.instance();
+		return T.replayIndex.get() < 1;
+	},
+	getProgress : function() {
+		var T = Template.instance();
+		var uid = Meteor.userId();
+		var query = Progress.findOne({uid : uid, pid : Session.get('processId'), type : "race"}, {sort : {created : -1}});
+		if (query) {
+			// Return Progress to be displayed.
+			var percent = parseInt(query.progress.substring(0, query.progress.indexOf('%')));
+			if (isNaN(percent)) {
+				percent = 0;
+			}
+			if (percent < 5 )  {
+				T.percentThreshold = true;
+			}
+			if (percent == 100 && T.percentThreshold) {
+				T.raceIndex.set(T.raceIndex.get() + 1);
+				T.percentThreshold = false;
+			}
+			return percent + ' %';
+		};
+	},
+	getStage : function() {
+		var T = Template.instance();
+		return T.raceStatus[T.raceIndex.get()];
 	}
 });
 
@@ -46,11 +111,16 @@ Template.player.onCreated (function onPlayerCreated() {
 	this.grabCursor = false;
 	this.speed = new ReactiveVar(1);
   	// Store the current raceTime as a reactive variable
-  	this.raceTime = new ReactiveVar(24*3600);
+  	this.raceTime = new ReactiveVar(0);
   	this.reqTime = new ReactiveVar(new Date('1970-01-01T00:00:00'));
 	this.times = new ReactiveVar([]);
 	this.init = true;
-		
+	this.performance = false;
+
+	this.percentThreshold = false;
+	this.raceIndex = new ReactiveVar(0);
+	this.raceStatus = ['Validating Tracks', 'Updating database'];
+	
 	// this will rerun whenever raceTime or raceInfos changes
   	this.autorun(function() {
     		// Subscribe for the current raceTime (only if one is selected). Note this
@@ -58,6 +128,7 @@ Template.player.onCreated (function onPlayerCreated() {
     		// also stop all subscriptions when this template is destroyed.
 		var infos = Session.get('raceInfos');
       		if (infos && T.reqTime.get()) {
+			//console.log('sub', infos.id, infos.task, T.reqTime.get());
 			T.subscribe('SnapRace', infos.id, infos.task, T.reqTime.get());
   		}
 		// Getting mapping array to display proper names from uid.
@@ -67,18 +138,8 @@ Template.player.onCreated (function onPlayerCreated() {
 			var comp = RaceEvents.findOne({_id : infos.id});
 			if (comp) {
 				var task = comp.tasks[infos.task].task
-				console.log(task);
-				//Iterate throught ranking to map uid -> name.
-				if (task && task.ranking) {
-					for (var i = 0; i < task.ranking.length; i++) {
-						var elt = task.ranking[i];
-						// add random color for each pilot.
-						elt.color = '#'+((1<<24)*(Math.random()+1)|0).toString(16).substr(1);
-						// add something darker to get contrast.
-						elt.darkerColor = adjustColor(elt.color, -30);
-						// Storing a friendly array with id key [id : {}, id {}] ; 
-						T.ranking[elt['id']] = elt;
-					};
+				if (task) {
+					T.raceTime.set(HHtoSeconds(task.details.open));
 					T.times.set([
 						{
 							key : 'open',
@@ -100,8 +161,20 @@ Template.player.onCreated (function onPlayerCreated() {
 						}
 					]);
 				}
-				// All data collected for this race, No need to execute this block anymore.
-				T.init = false;		
+				//Iterate throught ranking to map uid -> name.
+				if (task && task.ranking) {
+					for (var i = 0; i < task.ranking.length; i++) {
+						var elt = task.ranking[i];
+						// add random color for each pilot.
+						elt.color = '#'+((1<<24)*(Math.random()+1)|0).toString(16).substr(1);
+						// add something darker to get contrast.
+						elt.darkerColor = adjustColor(elt.color, -30);
+						// Storing a friendly array with id key [id : {}, id {}] ; 
+						T.ranking[elt['id']] = elt;
+					};
+					// All data collected for this race, No need to execute this block anymore.
+					T.init = false;		
+				}
 			}
 		}
 	});
@@ -114,13 +187,10 @@ Template.player.onCreated (function onPlayerCreated() {
 			if (Session.get('importTrack') == true) {
 				Session.set('importTrack', false);
 			}
-			//console.log(snap);
+			console.log(snap);
 			var hh = snap.time.toTimeString().split(' ')[0];
 			var seconds = HHtoSeconds(hh);
 			T.buffer[seconds] = {snap : snap.snapshot, hh : hh};
-			if (T.raceTime.get() > seconds) {
-				T.raceTime.set(seconds);
-			}
 			var ids = Object.keys(snap.snapshot);
 			var current = T.pilots.get();
 			T.pilots.set(current.concat(ids.filter((item) => current.indexOf(item) < 0)));
@@ -151,33 +221,52 @@ var play = function (T) {
 	if (T.play === false) {
 		T.play = true;
 		T.playInterval = setInterval(function() {
+			//var perf = performance.now();
 			var currentTime = T.raceTime.get();
-			// Send current buffer to map.)
-			var event = new CustomEvent('movePilots', { 'detail': T.buffer[currentTime]});
-			window.dispatchEvent(event);
+			// If performance is currently good enough, send current buffer to map.)
+			// Else Map will just skip this snapshot and take next one as time stil flows. 
+			//if (T.buffer && Math.round(perf - T.performance) < T.delay.get() * 1.10) {
+				// We need to send only alternated part of this big buffer.
+				var event = new CustomEvent('movePilots', { 'detail': T.buffer[currentTime]});
+				window.dispatchEvent(event);
+			//}
 			// Freeing Buffer ?
 			delete T.buffer[currentTime];
 			// Increment time by delay
-			// @todo 20 is harde coded.
-			// We need more test.
+			// @todo 2 is hard coded.
+			// Looks bad. We need more test.
 			T.raceTime.set(currentTime + 1);
-			if (T.buffer.length - currentTime < 20) {
-				if (T.buffer[T.buffer.length-1]) {
-					T.reqTime.set(new Date('1970-01-01T'+ T.buffer[T.buffer.length-1].hh));
+			if (T.buffer.length - currentTime < 5) {
+				if (T.buffer.length > 0) {
+					T.reqTime.set(new Date('1970-01-01T'+ T.buffer[T.buffer.length - 1].hh));
+				} 
+				else {
+					T.reqTime.set(new Date('1970-01-01T'+ secondsToHH(currentTime)));
 				}
 			}
+			//T.performance = perf;
 		}, T.delay.get());
 	}
 }
 
 // Helper function to speed.
 // Clear speed interval and reset play as it changes.
-var addSpeed = function(T) {
-	var speed = T.speed.get();
-	T.speed.set(speed + 1);
-	if (T.speed.get() > 50) {
+var setSpeed = function(T, speed) {
+	// If speed is not there...
+	// Just add one.i
+	console.log(speed);
+	if (!speed) {
+		var speed = T.speed.get();
+		T.speed.set(parseInt(speed) + 1);
+	}
+	else {
+		T.speed.set(speed);
+	}
+
+	if (T.speed.get() > 20) {
 		T.speed.set(1);
 	}
+
 	T.delay.set(Math.round(1000/speed));
 	if (T.play === true) {
 		clearInterval(T.playInterval);
@@ -205,15 +294,19 @@ Template.player.events({
 	},
 	'click #speed' : function(e) {
 		var T = Template.instance();
-		addSpeed(T);
+		setSpeed(T);
+	},
+	'change .speedSlider' : function(e) {
+		var T = Template.instance();
+		setSpeed(T, parseInt($(e.target).val()));
 	},
 	'mousedown #speed' : function(e) {
 		var T = Template.instance();
 		var time = 0;
 		T.pressInterval = setInterval(function() {
 			time += 100;
-			if (time > 300) {
-				addSpeed(T);
+			if (time > 100) {
+				setSpeed(T);
 			}
 		}, 100);	
 	},
@@ -229,63 +322,27 @@ Template.player.events({
 			clearInterval(T.pressInterval);
 		}
 	},
-	'mousedown #cursorNow' : function(e) {
+	'change #replaySlide' : function(e) {
 		var T = Template.instance();
-		T.grabCursor = true;
-	},
-	'click #innerTime' : function(e) {
-		var T = Template.instance();
-		timeMoved(T, e);
-	},
-	'mouseup #player' : function(e) {
-		var T = Template.instance();
-		T.grabCursor = false;
-	},
-	'mousemove #player' : function(e) {
-		var T = Template.instance();
-		if (T.grabCursor === true) {
-			// @todo move cursor and set time.
-			timeMoved(T, e);
-		}
-	},
-	'mouseleave #player' : function(e) {
-		var T = Template.instance();
-		T.grabCursor = false;
+		timeMoved(T, parseInt($(e.target).val()));
 	},
 	'click #close' : function(e) {
 		$('#timeline').toggle();
 		$('#timeMark').toggle();
 		$('#pilotList').toggle();
-	}
+		$('#raceAlert').toggle();
+	},
+	'click .pilot' : function() {
+		var id = $('.pilot').attr('rel');
+		var infos = Sessions.get('raceInfos');
+		Mateor.call('test.watch', id, infos.id, infos.task, Session.get('progressId'));
+	},
 });
 
-var timeMoved = function(T, e) {
-	// When timeline cursor is moved. Set new left %.
-	var width = $('#innerTime').width();
-	var position = e.clientX * 100 / width;
-	// Get current position. See hack below.
-	var currentPosition = $('#cursorNow').position();
-	$('#cursorNow').css({left : Math.min(position, 100) + '%'});
-	$('#currentTime').css({left : Math.min(position, 100) + '%'});
-	// Now we want to stop the current race and set new times to play it again.
-	stop(T);
-	// Because of inconsistent time beetween task and tracks, only add or remove seconds relative to current time.
-	// Otherwise, when all will be ok, we could go faster like :
-	//var now = (e.clientX * (times[2].seconds - times[0].seconds) / width) + times[0].seconds;
-	var times = T.times.get();
-	// Get current time.
-	var current = T.raceTime.get();
-	// Calculate a second per pixel value. Given the actual scale of the race.
-	var secPerPx = (times[2].seconds - times[0].seconds)/ width;
-	// Get difference of position beetwen the event and the current cursor.
-	var diffPosition = e.clientX - currentPosition.left;
-	// Add or remove seconds to the current position.
-	var now = (diffPosition * secPerPx) + current ;	
-
+var timeMoved = function(T, now) {
 	// Empty buffer...	
 	T.buffer = []
 	// Set times accordingly.
-	T.reqTime.set(new Date('1970-01-01T' + secondsToHH(now)));
+	console.log(now);
 	T.raceTime.set(now);
-	play(T);
 } 

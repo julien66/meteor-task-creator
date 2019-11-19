@@ -55,11 +55,16 @@ Template.autoImporter.helpers({
 		}
 	},
 	getProgress : function() {
+		var T = Template.instance();
 		var uid = Meteor.userId();
-		var query = Progress.findOne({uid : uid, type : 'crawler'}, {sort : {created : -1}});
+		var query = Progress.findOne({uid : uid, pid : Session.get('processId'), type : 'crawler'}, {sort : {created : -1}});
 		if (query) {
+			var percent = parseInt(query.progress.substring(0, query.progress.indexOf('%')));
+			if (isNaN(percent)) {
+				percent = 0;
+			}
 			// Return Progress to be displayed.
-			return Math.round(eval(query.progress)*100) + ' %';
+			return percent + '%';
 		}; 
 	},
 	importable : function() {
@@ -72,7 +77,7 @@ Template.autoImporter.helpers({
 		var T = Template.instance();
 		var current = T.currentTaskParam.get();
 		return (current.taskNum  == T.taskNum.get()  && current.gotComp == T.gotComp.get());
-	} 
+	}
 });
 
 Template.autoImporter.onCreated(function autoImporterOnCreated() {
@@ -90,6 +95,19 @@ Template.autoImporter.onCreated(function autoImporterOnCreated() {
 	
 	// Storing current imported task param.
 	this.currentTaskParam = new ReactiveVar({});
+	
+	// Storing process Id for watching progress.
+	// UID wasn't enough because a user can open multiple window and start mutliple process. Progress were messy then.
+	Session.set('processId', new Mongo.ObjectID());
+	
+	// Storing session variable at crawler running.
+	Session.set('crawler', false);
+
+	// Storing session variable at replay build.
+	Session.set('importTrack', false);
+	
+	// Storing session variable at replay. compId and taskIndex. Enable snapRace subscription.
+	Session.set('raceInfos', false);
 	
 	// This is a dynamic subscription to raceEvent Collection.
 	// This will rerun whenever a year or provider changes. 
@@ -122,7 +140,7 @@ Template.autoImporter.onCreated(function autoImporterOnCreated() {
 });
 
 Template.autoImporter.events({
-	'click .fa-expand' : function(e) {
+	'click #autoImporter h5' : function(e) {
 		$('.form-group').toggle();
 		$('#stage2').hide();
 		$('#stage1 .fa-cog').hide();
@@ -145,7 +163,7 @@ Template.autoImporter.events({
 			$('#stage2').show(); 
 		}
 		else {
-			Meteor.call('task.request', provider, year);
+			Meteor.call('task.request', provider, year, Session.get('processId'));
 			Session.set('crawler', true);
 		}
 	},
@@ -180,16 +198,15 @@ Template.autoImporter.events({
 		var T = Template.instance();
 		var current = T.currentTaskParam.get();
 		var comp = RaceEvents.findOne({provider: T.provider.get(), year : T.year.get(), event : current.gotComp})
-		console.log(comp);
 		Session.set('raceInfos', {id : comp['_id'], task : current.taskNum - 1});
 		var task = comp.tasks[current.taskNum - 1];
 		if (task.raced == true) {
 			// This task has already been raced via IGCLib.
-			console.log('already raced');
+			console.log('already replay');
 		}
 		else {
-			// This task has not been raced yet. Call IGCLib for help.
-			Meteor.call('task.race', {task : btoa(JSON.stringify(task))}, comp['_id'], current.taskNum - 1,  function() {
+			// This task has not been raced yet. Call IGCLib for help.			
+			Meteor.call('task.replay', {task : btoa(JSON.stringify(task))}, comp['_id'], current.taskNum - 1, Session.get('processId'), function() {
 			});
 		}
 	}

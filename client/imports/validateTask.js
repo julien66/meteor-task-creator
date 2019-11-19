@@ -2,15 +2,12 @@
  * @file
  * Perform basic validation on task format.
  */
-Task = new Mongo.Collection('task', {connection: null});
-import { ReactiveVar } from 'meteor/reactive-var'
-//Progress = new Mongo.Collection('progress');
 
 Template.validateTask.helpers({
 	'display' : function() {
 		var task = Task.findOne();
 		if (task && task.turnpoints.length > 0) {
-			return true;
+			return !Session.get('raceInfos');
 		}
 		return false;
 	},
@@ -28,7 +25,7 @@ Template.validateTask.helpers({
 	},
 	'missZip' : function() {
 		var t = Template.instance();
-		return t.valid.get() && (!Session.get('trackFile') && !Session.get('importTrack'));
+		return t.valid.get() && (!Session.get('trackFile') && !Session.get('importTrack')) && !RaceEvents.find().fetch().length > 0;
 	},	
 	'opti' : function() {
 		return Session.get('requestOpti');
@@ -40,36 +37,45 @@ Template.validateTask.helpers({
 	'getProgress' : function() {
 		var T = Template.instance();
 		var uid = Meteor.userId();
-		var query = Progress.findOne({uid : uid, type : 'race'}, {sort : {created : -1}});
+		var query = Progress.findOne({uid : uid, pid : Session.get('processId'), type : "replay"}, {sort : {created : -1}});
 		if (query) {
 			// Return Progress to be displayed.
-			var percent = Math.round(eval(query.progress) * 100);
+			var percent = parseInt(query.progress.substring(0, query.progress.indexOf('%')));
+			if (isNaN(percent)) {
+				percent = 0;
+			}
 			if (percent < 5 )  {
 				T.percentThreshold = true;
 			}
 			if (percent == 100 && T.percentThreshold) {
-				T.racingIndex.set(T.racingIndex.get() + 1);
+				T.replayIndex.set(T.replayIndex.get() + 1);
 				T.percentThreshold = false;
 			}
 			return percent + ' %';
 		};
 	},
-	'getRacingStage' : function() {
+	'getStage' : function() {
 		var T = Template.instance();
-		console.log(T.racingIndex.get());
-		return T.racingStatus[T.racingIndex.get()];
+		return T.replayStatus[T.replayIndex.get()];
 	},
+	'isProgress' : function() {
+		var T = Template.instance();
+		return T.replayIndex.get() < 2;
+	}
 }); 
 
 
 Template.validateTask.onCreated (function validateOnCreated() {
 	$('#validateTask').hide();
 	this.percentThreshold = false;
-	this.racingIndex = new ReactiveVar(0);
-	this.racingStatus = ['Importing Tracks', 'Reading Tracks', 'Validating Tracks', 'Streaming to database'];
+	this.replayIndex = new ReactiveVar(0);
+	this.replayStatus = ['Downloading Tracks', 'Reading Tracks', 'Streaming to database'];
 	this.valid = new ReactiveVar(false);
 	this.report = new ReactiveVar('');
 	var t = Template.instance();
+	
+	Session.set('valudTask', false);
+
 	Task.find({_id : Session.get('taskId')}).observe({
 		added : function() {
 		},

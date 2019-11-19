@@ -1,11 +1,8 @@
 import Parameters from './param';
-//import Optimiser from './imports/betterOptimiser.js';
-import Optimiser from './imports/teoOptimiser.js';
 import  * as fileExporter from './imports/exporter';
 
 
 Template.map.onCreated( function onGmap() {
-	Session.set('taskDistance', null);
 	// We can use the `ready` callback to interact with the map API once the map is ready.
 	GoogleMaps.ready('raceMap', function(map) {
 		var param = Parameters.param;
@@ -13,6 +10,8 @@ Template.map.onCreated( function onGmap() {
 		var circles = [];
 		var pilots = {};
 		var fastTrack = null;
+		
+		Session.set('requestOpti', false);
 
 		var bounds = new google.maps.LatLngBounds();
 		
@@ -26,10 +25,18 @@ Template.map.onCreated( function onGmap() {
 			var ranking = e.detail.ranking;
 			for (var i = 0; i < ids.length -1; i++) {
 				if (!pilots[ids[i]]) {
+					var name = ids[i];
+					var color = "#f0ad4e";
+					var darkerColor = '#000';
 					var rankObj = ranking[ids[i]];
+					if(ranking[ids[i]]) {
+						name = rankObj.name;
+						color = rankObj.color;
+						darkerColor = rankObj.darkerColor
+					}
 					var marker = new google.maps.Marker({
 						label: {
-							text : rankObj.name,
+							text : name,
 							color : '#000',
 							fontSize: "11px",
 							fontWeight: "bold",
@@ -39,9 +46,9 @@ Template.map.onCreated( function onGmap() {
 							//path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0',
 							path: google.maps.SymbolPath.CIRCLE,
 							scale : 4,
-							fillColor: rankObj.color,
+							fillColor: color,
 							fillOpacity: 1,
-							strokeColor: rankObj.darkerColor,
+							strokeColor: darkerColor,
 							strokeWeight: 1,
 							labelOrigin : new google.maps.Point(0, 3),
 						}, 
@@ -203,23 +210,27 @@ Template.map.onCreated( function onGmap() {
 				if (checkTaskChange(task, pastTask)) {
 					// Export task a XC Track format to get Server side optimizer.
 					fileExporter.exportFile('task', 'XCtrack', null, true);
-					// Use client side optimizer	
-					var opti = Optimiser.optimize(google, map.instance, task.turnpoints);
-					if (opti && opti.points) {
-						drawOpti(opti.points);
-						setLegsDistances(task, opti.legs);
-					}
+					// @todo Since we can directly use IGCLIB for that...
+					// Involve revamping all map.js to make it a simple draw class as it should have always been!
+					// All observe and non drawing function should be in their model.js and only call drawing map function (@see player.js)
+					//Meteor.call('task.optimize', btoa(JSON.stringify(task)), Session.get('taskId'), Session.get('processId'), function(err, response){
+					//});
+					//Session.set('requestOpti', true);
+					drawOpti([]);
 				}
 				else if (task.IGCLibOpti){
 				// The task is the same, an opti has been returned from igclib! 
 					Session.set('requestOpti', false);
 					var fastWaypoints = [];
+					console.log(task.IGCLibOpti);
 					task.IGCLibOpti.points.forEach(function(el) {
 						var latLng = new google.maps.LatLng(el.lat, el.lon);
 						fastWaypoints.push(latLng);
 					}) 
 					drawOpti(fastWaypoints);
-					setLegsDistances(task, task.IGCLibOpti.legs);
+					if (task.IGCLibOpti.legs) {
+						setLegsDistances(task, task.IGCLibOpti.legs);
+					}
 				}
 			},
 		});
