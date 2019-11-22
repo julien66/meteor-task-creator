@@ -140,7 +140,6 @@ Template.player.onCreated (function onPlayerCreated() {
 			if (comp) {
 				var task = comp.tasks[infos.task].task
 				if (task) {
-					//T.raceTime.set(Helper.HHtoSeconds(task.details.open));
 					T.times.set([
 						{
 							key : 'open',
@@ -186,9 +185,11 @@ Template.player.onCreated (function onPlayerCreated() {
 			// @todo
 			// This is bad. Not a good place to set back this variable to false.
 			if (Session.get('importTrack') == true) {
+				var task = Task.findOne({_id : Session.get('taskId')});
+				T.raceTime.set(Helper.HHtoSeconds(task.open)) ;
 				Session.set('importTrack', false);
 			}
-			console.log(snap);
+			//console.log(snap);
 			var hh = snap.time.toTimeString().split(' ')[0];
 			var seconds = Helper.HHtoSeconds(hh);
 			T.buffer[seconds] = {snap : snap.snapshot, hh : hh};
@@ -241,7 +242,6 @@ var play = function (T) {
 var setSpeed = function(T, speed) {
 	// If speed is not there...
 	// Just add one.i
-	console.log(speed);
 	if (!speed) {
 		var speed = T.speed.get();
 		T.speed.set(parseInt(speed) + 1);

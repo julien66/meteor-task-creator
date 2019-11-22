@@ -19,7 +19,7 @@ Meteor.startup(() => {
 	Task = new Mongo.Collection('task');
 	// SnapRace store all snapshot of a Race as returned by IGCLib
 	SnapRace = new Mongo.Collection('snapRace');
-	SnapRace._ensureIndex({compId: 1, task: 1});
+	SnapRace._ensureIndex({compId: 1, task: 1, time: 1});
 	
 	// Publish all RaceEvent given a provider and a year.
 	Meteor.publish('raceEvent', function(provider, year) {
@@ -278,7 +278,7 @@ Meteor.startup(() => {
 					var stream = JSONStream.parse( ["race", {'emitKey' : true}]);	
 					// Pipe streams.
                     			counter = 0;
-					var bulkOp = SnapRace.rawCollection().initializeUnorderedBulkOp();
+					var bulkOp = SnapRace.rawCollection().initializeOrderedBulkOp();
 					read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
 						// Convert hh:mm:ss to timestamp as s from midnight.
 						var time = new Date('1970-01-01T' + data['key']);
@@ -287,13 +287,16 @@ Meteor.startup(() => {
 						bulkOp.insert({compId : compId, task : taskIndex, time : time, snapshot :  data['value']});
                     				counter++;
                     				// Send to server in batch of 1000 insert operations
-                    				if (counter % 1000 == 0) {
+                    				if (counter % 300 == 0) {
                         				// Execute per 1000 operations and re-initialize every 1000 update statements
-                        				bulkOp.execute(function(e, rresult) {});
-                        				bulkOp = SnapRace.rawCollection().initializeUnorderedBulkOp();
+                        				bulkOp.execute(function(e, result) {
+								console.log('counter');
+								console.log('Bulk inserted 100 batch');
+							});
+                        				bulkOp = SnapRace.rawCollection().initializeOrderedBulkOp();
                     				} 
                 				// Clean up queues
-                				if (counter % 1000 != 0){
+                				if (counter % 300 != 0){
                     					bulkOp.execute(function(e, result) {});
                 				}
 					})).on('header', Meteor.bindEnvironment(function(data) {
@@ -311,7 +314,7 @@ Meteor.startup(() => {
 						// Raced attribute so we know tis task has been processed.
 						update['$set']['tasks.' + taskIndex + '.task.replay'] = true;
 						// Directly go for a Race analysis.
-						Meteor.call('task.race', {'path' : '/tmp/compid_'+ compId + '_' + taskIndex + '.pkl'}, compId, taskIndex, processId);
+						//Meteor.call('task.race', {'path' : '/tmp/compid_'+ compId + '_' + taskIndex + '.pkl'}, compId, taskIndex, processId);
 					}));
 				}));
 			}
