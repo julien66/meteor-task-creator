@@ -95,9 +95,14 @@ Meteor.startup(() => {
 			// Method called from exporter.js after task has been succesfully written to server.
 			var uid = Meteor.userId();
 			var task = Task.findOne({'_id' : taskId});
-			var child = igclib('optimize', {task : Buffer.from(JSON.stringify(task)).toString('base64')});
+			// Set opti to false.
+			Task.update({'_id' : taskId}, {$set : {opti : false}});
+			// Spawn new optimize process to IGCLIB. Only provide b64 turnpoints array.
+			var child = igclib('optimize', {task : Buffer.from(JSON.stringify(task.turnpoints)).toString('base64')});
+			// On stdout.
 			child.stdout.on('data', Meteor.bindEnvironment(function(data) {
-  				Task.update({_id : taskId, uid : uid}, {'$set' : {'summary' : JSON.parse(data.toString())}});
+  				// Update task opti with good object.
+				Task.update({_id : taskId, uid : uid}, {'$set' : {'opti' : JSON.parse(data.toString())}});
 			}));
 			child.stderr.on('data', Meteor.bindEnvironment(function(data) {
 				// IGCLib return Progress on stderr.
@@ -272,12 +277,25 @@ Meteor.startup(() => {
 					// Use JSONStream.
 					var stream = JSONStream.parse( ["race", {'emitKey' : true}]);	
 					// Pipe streams.
+                    			counter = 0;
+					var bulkOp = SnapRace.rawCollection().initializeUnorderedBulkOp();
 					read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
 						// Convert hh:mm:ss to timestamp as s from midnight.
 						var time = new Date('1970-01-01T' + data['key']);
 						// Insert json Snapshots into mongodb SnapRace collection.
 						//console.log('insert : ' + compId + '_' + taskIndex + '_' + time);
-						SnapRace.insert({compId : compId, task : taskIndex, time : time, snapshot :  data['value']});
+						bulkOp.insert({compId : compId, task : taskIndex, time : time, snapshot :  data['value']});
+                    				counter++;
+                    				// Send to server in batch of 1000 insert operations
+                    				if (counter % 1000 == 0) {
+                        				// Execute per 1000 operations and re-initialize every 1000 update statements
+                        				bulkOp.execute(function(e, rresult) {});
+                        				bulkOp = SnapRace.rawCollection().initializeUnorderedBulkOp();
+                    				} 
+                				// Clean up queues
+                				if (counter % 1000 != 0){
+                    					bulkOp.execute(function(e, result) {});
+                				}
 					})).on('header', Meteor.bindEnvironment(function(data) {
 						/*var ranking = data.ranking;
 						var up = {'$set' : {}};

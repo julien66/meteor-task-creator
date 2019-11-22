@@ -58,6 +58,7 @@ import * as Validator from './validateTask';
       		if (task.turnpoints.length > 0) {
 			// Remove all past turnpoints. We want to rebuild a task.
 			Turnpoints.remove({});
+			Task.update({_id : Session.get('taskId')}, {$set : {turnpoints : []}});
 			// for Each turnpoints into new task.
 			task.turnpoints.forEach(function (turnpoint) {
 				// Find the matching waypoint.
@@ -81,7 +82,7 @@ import * as Validator from './validateTask';
 							turnpoints : turnpointsArray
 						}});
 						Validator.check();
-						//Meteor.call('task.optimiser', Session.get('taskId'), Session.get('processId'));
+						Meteor.call('task.optimiser', Session.get('taskId'), Session.get('processId'));
 					}
 				});
 			});	

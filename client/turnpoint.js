@@ -117,6 +117,8 @@ Template.turnpoint.events({
 				Validator.check();
 			});
 		}
+		// Call optimiser.
+		Meteor.call('task.optimiser', Session.get('taskId'), Session.get('processId'));
 		// Closing modal.
 		$('#turnpointModal').modal('hide');
 	},
@@ -129,6 +131,8 @@ Template.turnpoint.events({
 		Turnpoints.remove({_id : id});
 		// Updating Task.
 		Task.update({'_id' : Session.get('taskId')}, {'$pull' : {turnpoints : {_id : id}}});
+		// Call Optimiser.
+		Meteor.call('task.optimiser', Session.get('taskId'), Session.get('processId'));
 		// Closing modal.
 		$('#turnpointModal').modal('hide');
 	},

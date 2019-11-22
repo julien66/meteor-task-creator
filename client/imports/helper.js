@@ -11,7 +11,7 @@ var HHtoSeconds = function(hh) {
 	}
 	var mult = [3600, 60, 1];
 	var array = hh.split(':');
-	return array.map(function(elt, index){ return elt * mult[index]}).reduce(function(b, a){ return b + a;});
+	return parseInt(array.map(function(elt, index){ return elt * mult[index]}).reduce(function(b, a){ return b + a;}));
 }
 
 // Helper function to convert seconds into HH:mm:ss.

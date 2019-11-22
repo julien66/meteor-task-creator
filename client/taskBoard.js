@@ -52,6 +52,7 @@ Template.taskBoard.onRendered( function onTaskBoardRendered() {
   				return tpsId.indexOf(a['_id']) - tpsId.indexOf(b['_id']);
 			});
 			Task.update({_id : Session.get('taskId')}, {'$set' : {turnpoints : tps,}});
+			Meteor.call('task.optimiser', Session.get('taskId'), Session.get('processId'));
 			Validator.check();
 		}
   	});

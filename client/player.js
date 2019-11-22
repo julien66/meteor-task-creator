@@ -70,7 +70,7 @@ Template.player.helpers({
 	},
 	isProgress : function() {
 		var T = Template.instance();
-		return T.replayIndex.get() < 1;
+		return T.raceIndex.get() < 1;
 	},
 	getProgress : function() {
 		var T = Template.instance();
@@ -112,7 +112,7 @@ Template.player.onCreated (function onPlayerCreated() {
 	this.grabCursor = false;
 	this.speed = new ReactiveVar(1);
   	// Store the current raceTime as a reactive variable
-  	this.raceTime = new ReactiveVar(0);
+	this.raceTime = new ReactiveVar(0);
   	this.reqTime = new ReactiveVar(new Date('1970-01-01T00:00:00'));
 	this.times = new ReactiveVar([]);
 	this.init = true;
@@ -140,7 +140,7 @@ Template.player.onCreated (function onPlayerCreated() {
 			if (comp) {
 				var task = comp.tasks[infos.task].task
 				if (task) {
-					T.raceTime.set(Helper.HHtoSeconds(task.details.open));
+					//T.raceTime.set(Helper.HHtoSeconds(task.details.open));
 					T.times.set([
 						{
 							key : 'open',
@@ -217,24 +217,20 @@ var play = function (T) {
 			// If performance is currently good enough, send current buffer to map.)
 			// Else Map will just skip this snapshot and take next one as time stil flows. 
 			//if (T.buffer && Math.round(perf - T.performance) < T.delay.get() * 1.10) {
-				// We need to send only alternated part of this big buffer.
+				// We need to send only alternated part of this big buffer.	
+			if (!T.buffer[currentTime]) {
+				T.reqTime.set(new Date('1970-01-01T'+ Helper.secondsToHH(currentTime)));
+			}
+			else {
 				var event = new CustomEvent('movePilots', { 'detail': T.buffer[currentTime]});
 				window.dispatchEvent(event);
-			//}
-			// Freeing Buffer ?
-			delete T.buffer[currentTime];
-			// Increment time by delay
-			// @todo 2 is hard coded.
-			// Looks bad. We need more test.
-			T.raceTime.set(currentTime + 1);
-			if (T.buffer.length - currentTime < 5) {
-				if (T.buffer.length > 0) {
+				delete T.buffer[currentTime];
+				if (T.buffer.length - currentTime < 5) {
 					T.reqTime.set(new Date('1970-01-01T'+ T.buffer[T.buffer.length - 1].hh));
-				} 
-				else {
-					T.reqTime.set(new Date('1970-01-01T'+ Helper.secondsToHH(currentTime)));
 				}
 			}
+			//}
+			T.raceTime.set(currentTime + 1);
 			//T.performance = perf;
 		}, T.delay.get());
 	}
@@ -332,8 +328,7 @@ Template.player.events({
 
 var timeMoved = function(T, now) {
 	// Empty buffer...	
-	T.buffer = []
+	T.buffer = [];
 	// Set times accordingly.
-	console.log(now);
 	T.raceTime.set(now);
 } 

@@ -28,12 +28,56 @@ Template.map.onRendered( function onLeaf() {
 	var pilots = {};
 	var polyline;
 	var decorator;
-
+	
+	
+	window.addEventListener('newPilots', addPilots);
+	window.addEventListener('movePilots', movePilots);
+	function addPilots(e) {
+		var ids = e.detail.ids;
+		var ranking = e.detail.ranking;
+		for (var i = 0; i < ids.length -1; i++) {
+			if (!pilots[ids[i]]) {
+				var name = ids[i];
+				var color = "#f0ad4e";
+				var darkerColor = '#000';
+				var rankObj = ranking[ids[i]];
+				if(ranking[ids[i]]) {
+					name = rankObj.name;
+					color = rankObj.color;
+					darkerColor = rankObj.darkerColor
+				}
+				var pilotIcon = L.divIcon({
+   					html: '<i class="fa fa-circle" style="text-shadow:0px 0px 5px ' + darkerColor + ';color:' + color + '"></i><div class="iconLabel">' + name + '</div>',
+    					className: 'myDivIcon',
+					iconAnchor: [15, 45]
+				});
+				var marker = L.marker([0, 0], {
+  					icon: pilotIcon,
+				}).addTo(map);
+				pilots[ids[i]] = marker;
+			}
+		}
+	};
+		
+	function movePilots(e) {
+		if (e.detail && e.detail.snap) {
+			var snap = e.detail.snap;
+			//console.log(snap);
+			for (let [id, value] of Object.entries(snap)) {
+				if (pilots[id]) {
+					pilots[id].setLatLng(new L.LatLng(value.lat, value.lon));
+				}
+				else {
+					//console.log(id);
+				}
+			}
+		}
+	}; 	
+	
 	// @TODO Finding elevation with open elevation or other api is a must.
 	map.on('click', function(e) {
 		if (Session.get('customWaypoint')) {   
         		var latLng = e.latlng;
-			console.log(latLng);
 			var waypoint = {
 				name : 'TP' + Number(Waypoints.find().fetch().length + 1),
 				source : 'custom',
@@ -53,6 +97,8 @@ Template.map.onRendered( function onLeaf() {
 			$('#map').css('cursor', 'grab');
 		}
 	});
+
+
 
 	Waypoints.find().observe({  
 		added: function(waypoint) {
@@ -138,8 +184,8 @@ Template.map.onRendered( function onLeaf() {
 				map.removeLayer(decorator);
 			}
 
-			if (task.summary) {
-				polyline = L.polyline(task.summary.points, {color: param.task.courseColor.fast}).addTo(map);
+			if (task.opti) {
+				polyline = L.polyline(task.opti.points, {color: param.task.courseColor.fast}).addTo(map);
 			}
 			else {
 				polyline = L.polyline(Object.values(task.turnpoints), {color: param.task.courseColor.fast}).addTo(map);

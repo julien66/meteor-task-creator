@@ -83,6 +83,7 @@ html, body {
 
 #player {
 	position : absolute;
+	z-index : 1000;
 	bottom : 0;
 	background-color : #343A40;
 	border-top : 1px solid #000;
