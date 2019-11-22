@@ -5,7 +5,7 @@
 		<span class="status">{{status}}!</span> Task is {{#unless valid}} not {{/unless}} valid.<br/> 
 		{{#unless valid}} Here's the latest report : <br/>
 			{{# each report}}
-			<span>{{this}}</span>
+			<div>{{this}}</div>
 			{{/each}}
 		{{/unless}}
 		{{#if opti}}<div id="showOptimiser"><span class="fa fa-2x fa-rocket" aria-hidden="true"></span> Optimizing Task</div>{{/if}}
