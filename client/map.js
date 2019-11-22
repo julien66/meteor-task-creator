@@ -29,6 +29,31 @@ Template.map.onRendered( function onLeaf() {
 	var polyline;
 	var decorator;
 
+	// @TODO Finding elevation with open elevation or other api is a must.
+	map.on('click', function(e) {
+		if (Session.get('customWaypoint')) {   
+        		var latLng = e.latlng;
+			console.log(latLng);
+			var waypoint = {
+				name : 'TP' + Number(Waypoints.find().fetch().length + 1),
+				source : 'custom',
+				description : 'Unknown',
+				lat : e.latlng.lat,
+				lon : e.latlng.lng,
+				altitude : 0, 
+			};
+			Waypoints.insert(waypoint);
+		}
+    	});
+
+	this.autorun(function() {
+		if (Session.get('customWaypoint')) {
+			$('#map').css('cursor', 'pointer');
+		} else {
+			$('#map').css('cursor', 'grab');
+		}
+	});
+
 	Waypoints.find().observe({  
 		added: function(waypoint) {
 			// Create a marker for this waypoints
