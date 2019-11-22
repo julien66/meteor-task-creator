@@ -1,300 +1,142 @@
+/*
+  @js file
+  * Map.js
+*/
+
 import Parameters from './param';
-import  * as fileExporter from './imports/exporter';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-polylinedecorator';
 
-
-Template.map.onCreated( function onGmap() {
-	// We can use the `ready` callback to interact with the map API once the map is ready.
-	GoogleMaps.ready('raceMap', function(map) {
-		var param = Parameters.param;
-		var markers = [];
-		var circles = [];
-		var pilots = {};
-		var fastTrack = null;
-		
-		Session.set('requestOpti', false);
-
-		var bounds = new google.maps.LatLngBounds();
-		
-		var elevator = new google.maps.ElevationService();
-		var geocoder = new google.maps.Geocoder;
-
-		window.addEventListener('newPilots', addPilots);
-		window.addEventListener('movePilots', movePilots);
-		function addPilots(e) {
-			var ids = e.detail.ids;
-			var ranking = e.detail.ranking;
-			for (var i = 0; i < ids.length -1; i++) {
-				if (!pilots[ids[i]]) {
-					var name = ids[i];
-					var color = "#f0ad4e";
-					var darkerColor = '#000';
-					var rankObj = ranking[ids[i]];
-					if(ranking[ids[i]]) {
-						name = rankObj.name;
-						color = rankObj.color;
-						darkerColor = rankObj.darkerColor
-					}
-					var marker = new google.maps.Marker({
-						label: {
-							text : name,
-							color : '#000',
-							fontSize: "11px",
-							fontWeight: "bold",
-							'text-shadow': "0px 0px 10px #000",
-						},
-						icon : {
-							//path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0',
-							path: google.maps.SymbolPath.CIRCLE,
-							scale : 4,
-							fillColor: color,
-							fillOpacity: 1,
-							strokeColor: darkerColor,
-							strokeWeight: 1,
-							labelOrigin : new google.maps.Point(0, 3),
-						}, 
-						//position: new google.maps.LatLng(waypoint.lat, waypoint.lon),
-						map: map.instance,
-						// Store pilot id on the marker. 
-						id: ids[i],
-					});
-					pilots[ids[i]] = marker;
-				}
-			}
-		};
+Template.map.onRendered( function onLeaf() {
+	var param = Parameters.param;
 	
-		function movePilots(e) {
-			if (e.detail && e.detail.snap) {
-				var snap = e.detail.snap;
-				//console.log(snap);
-				for (let [id, value] of Object.entries(snap)) {
-					if (pilots[id]) {
-						pilots[id].setPosition(new google.maps.LatLng(value.lat, value.lon));
-					}
-					else {
-						//console.log(id);
-					}
-				}
-			}
-		}; 	
+	var map = L.map('map', {
+    		center: [param.map.startLat, param.map.startLon],
+   		 zoom: 13
+	});
 	
-		Waypoints.find().observe({  
-			added: function(waypoint) {
-				// Create a marker for this waypoints
-				var marker = new google.maps.Marker({
-					label: {
-						text : waypoint.name,
-						color : "#000",
-						fontSize: "11px",
-						fontWeight: "bold",
-						'text-shadow': "0px 0px 10px #000",
-					},
-					icon : {
-						path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0',
-						fillColor: "#FE7569",
-						fillOpacity: 1,
-						strokeColor: '#CB4236',
-						strokeWeight: 1,
-						scale: 1,
-						labelOrigin : new google.maps.Point(0, 10),
-					}, 
-					position: new google.maps.LatLng(waypoint.lat, waypoint.lon),
-					map: map.instance,
-					// Store waypoints _id on the marker. 
-					id: waypoint._id,
-					wp : waypoint,
-				});
-				// Store this marker instance within the markers object.
-				markers[waypoint._id] = marker;
-				google.maps.event.addListener(marker, 'click', function() {
-					Modal.show('waypoint', marker.wp);
-				});
-				// Fit map bounds to markers.
-				bounds.extend(marker.position);
-				bounds.justChanged = true;
-				map.instance.fitBounds(bounds);
-			},
-			changed : function(waypoint) {
-				var marker = markers[waypoint._id];
-				// Change marker reference to this waypoint.
-				marker.wp = waypoint;
-				// Set new label.
-        			marker.label.text = waypoint.name;
-        			marker.setLabel(marker.label);
-			},
-			removed: function(waypoint) {
-				//Remove the marker from the map
-				markers[waypoint._id].setMap(null);
-				// Clear the event listener
-				google.maps.event.clearInstanceListeners(markers[waypoint._id]);
-				// Remove the reference to this marker instance
-				delete markers[waypoint._id];
-				bounds = new google.maps.LatLngBounds();
-				Object.keys(markers).forEach(function(key, index) {
-					bounds.extend(this[key].position);
-				}, markers);
-				bounds.justChanged = true;
-				// Only update maps if there is at least a marker left;
-				if (markers.length > 0) {
-					map.instance.fitBounds(bounds);
-				}
-			},
-		});
-		
-		google.maps.event.addListener(map.instance, 'bounds_changed', function(event) {
-			if (this.getZoom() > 14 && bounds.justChanged === true) {
-				this.setZoom(14);
-			}
-			bounds.justChanged = false;
-		});
+	// create the tile layer with correct attribution
+ 	//var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+ 	var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    	var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+    	var osm = new L.TileLayer(osmUrl, {attribution: osmAttrib});
+	map.addLayer(osm);
 
+	var markers = [];
+	var circles = [];
+	var pilots = {};
+	var polyline;
+	var decorator;
 
-		Turnpoints.find().observe({
-			added : function(turnpoint) {
-				if (turnpoint.role !== 'goal' || turnpoint.finish !== 'line') {
-					var circleOptions = {
-						strokeColor: param.turnpoint.strokeColor[turnpoint.role.toLowerCase()],
-						strokeOpacity: 0.8,
-						strokeWeight: 2,
-						fillColor: param.turnpoint.fillColor[turnpoint.role.toLowerCase()],
-						fillOpacity: 0.35,
-						map: map.instance,
-						center: new google.maps.LatLng(turnpoint.lat, turnpoint.lon),
-						radius: parseInt(turnpoint.radius),
-						tp: turnpoint,
-					};
-					var circle = new google.maps.Circle(circleOptions);
-					circles[turnpoint._id] = circle;
-				}	
-				google.maps.event.addListener(circle, 'click', function() {
-					Modal.show('turnpoint', circle.tp);
-				});
-			},
-			changed : function(turnpoint) {
-				var circle = circles[turnpoint._id];
-				circle.setOptions({
-					strokeColor: param.turnpoint.strokeColor[turnpoint.role.toLowerCase()],
-					fillColor: param.turnpoint.fillColor[turnpoint.role.toLowerCase()],
-					radius : parseInt(turnpoint.radius),
-					tp : turnpoint,
-				});
-			},
-			removed : function(turnpoint) {
-				circles[turnpoint._id].setMap(null);	
-				google.maps.event.clearInstanceListeners(circles[turnpoint._id]);
-				delete circles[turnpoint._id];
-				Task.update({_id : Session.get('taskId')}, {'$pull' : {'turnpoints' : {'wp._id' : turnpoint.wp._id}}});
-			},
-		});
-
-		// Function that check if a task has changed.
-		var checkTaskChange = function(task, pastTask) {
-			if (!pastTask) {return true};
-			if (task.turnpoints.length != pastTask.turnpoints.length) {
-				return true;
-			}
-			for (var i = 0; i < task.turnpoints.length; i++) {
-				var e = task.turnpoints[i];
-				var t = pastTask.turnpoints[i];
-				if ((e.radius !== t.radius) || (e.description !== t.description) || (e.name !== t.name)) {
-					return true;
-				} 
-			};
-		};
-
-		Task.find({_id : Session.get('taskId')}).observe({
-			changed : function(task, pastTask) {
-				// If the task has really changed. Not just an IGCLibOpti added...
-				//console.log(checkTaskChange(task, pastTask));
-				//console.log(task);
-				//console.log(pastTask);
-				if (checkTaskChange(task, pastTask)) {
-					// Export task a XC Track format to get Server side optimizer.
-					fileExporter.exportFile('task', 'XCtrack', null, true);
-					// @todo Since we can directly use IGCLIB for that...
-					// Involve revamping all map.js to make it a simple draw class as it should have always been!
-					// All observe and non drawing function should be in their model.js and only call drawing map function (@see player.js)
-					//Meteor.call('task.optimize', btoa(JSON.stringify(task)), Session.get('taskId'), Session.get('processId'), function(err, response){
-					//});
-					//Session.set('requestOpti', true);
-					drawOpti([]);
-				}
-				else if (task.IGCLibOpti){
-				// The task is the same, an opti has been returned from igclib! 
-					Session.set('requestOpti', false);
-					var fastWaypoints = [];
-					console.log(task.IGCLibOpti);
-					task.IGCLibOpti.points.forEach(function(el) {
-						var latLng = new google.maps.LatLng(el.lat, el.lon);
-						fastWaypoints.push(latLng);
-					}) 
-					drawOpti(fastWaypoints);
-					if (task.IGCLibOpti.legs) {
-						setLegsDistances(task, task.IGCLibOpti.legs);
-					}
-				}
-			},
-		});
-
-		var drawOpti = function(fastWaypoints) {
-			if (fastTrack) fastTrack.setMap(null);
-			fastTrack = new google.maps.Polyline({
-				path: fastWaypoints,
-				geodesic: true,
-				strokeColor: param.task.courseColor.fast,
-				strokeOpacity: 1.0,
-				strokeWeight: 2,
-				icons: [{
-					icon: {path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW},
-					offset: '0',
-					repeat: '100px'
-				}],
-				map: map.instance,
+	Waypoints.find().observe({  
+		added: function(waypoint) {
+			// Create a marker for this waypoints
+			// Here's a custom icon.
+			var icon = L.divIcon({
+   				html: '<i class="fa fa-4x fa-map-marker" style="color:#FE7569"></i><div class="iconLabel">' + waypoint.name + '</div>',
+    				className: 'myDivIcon',
+				iconAnchor: [15, 45]
 			});
-		};
+			// here's the marker itself with icon and waypoint as a reference (usefull on click).
+			var marker = L.marker([waypoint.lat, waypoint.lon], {
+  				icon: icon,
+			});
+			
+			marker.waypoint = waypoint;
+			
+			// On click show modal and pass the form there all waypoint object.
+			marker.on('click', function(e) {
+				Blaze.renderWithData(Template.waypoint, this.waypoint, document.body);
+			});
+			// Keeping track of markers.
+			markers[waypoint._id] = marker;
+			// Addind it all to map.
+			var group = new L.featureGroup(Object.values(markers)).addTo(map);
+			// Fitting bounds to waypoints with slight padding to deal with the edges.
+			map.fitBounds(group.getBounds().pad(0.05));
+		},
+		changed : function(waypoint) {
+			// Take the marker and update options.
+			var marker = markers[waypoint._id];
+			// Set reference to the waypoint inside Marker (usefull on click).
+			marker.waypoint = waypoint;
+			// Set Marker Icon with  Waypoint.name
+			marker.setIcon(L.divIcon({
+   				html: '<i class="fa fa-4x fa-map-marker" style="color:#FE7569"></i><div class="iconLabel">' + waypoint.name + '</div>',
+    				className: 'myDivIcon',
+				iconAnchor: [15, 45]
+			}));
+		},
+		removed : function(waypoint) {
+			// Get rid of the marker on the map.
+			map.removeLayer(markers[waypoint._id]);
+			// cleaning local reference.
+			delete markers[waypoint._id];
+		}
+	});
 
-		var setLegsDistances = function(task, legsDistances) {
-			// Set new distance to next turnpoint.
-			for (var j = 0; j < task.turnpoints.length; j++) {
-				Turnpoints.update( {'_id' : task.turnpoints[j]['_id']}, {'$set' : 
-					{
-						next : legsDistances[j],
-						previous : ((j-1 >= 0) ? legsDistances[j-1] : 0) 
-					}
-				});
-			}
-		};
+	Turnpoints.find().observe({
+		added : function(turnpoint) {	
+			var circle = L.circle([turnpoint.lat, turnpoint.lon], {
+				radius: turnpoint.radius,
+				color: param.turnpoint.strokeColor[turnpoint.role.toLowerCase()],
+				fillColor :  param.turnpoint.strokeColor[turnpoint.role.toLowerCase()],
+			}).addTo(map);	
+			circle.turnpoint = turnpoint;
+			circle.on('click', function(e) {
+				Blaze.renderWithData(Template.turnpoint, this.turnpoint, document.body);
+			});
+			circles[turnpoint._id] = circle;
+		},
+		changed : function(turnpoint) {
+			var circle = circles[turnpoint._id];
+			circle.turnpoint = turnpoint;
+			circle.setRadius(turnpoint.radius);
+			circle.setStyle({
+				color: param.turnpoint.strokeColor[turnpoint.role.toLowerCase()],
+				fillColor: param.turnpoint.strokeColor[turnpoint.role.toLowerCase()],
+			});
+		},
+		removed : function(turnpoint) {
+			// Get rid of the marker on the map.
+			map.removeLayer(circles[turnpoint._id]);
+			// cleaning local reference.
+			delete circles[turnpoint._id];
+		},
+	});
 
-		Tracker.autorun(function() {
-			var customWp = Session.get('customWaypoint');
-			if (customWp) {
-				map.instance.setOptions({draggableCursor:'pointer'});
-			} else {
-				map.instance.setOptions({draggableCursor:null});
+	Task.find().observe({
+		changed : function(task) {
+			if (polyline) {
+				map.removeLayer(polyline);
+				map.removeLayer(decorator);
 			}
-		});
-		
-		google.maps.event.addListener(map.instance, 'click', function(e) {
-			var customWp = Session.get('customWaypoint');
-			if (customWp) {
-				var lat = Math.round(e.latLng.lat()*100000 + 0.5) / 100000;
-				var lng = Math.round(e.latLng.lng()*100000 + 0.5) / 100000;
-				elevator.getElevationForLocations({'locations' : Array(e.latLng)}, function(results, status) {
-					var alt = Math.round(results[0].elevation);
-					var adress = results[1] ? results[1].address_components[0].short_name : 'Unknown';
-					geocoder.geocode({'location': {lat, lng}}, function(results, status) { 
-						var wp = {
-							name : 'TP' + Number(Waypoints.find().fetch().length + 1),
-							source : 'custom',
-							description : adress,
-							lat : lat,
-							lon : lng,
-							altitude : alt, 
-						};
-						Waypoints.insert(wp);
-					});
-				});
-				//map.instance.setOptions({draggableCursor:'pointer'});
+
+			if (task.summary) {
+				polyline = L.polyline(task.summary.points, {color: param.task.courseColor.fast}).addTo(map);
 			}
-		});
+			else {
+				polyline = L.polyline(Object.values(task.turnpoints), {color: param.task.courseColor.fast}).addTo(map);
+			}
+
+			decorator = L.polylineDecorator(polyline, {
+    				patterns: [
+        				// defines a pattern of arrow.
+               		 		{ offset: 0, repeat: '5%', symbol: L.Symbol.marker({rotate: true, markerOptions: {
+						icon : L.divIcon({
+   							html: "<i class='fa fa-chevron-up' style='color:darkSlateGrey'></i>",
+    							iconSize: [10, 10],
+    							className: 'myDivIcon',
+							iconAnchor: [6, 6]
+                   			 	})
+                			}})}
+				]
+			}).addTo(map);
+			
+		},
+		removed : function(task) {
+		}
 	});
 });
+

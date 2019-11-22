@@ -18,13 +18,22 @@ Template.waypointFiles.helpers({
 
 Template.waypointFiles.events({
 	'click a' : function(e) {
+		// On click link.
 		e.preventDefault();
+		// Getting source.
 		var source = $(e.target).attr('rel');
+		// Removing all Waypoints from this source.
 		Waypoints.remove({source : source});
-		Turnpoints.remove({'wp.source' : source});
+		// Removing all Turnpoints from this source.
+		Turnpoints.remove({'source' : source});
+		// Removing all Turnpoints into task with this source.
+		Task.update({_id : Session.get('taskId')}, {'$pull' : {turnpoints : {source : source}}});
 	},
 	'click button' : function(e) {
+		// On click export Waypoint
+		// Prevent browser default behavior.
 		e.preventDefault();
-		Modal.show('exportWaypoints');
+		// Render export modal
+		Blaze.render(Template.exportWaypoints, document.body);
 	}
 });

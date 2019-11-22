@@ -12,6 +12,7 @@ import * as gpx from './formats/gpx';
 import * as xctsk from './formats/xctrack';
 import * as zip from './formats/zip';
 import * as pwca from './formats/pwca';
+import * as Validator from './validateTask';
 
 	var formats = [pwca, oziOld, ozi, cup, igc, geoJson, tsk, xctsk, gpx, zip]; 
 	var parse = function(text, source) {
@@ -30,8 +31,9 @@ import * as pwca from './formats/pwca';
 		// Now inserting current Waypoints.
       		for (var i = 0; i < fileInfo.waypoints.length; i++) {
 			// Prevent insert same waypoint multiple time.
-			if (!Waypoints.find(fileInfo.waypoints[i]).fetch().length > 0) {
-				Waypoints.insert(fileInfo.waypoints[i]);
+			var waypoint = fileInfo.waypoints[i];
+			if (!Waypoints.find({lat : waypoint.lat, lon : waypoint.lon}).fetch().length > 0) {
+				Waypoints.insert(waypoint);
 			}
 		}
 	}
@@ -48,18 +50,41 @@ import * as pwca from './formats/pwca';
     	}*/
    
     	if (fileInfo.task) {
-      		parseInfo.task = fileInfo.task;
-      		if (parseInfo.task.turnpoints.length > 0) {
+		// Task reference from parser.
+      		var task = fileInfo.task;
+		// Cache for Mongo turnpoints documents.
+		var turnpointsArray =[];
+		// If there are turnpoints.
+      		if (task.turnpoints.length > 0) {
+			// Remove all past turnpoints. We want to rebuild a task.
 			Turnpoints.remove({});
-			for (var i = 0; i < parseInfo.task.turnpoints.length; i++ ) {
-				var tp = parseInfo.task.turnpoints[i];
-          			var wp = Waypoints.findOne(tp.wp);
-				tp.wp._id = wp._id;
-				Turnpoints.insert(tp, function(error, result) {
+			// for Each turnpoints into new task.
+			task.turnpoints.forEach(function (turnpoint) {
+				// Find the matching waypoint.
+				var waypoint = Waypoints.findOne({lat : turnpoint.wp.lat, lon : turnpoint.wp.lon});
+				// Store waypoints id as reference.
+				turnpoint.wp._id = waypoint._id;
+				// Insert turnpoint into Mongo.
+				Turnpoints.insert(turnpoint, function(error, result) {
+					// Get full document turnpoint.
 					var T = Turnpoints.findOne(result);
-					Task.update({_id: Session.get('taskId')}, {'$push' : {turnpoints : T}});
+					// Cache full document Turnpoint.
+					turnpointsArray.push(T);
+					// When all document turnpoints are correctly cached into turnpoints Array.
+					if (turnpointsArray.length == task.turnpoints.length) {
+						// Update whole Task.
+						Task.update({_id: Session.get('taskId')}, {'$set' : {
+							close : task.close,
+							end : task.end,
+							open : task.open,
+							start : task.start,
+							turnpoints : turnpointsArray
+						}});
+						Validator.check();
+						//Meteor.call('task.optimiser', Session.get('taskId'), Session.get('processId'));
+					}
 				});
-			}
+			});	
       		}
     	}
     	return parseInfo;

@@ -2,6 +2,7 @@
  * @file
  * Perform basic validation on task format.
  */
+import * as Helper from './helper';
 
 Template.validateTask.helpers({
 	'display' : function() {
@@ -13,26 +14,29 @@ Template.validateTask.helpers({
 	},
 	'status' : function() {
 		var t = Template.instance();
-		return (t.valid.get()) ? 'success' : 'danger';
+		var valid = Session.get('validator').valid;
+		return (valid) ? 'success' : 'danger';
 	},
 	'report' : function() {
 		var t = Template.instance();
-		return t.report.get();
+		return Session.get('validator').report;
 	},
-	'notValid' : function() {
+	'valid' : function() {
 		var t = Template.instance();
-		return !t.valid.get();
+		return Session.get('validator').valid;
 	},
 	'missZip' : function() {
 		var t = Template.instance();
-		return t.valid.get() && (!Session.get('trackFile') && !Session.get('importTrack')) && !RaceEvents.find().fetch().length > 0;
+		var valid = Session.get('validator').valid;	
+		return valid && (!Session.get('trackFile') && !Session.get('importTrack')) && !RaceEvents.find().fetch().length > 0;
 	},	
 	'opti' : function() {
-		return Session.get('requestOpti');
+		return Task.findOne({_id : Session.get('taskId')}).needOpti;
 	},
 	'ready' : function() {
 		var T = Template.instance();
-		return (Session.get('trackFile') || Session.get('importTrack')) && T.valid.get();
+		var valid = Session.get('validator').valid;	
+		return (Session.get('trackFile') || Session.get('importTrack')) && valid;
 	},
 	'getProgress' : function() {
 		var T = Template.instance();
@@ -70,13 +74,15 @@ Template.validateTask.onCreated (function validateOnCreated() {
 	this.percentThreshold = false;
 	this.replayIndex = new ReactiveVar(0);
 	this.replayStatus = ['Downloading Tracks', 'Reading Tracks', 'Streaming to database'];
+	Session.set('validator', {
+		valid : false,
+		report : 'No Task defined.',
+	});
 	this.valid = new ReactiveVar(false);
 	this.report = new ReactiveVar('');
-	var t = Template.instance();
-	
-	Session.set('valudTask', false);
-
-	Task.find({_id : Session.get('taskId')}).observe({
+	var T = Template.instance();
+	 
+	/*Task.find({_id : Session.get('taskId')}).observe({
 		added : function() {
 		},
 		changed : function(task, pastTask) {
@@ -87,43 +93,89 @@ Template.validateTask.onCreated (function validateOnCreated() {
 		},
 		removed : function() {
 		}
-	});
+	});*/
 });
 
-var check = function () {
-	var task = Task.findOne();
-	var report = '';
+// This function Check task validity.
+// It is called directly by task parser (/imports/parser.js), turpoint form (turnpoint.js) and taskBoard reordering ui taskboard.js.
+var check = function (task) {
+	if (!task) {
+		var task = Task.findOne();
+	}
+	console.log(task);
+	var report = [];
 	var valid = true;
 	
 	// One and only one TAKEOFF, START ESS, GOAL
+	// Caching object test[roles] = [turnpoint, turnpoint, turnpoint].
 	var test = [];
+	// All mandatory turnpoints roles ('TURNPOINT' is not mandatory).
 	var roles = ['TAKEOFF', 'START', 'ESS', 'GOAL'];
-	for (var i = 0; i < task.turnpoints.length; i++) {
-		var tp = task.turnpoints[i];
-		(test[tp.role]) ? test[tp.role].push(tp) : test[tp.role] = [];
-	}
-
-	for (var i = 0; i < roles.length; i++) {
-		var key = roles[i];
+	var index = 0;
+	// For each task turnpoints.
+	task.turnpoints.forEach(function(turnpoint) {
+		// Either push the turnpoint into test[roles] or instanciate the array so test[roles] = [turnpoint]	
+		(test[turnpoint.role]) ? test[turnpoint.role].push(turnpoint) : test[turnpoint.role] = [turnpoint];
+		if (turnpoint.role == roles[index]) {
+			index += 1;
+		}
+		else {
+			if (turnpoint.role != 'TURNPOINT') {
+				if (turnpoint.role !== roles[index]) {
+					valid = false;
+					report.push('Order problem : ' + turnpoint.role + ' found TURNPOINT or ' + roles[index] + ' was excpected.');
+				}	
+			}
+		}
+	});
+	// Now for each existing roles as defined above.
+	roles.forEach(function(key) {
+		// If there is no matching element cached.
 		if (!test[key]) {
+			// Set valid to false;
 			valid = false;
-			report += 'No ' + key + ' detected. \n';
-			continue;
+			// Add missing mandatory role report.
+			report.push('No ' + key + ' detected.');
 		};
-	
+		// If there is more than a mandatory role. Eg. 2 Takeoff. 3 Goal.
 		if (test[key].length > 1) {
+			// Set valid to false;
 			valid = false;
-			report += test[key].length + ' ' + key + ' detected. \n';
+			// Add multiple role report.
+			report.push(test[key].length + ' ' + key + ' detected.');
 		};
 
-	}
-
-	//console.log(valid, report);
-	return {
+	});
+	
+	// If takeoff 'open' is upper or equal takeoff close.
+	if (Helper.HHtoSeconds(task.open) >= Helper.HHtoSeconds(task.close) ) {
+		// Set valid to false;
+		valid = false;
+		// Add bad start report.
+		report.push('TAKEOFF opening time should be lower than than TAKEOFF closing time.');
+	}	
+	
+	// If takeoff 'open' is upper or equal task start.
+	if (Helper.HHtoSeconds(task.open) >= Helper.HHtoSeconds(task.start) ) {
+		// Set valid to false;
+		valid = false;
+		// Add bad start report.
+		report.push('TAKEOFF time should be lower than than START time.');
+	}	
+	
+	// If task start is upper or equal task end.
+	if (Helper.HHtoSeconds(task.start) >= Helper.HHtoSeconds(task.end) ) {
+		// Set valid to false;
+		valid = false;
+		// Add bad start report.
+		report.push('START time should be lower than than ESS close time.');
+	}	
+	
+	Task.update({_id : Session.get('taskId')}, {$set : {isValid : valid}});
+	Session.set('validator', {
 		valid : valid,
-		report : report 
-	}
-	// @toDo START TIME and ESS TIME set and start lower than ESS.
+		report : report,
+	});
 }
 
 export {

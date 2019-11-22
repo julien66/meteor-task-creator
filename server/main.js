@@ -76,6 +76,13 @@ Meteor.startup(() => {
 	var syncFileWrite = Meteor.wrapAsync(fileWrite);
 
 	Meteor.methods({
+		'task.updateTurnpoint' : function(taskId, turnpoint) {
+			// Method called from turnpoint.js when turnpoint update form is send.
+			// Grab userId.
+			var uid = Meteor.userId();
+			// Update given Task, for this uid, and replace given turnpoint found by id with new turnpint object.
+			Task.update({_id : taskId, uid : uid,  'turnpoints._id' : turnpoint._id}, {'$set' : {'turnpoints.$' : turnpoint}});
+		},
 		'task.writeTask' : function(buffer) {
 			// Method called from exporter.js after task is ready to write on xctrack format.
 			// We'll send it to igclib for optimisation.
@@ -84,13 +91,13 @@ Meteor.startup(() => {
 			var res = syncFileWrite('/tmp/toOptimize.xctsk', new Buffer(buffer));
 			return res;
 		},
-		'task.optimize' : function(taskId) {
+		'task.optimiser' : function(taskId, processId) {
 			// Method called from exporter.js after task has been succesfully written to server.
-			// @todo call it directly with task encoded.
 			var uid = Meteor.userId();
-			var child = igclib('optimize', {task : '/tmp/toOptimize.xctsk'});
+			var task = Task.findOne({'_id' : taskId});
+			var child = igclib('optimize', {task : Buffer.from(JSON.stringify(task)).toString('base64')});
 			child.stdout.on('data', Meteor.bindEnvironment(function(data) {
-  				Task.update({_id : taskId, uid : uid}, {'$set' : {'IGCLibOpti' : JSON.parse(data.toString())}});
+  				Task.update({_id : taskId, uid : uid}, {'$set' : {'summary' : JSON.parse(data.toString())}});
 			}));
 			child.stderr.on('data', Meteor.bindEnvironment(function(data) {
 				// IGCLib return Progress on stderr.
@@ -190,6 +197,7 @@ Meteor.startup(() => {
 			SnapRace.remove({});
 			RaceEvents.remove({});
 			Progress.remove({});
+			Task.remove({});
 			/*var compId = 'mwBxqYiYnGZDacMEp';
 			var taskIndex = 0;	
 			var read = fs.createReadStream('/tmp/race_' + compId + '_' + taskIndex +'.json');

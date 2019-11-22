@@ -13,8 +13,10 @@ var parse = function(data, source) {
 	var task = data.task;
 	var tps = [];
 	var wps = [];
+	var open = '00:00:00';
+	var start = '00:00:00';
+	var end = '00:00:00';
 	
-	//console.log(data);
 	for (var i = 0; i < task.points.length; i++) {
 		var pt = task.points[i];
 		var wp = {
@@ -31,26 +33,33 @@ var parse = function(data, source) {
 			role : convertType(pt),
 			wp : wp,
 		}
-	        tp = Object.assign(tp, wp);	
-		if (tp.type === "end-of-speed-section") {
+	        tp = Object.assign(tp, wp);
+		if (tp.role === "ESS") {
 			tp.close = task.details.end + ':00';
 			tp.goalType = '';
 		} 
 			
-		if (tp.type === 'start') {
+		if (tp.role === 'START') {
 			tp.open = task.details.start + ':00';
 			tp.mode = '';
 		}
-
+		
+		if (tp.role === 'TAKEOFF') {
+			tp.open = task.details.open + ':00';
+			tp.close = task.details.close + ':00';
+		}
 		tps.push(tp);
 	}
-
     	return {
 		task : {
+			close : task.details.close,
 			date : data.task_data,
-			type : converter[task.details.race],
+			end : task.details.end,
 			num : task.details.task,
-			turnpoints : tps 
+			open : task.details.open,
+			start : task.details.start,
+			turnpoints : tps,
+			type : converter[task.details.race],
 		}, 
 		waypoints : wps 
     	}

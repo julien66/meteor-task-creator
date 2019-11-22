@@ -6,15 +6,14 @@
 
 Task = new Mongo.Collection('task');
 import * as Parameters from './param.js';
-import * as Validator from './imports/validateTask.js';
-
+import * as Validator from './imports/validateTask';
 var Param = Parameters.param;
 
 Template.taskBoard.helpers({
 	getTaskDistance : function() {
 		var task = Task.findOne();
-		if (task && task.IGCLibOpti) {
-			return Math.round(task.IGCLibOpti['distance']/10)/100;
+		if (task && task.opti) {
+			return Math.round(task.opti['distance']/10)/100 + 'Km';
 		}
 	},
 	turnpoints : function() {
@@ -23,22 +22,25 @@ Template.taskBoard.helpers({
 	fillColor : function(type) {
 		return Param.turnpoint.fillColor[type.toLowerCase()];
 	},
-	isShown : function() {
-		return Turnpoints.find().fetch().length > 0;
-	},
 	roundDistance : function(distance) {
-		return Math.round(distance/10)/100;
+		if (distance) {
+			return Math.round(distance/10)/100 + ' Km';
+		}
+		else {return};
 	},
 	shortName : function(type) {
 		return Param.turnpoint.shortName[type.toLowerCase()];
 	},
+	noTurnpoints : function() {
+		return Turnpoints.find().fetch().length == 0;
+	}
 });
 
 Template.taskBoard.onRendered( function onTaskBoardRendered() {
-	$("#taskboard ul").sortable({
-    	start: function(event, ui) {
-    	},
-    	stop: function(event, ui) {
+	$("ul").sortable({
+    		start: function(event, ui) {
+		},
+    		stop: function(event, ui) {
 			// Getting new turnpoint order.
 			var tpsId = $('li.taskboard-item').map(function () {
   				return $(this).attr("rel");
@@ -49,30 +51,24 @@ Template.taskBoard.onRendered( function onTaskBoardRendered() {
 			tps.sort(function(a, b){ 
   				return tpsId.indexOf(a['_id']) - tpsId.indexOf(b['_id']);
 			});
-			Task.update({}, {'$set' : {
-				turnpoints : tps,
-			}});
+			Task.update({_id : Session.get('taskId')}, {'$set' : {turnpoints : tps,}});
+			Validator.check();
 		}
   	});
 });
 
 Template.taskBoard.onCreated = function onTaskBoardCreated() {
 	var T = Template.instance();
-	console.log(T);
 }
 
 Template.taskBoard.events({
 	'click li span' : function(e) {
 		var tpId = $(e.target).parent().attr('rel');
 		var turnpoint = Turnpoints.findOne({_id : tpId});
-		Modal.show('turnpoint', turnpoint);
+		Blaze.renderWithData(Template.turnpoint, turnpoint, document.body);
 	},
-	'click button' : function(e) {
-		Modal.show('fullboard');
+	'click #fullBoard' : function(e) {
+		var task = Task.findOne({_id : Session.get('taskId')});
+		Blaze.renderWithData(Template.fullboard, task, document.body);
 	},
-});
-
-Task.find().observe({
-	inserted : function(task) {Validator.check(task)},
-	changed : function(task) {Validator.check(task)}		
 });

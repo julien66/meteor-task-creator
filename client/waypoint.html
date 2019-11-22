@@ -1,5 +1,5 @@
 <template name="waypoint">
-	<div class="modal fade">
+	<div id="waypointModal" class="modal fade">
 		<div id="infoMarker" class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -13,13 +13,15 @@
 							<div id="wp-name" class="form-group">
 								<span class="label label-default">Name</span>
 								<input name="name" class="wp-edit form-control" type="text" value="{{name}}">
+								<small id="help-name" class="form-text text-muted"></small>
 							</div>	
 						</div>
 						<ul class="list-group">
 							<li class="list-group-item id"> 
 								<div id="wp-description" class="form-group">
 									<span class="label label-default">Description</span>
-									<input name="id" class="wp-edit form-control" inputType="id" type="text" value="{{description}}">
+									<input name="description" class="wp-edit form-control" inputType="description" type="text" value="{{description}}">
+									<small id="help-description" class="form-text text-muted"></small>
 								</div>		
 							</li>
 							<li class="list-group-item altitude"> <span class="label label-default">Altitude</span> {{altitude}} m</li>
@@ -30,9 +32,9 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button id="configure-turnpoint" data-action="waypoint/callTurnpoint" filename="{{source}}" tid="{{name}}" class="btn btn-dark" type="button" data-toggle="modal" data-target="#turnpoint-config">Add To Task</button>
-					<input type="submit" id="edit-Waypoint" class="btn btn-dark btn-ok" value="Edit">
-					<button id="remove-waypoint" data-action="waypoint/remove"  wpId="{{_id}}" class="btn btn-dark" type="button">
+					<button type='submit' id="editTurnpoint"  data-action='add' class="btn btn-dark">Add to Task</button>
+					<input type="submit" id="editWaypoint" data-action='edit' class="btn btn-dark btn-ok" value="Edit"/>
+					<button id="remove-waypoint" data-action="remove" class="btn btn-dark" type="button">
 						<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 						Remove
 					</button>

@@ -1,5 +1,5 @@
 <template name="turnpoint">
-	<div id="turnpoint-config" class="modal fade" role="dialog" aria-labelledby="turnpoint-config-label">
+	<div id="turnpointModal" class="modal fade" role="dialog" aria-labelledby="turnpoint-config-label">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div id="turnpoint-header" class="modal-header">
@@ -12,10 +12,10 @@
 							<div class="form-group row" id="tp-type">
 								<label for="tp-role-select" class="col-sm-4 col-form-label">ROLE</label>
 								<select id="tp-role-select" class="form-control col-sm-8" name="role" autocomplete="off">
-									<option data-show="close,direction,open,radius" data-hide="finish" {{sel 'role' 'TAKEOFF'}}>TAKEOFF</option>
+									<option data-show="close,open,radius" data-hide="finish,direction" {{sel 'role' 'TAKEOFF'}}>TAKEOFF</option>
 									<option data-show="direction,open,radius" data-hide="close,finish" {{sel 'role' 'START'}}>START</option>
-									<option data-show="direction,radius" data-hide="close,finish,open" {{sel 'role' 'TURNPOINT'}}>TURNPOINT</option>
-									<option data-show="close,direction,radius" data-hide="open,finish" {{sel 'role' 'ESS'}}>ESS</option>
+									<option data-show="radius" data-hide="close,finish,open,direction" {{sel 'role' 'TURNPOINT'}}>TURNPOINT</option>
+									<option data-show="close,radius" data-hide="open,finish,direction" {{sel 'role' 'ESS'}}>ESS</option>
 									<option data-show='close,finish,radius' data-hide="direction,open" {{sel 'role' 'GOAL'}}>GOAL</option>
 								</select>
 							</div>
@@ -33,7 +33,7 @@
 									<div class="input-group-append"><span class="input-group-text">Meters</span></div>
 								</div>
 							</div>
-							<div class="form-group row" id="tp-mode">
+							<div class="form-group row" id="tp-direction">
 								<label for="tp-direction-select" class="col-sm-4 col-form-label">DIRECTION</label>
 								<select id="tp-direction-select" class="form-control col-sm-8" name="direction" autocomplete="off">
 									<option {{sel 'direction' 'ENTER'}}>ENTER</option>

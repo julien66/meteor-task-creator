@@ -2,8 +2,12 @@
 <div id="validateTask">
 	{{#if display}}
 	<div id="validation" class="alert alert-{{status}}">
-		<span class="status">{{status}}!</span> Task is {{#if notValid}} not {{/if}} valid. 
-		{{#if notValid}} Here's the latest report : {{report}} {{/if}}
+		<span class="status">{{status}}!</span> Task is {{#unless valid}} not {{/unless}} valid.<br/> 
+		{{#unless valid}} Here's the latest report : <br/>
+			{{# each report}}
+			<span>{{this}}</span>
+			{{/each}}
+		{{/unless}}
 		{{#if opti}}<div id="showOptimiser"><span class="fa fa-2x fa-rocket" aria-hidden="true"></span> Optimizing Task</div>{{/if}}
 		{{#if missZip}}
 			<div id='trackAdvice'>You may want to join track files now. Drop a zip file!</div> 

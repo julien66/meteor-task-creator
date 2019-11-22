@@ -2,6 +2,7 @@
   @file
   JS Player for Task Creator.
 */
+import * as Helper from './imports/helper';
 SnapRace = new Mongo.Collection('snapRace');
 
 Template.player.helpers({
@@ -33,7 +34,7 @@ Template.player.helpers({
 	},
 	getCurrentTime : function() {
 		var T = Template.instance();
-		return secondsToHH(T.raceTime.get());
+		return Helper.secondsToHH(T.raceTime.get());
 	},
 	getOpen : function() {
 		var T = Template.instance();
@@ -139,24 +140,24 @@ Template.player.onCreated (function onPlayerCreated() {
 			if (comp) {
 				var task = comp.tasks[infos.task].task
 				if (task) {
-					T.raceTime.set(HHtoSeconds(task.details.open));
+					T.raceTime.set(Helper.HHtoSeconds(task.details.open));
 					T.times.set([
 						{
 							key : 'open',
 							hh : task.details.open , 
-							seconds : HHtoSeconds(task.details.open), 
+							seconds : Helper.HHtoSeconds(task.details.open), 
 							percent : 0,
 						},
 						{
 							key : 'start',
 							hh : task.details.start , 
-							seconds : HHtoSeconds(task.details.start), 
-							percent : Math.round((HHtoSeconds(task.details.start) - HHtoSeconds(task.details.open)) * 100 / (HHtoSeconds(task.details.end) - HHtoSeconds(task.details.open))),
+							seconds : Helper.HHtoSeconds(task.details.start), 
+							percent : Math.round((Helper.HHtoSeconds(task.details.start) - Helper.HHtoSeconds(task.details.open)) * 100 / (Helper.HHtoSeconds(task.details.end) - Helper.HHtoSeconds(task.details.open))),
 						},
 						{
 							key : 'end',
 							hh : task.details.end, 
-							seconds : HHtoSeconds(task.details.end),
+							seconds : Helper.HHtoSeconds(task.details.end),
 							percent : 100
 						}
 					]);
@@ -189,7 +190,7 @@ Template.player.onCreated (function onPlayerCreated() {
 			}
 			console.log(snap);
 			var hh = snap.time.toTimeString().split(' ')[0];
-			var seconds = HHtoSeconds(hh);
+			var seconds = Helper.HHtoSeconds(hh);
 			T.buffer[seconds] = {snap : snap.snapshot, hh : hh};
 			var ids = Object.keys(snap.snapshot);
 			var current = T.pilots.get();
@@ -204,17 +205,7 @@ var adjustColor = function adjust(color, amount) {
 	return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
 }
 
-// Helper function to convert HH:mm:ss or HH:mm into seconds.
-var HHtoSeconds = function(hh) {
-	var mult = [3600, 60, 1];
-	var array = hh.split(':');
-	return array.map(function(elt, index){ return elt * mult[index]}).reduce(function(b, a){ return b + a;});
-}
 
-// Helper function to convert seconds into HH:mm:ss.
-var secondsToHH = function(seconds) {
-	return new Date(seconds * 1000).toISOString().substr(11, 8);
-}
 
 // Helper function at play.
 var play = function (T) {
@@ -241,7 +232,7 @@ var play = function (T) {
 					T.reqTime.set(new Date('1970-01-01T'+ T.buffer[T.buffer.length - 1].hh));
 				} 
 				else {
-					T.reqTime.set(new Date('1970-01-01T'+ secondsToHH(currentTime)));
+					T.reqTime.set(new Date('1970-01-01T'+ Helper.secondsToHH(currentTime)));
 				}
 			}
 			//T.performance = perf;

@@ -1,10 +1,12 @@
 <template name="taskBoard">
-	{{#if isShown}}
 	<div id="taskboard">
 		<div id="taskboard-header">Taskboard</div>
 		<div id="taskboard-content">
+			{{#if noTurnpoints}}
+				<div class="message">No task defined yet. You can create a task yourself. You can also import one either from your own files or by using any providers above.</div>
+			{{/if}}
 			<div>
-				<ul>
+				<ul id="toSort">
 					{{#each turnpoints}}
 					<li class="taskboard-item" rel="{{this._id}}">
 						<span class="badge badge-default" style="background-color : {{ fillColor this.role }}"> {{ shortName this.role }}</span>
@@ -12,15 +14,14 @@
 							<span> - </span>
 							<span class="turnpointName"> {{this.description}} </span>
 							<span class="turnpointDistance">
-								{{roundDistance this.previous}} km
+								{{roundDistance this.previous}}
 							</span>
 						</li>
 					{{/each }}
 				</ul>
-				<div id="task-distance"> {{getTaskDistance}} Km <!--<%- Math.round(taskInfo.distance) / 1000 %>--></div>	
+				{{#unless noTurnpoints}}<div id="task-distance">{{getTaskDistance}}</div>{{/unless}}	
 			</div>
 		</div>
 	</div>
-	<button class="btn btn-dark pull-right">FullBoard</button>
-	{{/if}}
+	{{#unless noTurnpoints}}<button id="fullBoard" class="btn btn-dark pull-right">FullBoard</button>{{/unless}}
 </template>

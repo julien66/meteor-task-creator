@@ -8,10 +8,9 @@
 
   let param = {
     allowCumulativeFiles : true,
-    apiKey : 'AIzaSyDNrTc1a1WM07PlACypa2WbEAthHXIk-_A',
     map : {
-      startX : 42.514,
-      startY : 2.040,
+      startLat : 42.514,
+      startLon : 2.040,
     },
     task : {
       allowed : {

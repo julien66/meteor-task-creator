@@ -18,20 +18,31 @@ Template.fullboard.helpers({
 	}
 });
 
+Template.fullboard.onCreated(function onFullBoardCreated() {
+	// at creation data is Task!
+	console.log(Template.instance().data);
+});
+
+Template.fullboard.onRendered(function onFullBoardRendered() {
+	// Keeping this for further reference.
+	var tmp = this;
+	// Listen when modal box is hidden...
+	$('#fullBoardModal').on('hidden.bs.modal', function () {
+		// Blaze remove 'this' (above) template view.
+		Blaze.remove(tmp.view);
+	});
+	$('#fullBoardModal').modal('show');
+});
+
 Template.fullboard.events({
 	'click #export-task' : function(e) {
-		Session.set('callExport', true);
-		Modal.hide(Template.instance());
+		$('#fullBoardModal').modal('hide');
+		Blaze.render(Template.exportTask, document.body);
 	},
 	'click #delete-task' : function(e) {
 		Turnpoints.remove({});
-		Modal.hide(Template.instance());
-	},
+		Task.update({"_id" : Session.get('taskId')}, {$set : {turnpoints : []}});
+		$('#fullBoardModal').modal('hide');
+	}
 });
 
-Template.fullboard.onDestroyed(function onMarkerDestroyed() {
-	if (Session.get('callExport') === true) {
-		Session.set('callExport', false);
-		Modal.show('exportTask');
-	}
-})
