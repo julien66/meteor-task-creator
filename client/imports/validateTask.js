@@ -44,7 +44,11 @@ Template.validateTask.helpers({
 		var query = Progress.findOne({uid : uid, pid : Session.get('processId'), type : "replay"}, {sort : {created : -1}});
 		if (query) {
 			// Return Progress to be displayed.
-			var percent = parseInt(query.progress.substring(0, query.progress.indexOf('%')));
+			if (query.progress.indexOf('%') > -1) {
+				var percent = parseInt(query.progress.substring(0, query.progress.indexOf('%')));
+			} else {
+				var percent = Math.round(100 * query.progress);
+			}
 			if (isNaN(percent)) {
 				percent = 0;
 			}
@@ -64,7 +68,7 @@ Template.validateTask.helpers({
 	},
 	'isProgress' : function() {
 		var T = Template.instance();
-		return T.replayIndex.get() < 2;
+		return T.replayIndex.get() < 3;
 	}
 }); 
 
@@ -73,7 +77,7 @@ Template.validateTask.onCreated (function validateOnCreated() {
 	$('#validateTask').hide();
 	this.percentThreshold = false;
 	this.replayIndex = new ReactiveVar(0);
-	this.replayStatus = ['Downloading Tracks', 'Reading Tracks', 'Streaming to database'];
+	this.replayStatus = ['Downloading Tracks', 'Reading Tracks', 'Streaming large data', 'Inserting to database'];
 	Session.set('validator', {
 		valid : false,
 		report : 'No Task defined.',

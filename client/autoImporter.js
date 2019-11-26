@@ -139,10 +139,15 @@ Template.autoImporter.onCreated(function autoImporterOnCreated() {
 	});
 });
 
+Template.autoImporter.onRendered(function autoImporterOnRender() {
+	$('#stageContainer').hide();
+	$('#stage2').hide();	
+});
+
 Template.autoImporter.events({
 	'click #autoImporter h5' : function(e) {
-		$('.form-group').toggle();
-		$('#stage2').hide();
+		//$('.form-group').toggle();
+		$('#stageContainer').toggle();
 		$('#stage1 .fa-cog').hide();
 	},
 	'click button#importBack' : function(e, template) {
@@ -206,7 +211,7 @@ Template.autoImporter.events({
 		}
 		else {
 			// This task has not been raced yet. Call IGCLib for help.			
-			Meteor.call('task.replay', {task : btoa(JSON.stringify(task))}, comp['_id'], current.taskNum - 1, Session.get('processId'), function() {
+			Meteor.call('task.replay', comp['_id'], current.taskNum - 1, Session.get('processId'), function() {
 			});
 		}
 	}

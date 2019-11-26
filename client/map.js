@@ -185,6 +185,7 @@ Template.map.onRendered( function onLeaf() {
 			}
 
 			if (task.opti) {
+				console.log(task.opti);
 				polyline = L.polyline(task.opti.points, {color: param.task.courseColor.fast}).addTo(map);
 			}
 			else {
@@ -194,7 +195,7 @@ Template.map.onRendered( function onLeaf() {
 			decorator = L.polylineDecorator(polyline, {
     				patterns: [
         				// defines a pattern of arrow.
-               		 		{ offset: 0, repeat: '5%', symbol: L.Symbol.marker({rotate: true, markerOptions: {
+               		 		{ offset: '0%', repeat: '5%', symbol: L.Symbol.marker({rotate: true, markerOptions: {
 						icon : L.divIcon({
    							html: "<i class='fa fa-chevron-up' style='color:darkSlateGrey'></i>",
     							iconSize: [10, 10],

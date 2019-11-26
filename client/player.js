@@ -16,13 +16,6 @@ Template.player.helpers({
 				return T.ranking[uid];
 			});
 		}
-		else {
-			// If ranking is still not there...
-			// Well just build a fake object full of uid.
-			return pilots.map(function(uid) {
-				return { id : uid, name : uid};
-			});
-		}
 	},
 	playable : function() {
 		var T = Template.instance();
@@ -95,6 +88,10 @@ Template.player.helpers({
 	getStage : function() {
 		var T = Template.instance();
 		return T.raceStatus[T.raceIndex.get()];
+	},
+	onPlay : function() {
+		var T = Template.instance();
+		return T.play.get();
 	}
 });
 
@@ -105,7 +102,7 @@ Template.player.onCreated (function onPlayerCreated() {
 	this.pilots = new ReactiveVar([]);
 	// UID <-> pilot name mapping come from ranking
 	this.ranking = [];
-	this.play = false;
+	this.play = new ReactiveVar(false);
 	this.delay = new ReactiveVar(1000);
 	this.playInterval;
 	this.pressInterval;
@@ -129,7 +126,7 @@ Template.player.onCreated (function onPlayerCreated() {
     		// also stop all subscriptions when this template is destroyed.
 		var infos = Session.get('raceInfos');
       		if (infos && T.reqTime.get()) {
-			//console.log('sub', infos.id, infos.task, T.reqTime.get());
+			console.log('sub', infos.id, infos.task, T.reqTime.get());
 			T.subscribe('SnapRace', infos.id, infos.task, T.reqTime.get());
   		}
 		// Getting mapping array to display proper names from uid.
@@ -162,16 +159,16 @@ Template.player.onCreated (function onPlayerCreated() {
 					]);
 				}
 				//Iterate throught ranking to map uid -> name.
-				if (task && task.ranking) {
-					for (var i = 0; i < task.ranking.length; i++) {
-						var elt = task.ranking[i];
+				if (task && task.ranking && task.ranking.pilots) {
+					Object.keys(task.ranking.pilots).forEach(function(uid) {
+						var pilot = task.ranking.pilots[uid];
 						// add random color for each pilot.
-						elt.color = '#'+((1<<24)*(Math.random()+1)|0).toString(16).substr(1);
+						pilot.color = '#'+((1<<24)*(Math.random()+1)|0).toString(16).substr(1);
 						// add something darker to get contrast.
-						elt.darkerColor = adjustColor(elt.color, -30);
+						pilot.darkerColor = adjustColor(pilot.color, -30);
 						// Storing a friendly array with id key [id : {}, id {}] ; 
-						T.ranking[elt['id']] = elt;
-					};
+						T.ranking[pilot['id']] = pilot;
+					});
 					// All data collected for this race, No need to execute this block anymore.
 					T.init = false;		
 				}
@@ -210,8 +207,8 @@ var adjustColor = function adjust(color, amount) {
 
 // Helper function at play.
 var play = function (T) {
-	if (T.play === false) {
-		T.play = true;
+	if (T.play.get() === false) {
+		T.play.set(true);
 		T.playInterval = setInterval(function() {
 			//var perf = performance.now();
 			var currentTime = T.raceTime.get();
@@ -250,32 +247,36 @@ var setSpeed = function(T, speed) {
 		T.speed.set(speed);
 	}
 
-	if (T.speed.get() > 20) {
+	if (T.speed.get() > 50) {
 		T.speed.set(1);
 	}
 
 	T.delay.set(Math.round(1000/speed));
-	if (T.play === true) {
+	if (T.play.get() === true) {
 		clearInterval(T.playInterval);
-		T.play = false;
+		T.play.set(false);
 		play(T);
 	}
 }
 
 // Helper function to stop the race
 var stop = function(T) {
-	if (T.play === true) {
+	if (T.play.get() === true) {
 		clearInterval(T.playInterval);
-		T.play = false;
+		T.play.set(false);
 	}
 }
 
 Template.player.events({
 	'click #play' : function(e) {
+		$('#pause').show();
+		$('#play').hide();
 		var T = Template.instance();
 		play(T)
 	},
 	'click #pause' : function(e) {
+		$('#pause').hide();
+		$('#play').show();
 		var T = Template.instance();
 		stop(T);
 	},
@@ -321,8 +322,8 @@ Template.player.events({
 	},
 	'click .pilot' : function() {
 		var id = $('.pilot').attr('rel');
-		var infos = Sessions.get('raceInfos');
-		Mateor.call('test.watch', id, infos.id, infos.task, Session.get('progressId'));
+		var infos = Session.get('raceInfos');
+		//Meteor.call('test.watch', id, infos.id, infos.task, Session.get('progressId'));
 	},
 });
 

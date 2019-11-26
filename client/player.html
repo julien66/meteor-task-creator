@@ -2,11 +2,11 @@
 	{{#if showPlayer}}
 	<div id="player">
 		<div id="controls" class="row">
-			<i id="play" class="button fa fa-play-circle"  aria-hidden="true"></i>
-			<i id="pause" class="button fa fa-pause-circle" aria-hidden="true"></i>
+			{{#unless onPlay}}<i id="play" class="button fa fa-play-circle"  aria-hidden="true"></i>{{/unless}}
+			{{#if onPlay}}<i id="pause" class="button fa fa-pause-circle" aria-hidden="true"></i>{{/if}}
 			<div id="speedControl">
 				<i id="speed" class="button fa fa-dashboard" aria-hidden="true"></i>
-				<input type="range" min="1" max="20" value="{{getSpeed}}" class="speedSlider" id="speedSlide">
+				<input type="range" min="1" max="50" value="{{getSpeed}}" class="speedSlider" id="speedSlide">
 				<span id="speedValue">{{getSpeed}}x</span>
 			</div>
 			<i id="clock" class="button fa fa-clock-o" aria-hidden="true"></i>

@@ -15,6 +15,7 @@
     "leaflet": "^1.6.0",
     "leaflet-polylinedecorator": "^1.6.0",
     "meteor-node-stubs": "^0.3.2",
+    "oboe": "^2.1.5",
     "popper": "^1.0.1",
     "popper.js": "^1.16.0",
     "progress-stream": "^2.0.0"

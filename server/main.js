@@ -8,18 +8,18 @@ Meteor.startup(() => {
 	AccountsGuest.anonymous = true;
 
 	var fs = Npm.require('fs');
-	var JSONStream = require('JSONStream')
+	var JSONStream = require('JSONStream');
+	var oboe = require('oboe');
 	var basePath = '/home/julien/meteor-task-creator/server/igclib';	
 	// Progress Collection stores IGCLib Progress to report to client.
 	Progress = new Mongo.Collection('progress');
-	Progress._ensureIndex({uid: 1, pid: 1});
 	// RaceEvents Collection stores Imported Races from crawler
 	RaceEvents = new Mongo.Collection('raceEvents');
 	// Task store a single and current Task.
 	Task = new Mongo.Collection('task');
 	// SnapRace store all snapshot of a Race as returned by IGCLib
 	SnapRace = new Mongo.Collection('snapRace');
-	SnapRace._ensureIndex({compId: 1, task: 1, time: 1});
+	SnapRace._ensureIndex({compId: 1, time: 1});
 	
 	// Publish all RaceEvent given a provider and a year.
 	Meteor.publish('raceEvent', function(provider, year) {
@@ -33,7 +33,7 @@ Meteor.startup(() => {
 
 	// Publish Progress given userId.
 	Meteor.publish('Progress', function() {
-		return Progress.find({uid : Meteor.userId()});
+		return Progress.find({uid : Meteor.userId()}, {sort : {created : -1}, limit : 1});
 	});
 
 	// Given a compId and a taskIndex return x SnapRace from a given Time. 
@@ -45,7 +45,7 @@ Meteor.startup(() => {
 		Too few means smaller but more frequent push to client.
 		Don't know which is better.
 		*/
-		return SnapRace.find({compId : compId, task : task, time : {$gte : time}}, {sort :{time : 1}, limit : 15});
+		return SnapRace.find({compId : compId, task : task, time : {$gte : time}}, {sort :{time : 1}, limit : 30});
 	});	
 	
 	// Child Process for IGCLIB.
@@ -83,14 +83,14 @@ Meteor.startup(() => {
 			// Update given Task, for this uid, and replace given turnpoint found by id with new turnpint object.
 			Task.update({_id : taskId, uid : uid,  'turnpoints._id' : turnpoint._id}, {'$set' : {'turnpoints.$' : turnpoint}});
 		},
-		'task.writeTask' : function(buffer) {
+		/*'task.writeTask' : function(buffer) {
 			// Method called from exporter.js after task is ready to write on xctrack format.
 			// We'll send it to igclib for optimisation.
 			// Calling wrapped function so the result can be returned to client.	
 			var uid = Meteor.userId();	
 			var res = syncFileWrite('/tmp/toOptimize.xctsk', new Buffer(buffer));
 			return res;
-		},
+		},*/
 		'task.optimiser' : function(taskId, processId) {
 			// Method called from exporter.js after task has been succesfully written to server.
 			var uid = Meteor.userId();
@@ -102,7 +102,7 @@ Meteor.startup(() => {
 			// On stdout.
 			child.stdout.on('data', Meteor.bindEnvironment(function(data) {
   				// Update task opti with good object.
-				Task.update({_id : taskId, uid : uid}, {'$set' : {'opti' : JSON.parse(data.toString())}});
+				Task.update({_id : taskId, uid : uid}, {'$set' : {'opti' : JSON.parse(data.toString()).opti}});
 			}));
 			child.stderr.on('data', Meteor.bindEnvironment(function(data) {
 				// IGCLib return Progress on stderr.
@@ -112,7 +112,7 @@ Meteor.startup(() => {
 				//console.log("stderr : " + data.toString());
 				/*try {
 					var parse = JSON.parse(data.toString());
-  					console.log('success : ' + parse + ' JSONlength : ' + data.toString().length);
+  					console.log('success: ' + parse + ' JSONlength : ' + data.toString().length);
 					Task.update({_id : taskId, uid : uid}, {'$set' : {'IGCLibOpti.points' : parse}});
 				}
 				catch(e) {
@@ -168,7 +168,7 @@ Meteor.startup(() => {
 				Progress.remove({uid : uid, pid : processId, type : 'crawler'});
 			})); 
 		},
-		'task.newZip' : function(buffer) {
+		/*'task.newZip' : function(buffer) {
 			// Get new zip data and write it all on /tmp.
 			fs.writeFile('/tmp/flights.zip',new Buffer(buffer), Meteor.bindEnvironment(function(error) {
 				console.log(error);
@@ -197,58 +197,25 @@ Meteor.startup(() => {
 			}));
 			//
 			return true;
-		},
+		},*/
 		'task.test' : function() {
 			SnapRace.remove({});
-			RaceEvents.remove({});
 			Progress.remove({});
 			Task.remove({});
-			/*var compId = 'mwBxqYiYnGZDacMEp';
-			var taskIndex = 0;	
-			var read = fs.createReadStream('/tmp/race_' + compId + '_' + taskIndex +'.json');
-			
-			var stream = JSONStream.parse( ["race", {'emitKey' : true}]);	
-			// Piping streams.
-			read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
-				// Convert hh:mm:ss to timestamp as s from midnight.
-				var time = new Date('1970-01-01T' + data['key']);
-				// Insert json race into mongodb race collection.
-				SnapRace.insert({compId : compId, task : taskIndex, time : time, snapshot :  data['value']});
-			})).on('header', Meteor.bindEnvironment(function(data) {
-				var ranking = data.ranking;
-				var update = {'$set' : {}};
-				update['$set']['tasks.' + taskIndex + '.task.ranking'] = ranking;
-				RaceEvents.update({'_id' : compId}, update);
-			})).on('end', Meteor.bindEnvironment(function() {
-			}));*/
-			
-			
-			/*var read = fs.createReadStream('/tmp/race_sadgEvPYAYtmy5BPq_5.json');
-			// Using JSONStream.
-			//var stream = JSONStream.parse( ["snapshots", {'emitKey' : true}]);	
-			var stream = JSONStream.parse( ["race", {'emitKey' : true}]);	
-			// Piping streams.
-			read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
-				// Convert hh:mm:ss to timestamp as s from midnight.
-				var time = new Date('1970-01-01T' + data['key']);
-				// Insert json race into mongodb race collection.
-				console.log('insert :' + time);
-				SnapRace.insert({compId : 'sadgEvPYAYtmy5BPq', task : taskIndex, time : time, snapshot :  data['value']});
-			})).on('end', Meteor.bindEnvironment(function() {
-				// Ready.
-			}));*/
 		},
-		'task.replay' : function(commands, compId, taskIndex, processId) {
+		'task.replay' : function(compId, taskIndex, processId) {
 			var uid = Meteor.userId();
+			var race = RaceEvents.findOne({'_id' : compId});
+			var task = Buffer.from(JSON.stringify(race.tasks[taskIndex])).toString('base64');
 			var param = {
-				task : '/tmp/toOptimize.xctsk',
+				task : task,
 				//flights : '/tmp/flights',
 				output : '/tmp/replay.igclib',
 			};
 			// If this race has a raceEvents _id... Then switch the output to store the file properly.
 			if (compId) {
 				// .igclib extension will create both .json and .pkl file.
-				commands.output = '/tmp/replay_' + compId + '_' + taskIndex + '.igclib';
+				param.output = '/tmp/replay_' + compId + '_' + taskIndex + '.igclib';
 			}
 			
 			// Check if this task hasn't been replayed already
@@ -256,7 +223,7 @@ Meteor.startup(() => {
 			if (!query) {
 				// If not, then proceed with igclib to "Replay".
 				// Merge defaut and custom parameters with Object.assign.
-				var child = igclib('replay', Object.assign(param, commands));
+				var child = igclib('replay', param);
 				child.stdout.on('data', Meteor.bindEnvironment(function(data) {
 					// Nothing here. Too much data. File Written directly on server.
 				}));
@@ -272,50 +239,45 @@ Meteor.startup(() => {
 					// Stream full race to database.
 					// Remove all past snapRace docs for this task...
 					SnapRace.remove({compId : compId, task : taskIndex});
-					// Read replay .json File.
-					var read = fs.createReadStream('/tmp/replay_' + compId + '_' + taskIndex +'.json');
-					// Use JSONStream.
-					var stream = JSONStream.parse( ["race", {'emitKey' : true}]);	
-					// Pipe streams.
-                    			counter = 0;
-					var bulkOp = SnapRace.rawCollection().initializeOrderedBulkOp();
-					read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
-						// Convert hh:mm:ss to timestamp as s from midnight.
-						var time = new Date('1970-01-01T' + data['key']);
-						// Insert json Snapshots into mongodb SnapRace collection.
-						//console.log('insert : ' + compId + '_' + taskIndex + '_' + time);
-						bulkOp.insert({compId : compId, task : taskIndex, time : time, snapshot :  data['value']});
-                    				counter++;
-                    				// Send to server in batch of 1000 insert operations
-                    				if (counter % 300 == 0) {
-                        				// Execute per 1000 operations and re-initialize every 1000 update statements
-                        				bulkOp.execute(function(e, result) {
-								console.log('counter');
-								console.log('Bulk inserted 100 batch');
-							});
-                        				bulkOp = SnapRace.rawCollection().initializeOrderedBulkOp();
-                    				} 
-                				// Clean up queues
-                				if (counter % 300 != 0){
-                    					bulkOp.execute(function(e, result) {});
-                				}
-					})).on('header', Meteor.bindEnvironment(function(data) {
-						/*var ranking = data.ranking;
-						var up = {'$set' : {}};
-						// uid <--> name mapping.
-						up['$set']['tasks.' + taskIndex + '.task.ranking'] = ranking;
-						// @todo insert time at turnpoint (timeline display).
-						RaceEvents.update({'_id' : compId}, up);*/
-					})).on('close', Meteor.bindEnvironment(function() {
-						// Ready.
-						// if any source provided. Update RaceEvent Collection :
-						console.log('end stream replay');
+					// Initialise Unordered Bulk Operation.
+					var bulkOp = SnapRace.rawCollection().initializeUnorderedBulkOp();
+					var totalSnap = 0;
+					var counter = 0;
+					// Oboe parser.
+					oboe(fs.createReadStream('/tmp/replay_' + compId + '_' + taskIndex + '.json')).node('n_snaps', function(data) {
+						// On n_snaps.
+						console.log('n_snaps : ' + data);
+						totalSnap = data;
+					}).node('ranking.pilots' , Meteor.bindEnvironment(function(data) {
+						// On pilots.
 						var update = {'$set' : {}};
-						// Raced attribute so we know tis task has been processed.
+						update['$set']['tasks.' + taskIndex + '.task.ranking.pilots'] = data;
+						RaceEvents.update({'_id' : compId}, update);
+					})).node('race.*', function(data, key) {
+						// For each snap race.
+						// Convert hh:mm:ss to timestamp as s from midnight.
+						var time = new Date('1970-01-01T' + key[1]);
+						// Insert json Snapshots into bulk operation.
+						bulkOp.insert({compId : compId, task : taskIndex, time : time, snapshot :  data});
+						// Dealing with progress again.
+						//counter++;
+						//Progress.rawCollection().insert({uid : uid, type : 'replay', pid : processId, created : new Date().toIsoString, progress : counter/totalSnap});
+					})
+					.done(Meteor.bindEnvironment(function() {
+						// Remove Progress
+						//Progress.remove({uid : uid, pid : processId, type : 'replay'});
+						// Insert it all via bulk.
+						bulkOp.execute();
+						// Raced attribute so we know this task has been processed.
+						var update = {'$set' : {}};
 						update['$set']['tasks.' + taskIndex + '.task.replay'] = true;
+						RaceEvents.update({'_id' : compId}, update);
 						// Directly go for a Race analysis.
-						//Meteor.call('task.race', {'path' : '/tmp/compid_'+ compId + '_' + taskIndex + '.pkl'}, compId, taskIndex, processId);
+						Meteor.call('task.race', {'path' : '/tmp/compid_'+ compId + '_' + taskIndex + '.pkl'}, compId, taskIndex, processId);
 					}));
+				}));
+				child.on('error', Meteor.bindEnvironment(function(err) {
+					console.log(err);
 				}));
 			}
 		},
@@ -355,10 +317,7 @@ Meteor.startup(() => {
 					// Let's stream full race to database.
 					// Read Files.
 					var read = fs.createReadStream('/tmp/race_' + compId + '_' + taskIndex +'.json');
-					// Use JSONStream.
-					var stream = JSONStream.parse( ["race", {'emitKey' : true}]);
-					// Pipe streams.
-					read.pipe(stream).on('data', Meteor.bindEnvironment(function(data) {
+					oboe(read).node('data', Meteor.bindEnvironment(function(data) {
 						// Convert hh:mm:ss to timestamp as s from midnight.
 						var time = new Date('1970-01-01T' + data['key']);
 						// Update json Snapshots into mongodb SnapRace collection.

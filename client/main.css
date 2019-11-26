@@ -39,8 +39,8 @@ html, body {
 
 .iconLabel {
 	font-weight: bold;
-    	padding: 0px 0px 0px 4px;
-    	font-size: 14px;
+    	font-size: 11px;
+	white-space : nowrap;
 }
 
 #sidebar-inner {
@@ -55,10 +55,8 @@ html, body {
 #dz {
 	cursor: pointer;
 	padding: 10px;
-	border: 3px dashed #FFF;
+	border: 1px solid #FFF;
 	text-align: center;
-	font-family: cursive;
-	font-style: italic;
 	background-color : transparent;
 	min-height : 100px;
 }
@@ -85,7 +83,8 @@ html, body {
 	position : absolute;
 	z-index : 1000;
 	bottom : 0;
-	background-color : #343A40;
+	/*background-color : #343A40;*/
+	background :rgba(0, 0, 0, 0.8);
 	border-top : 1px solid #000;
 	box-shadow : 0px 0px 10px #000;
 	width : 100%;
@@ -209,10 +208,14 @@ html, body {
 
 .pilot {
 	padding : 2px 5px;
+	text-overflow: ellipsis;
+    	white-space: nowrap;
+	width : 100px;
+	overflow : hidden;
 }
 
 .pilot:hover {
-	background-color : #23272b;
+	background-color : #F0AD4E;
 	cursor : pointer;
 }
 
@@ -263,7 +266,6 @@ html, body {
 }
 
 #autoImporter .form-group {
-	display : none;
 }
 
 .stage {
@@ -314,8 +316,6 @@ html, body {
 
 #taskboard .message {
 	padding : 10px;
-	font-style : italic;
-	font-weight : bold;
 	text-align : center;
 }
 
@@ -325,12 +325,9 @@ html, body {
 
 
 #taskboard-header {
-	font-weight: bolder;
+	padding-top : 10px;
 	color: #FFF;
 	text-shadow: 0px 0px 10px #000;
-	font-style: italic;
-	font-family: cursive;
-	font-size: 1.5em;
 	text-align: center;
 	margin-bottom: 10px;
 }
