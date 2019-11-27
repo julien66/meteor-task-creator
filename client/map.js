@@ -44,7 +44,8 @@ Template.map.onRendered( function onLeaf() {
 				if(ranking[ids[i]]) {
 					name = rankObj.name;
 					color = rankObj.color;
-					darkerColor = rankObj.darkerColor
+					//darkerColor = rankObj.darkerColor
+					var darkerColor = '#000';
 				}
 				var pilotIcon = L.divIcon({
    					html: '<i class="fa fa-circle" style="text-shadow:0px 0px 5px ' + darkerColor + ';color:' + color + '"></i><div class="iconLabel">' + name + '</div>',
@@ -185,7 +186,7 @@ Template.map.onRendered( function onLeaf() {
 			}
 
 			if (task.opti) {
-				console.log(task.opti);
+				//console.log(task.opti);
 				polyline = L.polyline(task.opti.points, {color: param.task.courseColor.fast}).addTo(map);
 			}
 			else {

@@ -58,8 +58,10 @@ Template.player.helpers({
 		return T.pilots.get().length > 0;	
 	},
 	showRaceProgress : function() {
-		var T = Template.instance();
-		return T.init;
+		var raceInfos = Session.get('raceInfos');
+		var raceEvent = RaceEvents.findOne({_id : raceInfos.id});
+		console.log(raceEvent);
+		return !raceEvent.tasks[raceInfos.task].task.raced;
 	},
 	isProgress : function() {
 		var T = Template.instance();

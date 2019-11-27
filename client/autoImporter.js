@@ -54,19 +54,6 @@ Template.autoImporter.helpers({
 			return ['Select a task first'];
 		}
 	},
-	getProgress : function() {
-		var T = Template.instance();
-		var uid = Meteor.userId();
-		var query = Progress.findOne({uid : uid, pid : Session.get('processId'), type : 'crawler'}, {sort : {created : -1}});
-		if (query) {
-			var percent = parseInt(query.progress.substring(0, query.progress.indexOf('%')));
-			if (isNaN(percent)) {
-				percent = 0;
-			}
-			// Return Progress to be displayed.
-			return percent + '%';
-		}; 
-	},
 	importable : function() {
 		var T = Template.instance();
 		var current = T.currentTaskParam.get();
@@ -95,10 +82,6 @@ Template.autoImporter.onCreated(function autoImporterOnCreated() {
 	
 	// Storing current imported task param.
 	this.currentTaskParam = new ReactiveVar({});
-	
-	// Storing process Id for watching progress.
-	// UID wasn't enough because a user can open multiple window and start mutliple process. Progress were messy then.
-	Session.set('processId', new Mongo.ObjectID());
 	
 	// Storing session variable at crawler running.
 	Session.set('crawler', false);

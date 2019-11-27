@@ -37,6 +37,17 @@ Template.taskBoard.helpers({
 });
 
 Template.taskBoard.onRendered( function onTaskBoardRendered() {
+	Task.find({'_id' : Session.get('taskId')}).observe({
+		'changed' : function(task) {
+			if (task.opti) {
+				setLegsDistances(task, task.opti.legs);
+			}
+			else {
+				setLegsDistances(task);
+			}
+		}
+	});
+	
 	$("ul").sortable({
     		start: function(event, ui) {
 		},
@@ -61,6 +72,19 @@ Template.taskBoard.onRendered( function onTaskBoardRendered() {
 Template.taskBoard.onCreated = function onTaskBoardCreated() {
 	var T = Template.instance();
 }
+
+
+var setLegsDistances = function(task, legs) {
+	// Set new distance to next turnpoint.
+	for (var j = 0; j < task.turnpoints.length; j++) {
+		Turnpoints.update( {'_id' : task.turnpoints[j]['_id']}, {'$set' : 
+			{
+				next : legs ? legs[j] : 0,
+				previous : ((legs && (j-1 >= 0)) ? legs[j-1] : 0) 
+			}
+		});
+	}
+};
 
 Template.taskBoard.events({
 	'click li span' : function(e) {

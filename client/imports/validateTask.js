@@ -30,54 +30,11 @@ Template.validateTask.helpers({
 		var valid = Session.get('validator').valid;	
 		return valid && (!Session.get('trackFile') && !Session.get('importTrack')) && !RaceEvents.find().fetch().length > 0;
 	},	
-	'opti' : function() {
-		return Task.findOne({_id : Session.get('taskId')}).needOpti;
-	},
-	'ready' : function() {
-		var T = Template.instance();
-		var valid = Session.get('validator').valid;	
-		return (Session.get('trackFile') || Session.get('importTrack')) && valid;
-	},
-	'getProgress' : function() {
-		var T = Template.instance();
-		var uid = Meteor.userId();
-		var query = Progress.findOne({uid : uid, pid : Session.get('processId'), type : "replay"}, {sort : {created : -1}});
-		if (query) {
-			// Return Progress to be displayed.
-			if (query.progress.indexOf('%') > -1) {
-				var percent = parseInt(query.progress.substring(0, query.progress.indexOf('%')));
-			} else {
-				var percent = Math.round(100 * query.progress);
-			}
-			if (isNaN(percent)) {
-				percent = 0;
-			}
-			if (percent < 5 )  {
-				T.percentThreshold = true;
-			}
-			if (percent == 100 && T.percentThreshold) {
-				T.replayIndex.set(T.replayIndex.get() + 1);
-				T.percentThreshold = false;
-			}
-			return percent + ' %';
-		};
-	},
-	'getStage' : function() {
-		var T = Template.instance();
-		return T.replayStatus[T.replayIndex.get()];
-	},
-	'isProgress' : function() {
-		var T = Template.instance();
-		return T.replayIndex.get() < 3;
-	}
 }); 
 
 
 Template.validateTask.onCreated (function validateOnCreated() {
 	$('#validateTask').hide();
-	this.percentThreshold = false;
-	this.replayIndex = new ReactiveVar(0);
-	this.replayStatus = ['Downloading Tracks', 'Reading Tracks', 'Streaming large data', 'Inserting to database'];
 	Session.set('validator', {
 		valid : false,
 		report : 'No Task defined.',
@@ -85,19 +42,6 @@ Template.validateTask.onCreated (function validateOnCreated() {
 	this.valid = new ReactiveVar(false);
 	this.report = new ReactiveVar('');
 	var T = Template.instance();
-	 
-	/*Task.find({_id : Session.get('taskId')}).observe({
-		added : function() {
-		},
-		changed : function(task, pastTask) {
-			var res = check();
-			t.valid.set(res.valid);
-			t.report.set(res.report);
-			Session.set('validTask', res.valid);	
-		},
-		removed : function() {
-		}
-	});*/
 });
 
 // This function Check task validity.
@@ -142,7 +86,7 @@ var check = function (task) {
 			report.push('No ' + key + ' detected.');
 		};
 		// If there is more than a mandatory role. Eg. 2 Takeoff. 3 Goal.
-		if (test[key].length > 1) {
+		if (test[key] && test[key].length > 1) {
 			// Set valid to false;
 			valid = false;
 			// Add multiple role report.

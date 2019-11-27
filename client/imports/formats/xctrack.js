@@ -5,6 +5,7 @@
 import './export/xctrack.html';
 
 	var converter = function (key, opposite) {
+		console.log(key, opposite);
 		var conv = {
     			"RACE" : "RACE",
     			"ENTER" : "ENTER",
@@ -39,7 +40,7 @@ import './export/xctrack.html';
 				
 			var tp = {
 				radius : elem.radius,
-				role : converter(elem.type, true).toUpperCase(),
+				role : (elem.type) ? converter(elem.type, true).toUpperCase() : 'TURNPOINT',
 				wp : wp,
 			}
 			tp = Object.assign(tp, wp);

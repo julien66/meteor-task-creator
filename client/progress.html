@@ -1,0 +1,12 @@
+<template name="progress">
+	{{#if isShown}}
+	<div id="progress" class="alert alert-warning">
+		<h4 id="progressTitle">Please Wait</h4>
+		<div><i class="fa fa-2x fa-rocket"></i> IGCLib Launched <span id="progressType">{{getType}}</span></div>
+		<div id="progressStage">{{getStageName}}<span id="stageIndex">{{getStageIndex}}</span></div>
+		<div class="progress">
+			<div class="progress-bar progress-bar-striped progress-bar-animated {{background}}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">{{getPercent}}%</div>
+		</div>
+	</div>
+	{{/if}}
+</template>

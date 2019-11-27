@@ -200,6 +200,7 @@ Meteor.startup(() => {
 		},*/
 		'task.test' : function() {
 			SnapRace.remove({});
+			RaceEvents.remove({});
 			Progress.remove({});
 			Task.remove({});
 		},
@@ -318,27 +319,18 @@ Meteor.startup(() => {
 					// Read Files.
 					var read = fs.createReadStream('/tmp/race_' + compId + '_' + taskIndex +'.json');
 					oboe(read).node('data', Meteor.bindEnvironment(function(data) {
-						// Convert hh:mm:ss to timestamp as s from midnight.
-						var time = new Date('1970-01-01T' + data['key']);
-						// Update json Snapshots into mongodb SnapRace collection.
-						SnapRace.update({compId : compId, task : taskIndex, time : time}, {$set : {snapshot :  data['value']}});
-					})).on('header', Meteor.bindEnvironment(function(data) {
+						// Nothing to do here.
+					})).node('ranking', Meteor.bindEnvironment(function(data) {
 						var ranking = data.ranking;
 						var up = {'$set' : {}};
 						// uid <--> name mapping.
 						up['$set']['tasks.' + taskIndex + '.task.ranking'] = ranking;
+						up['$set']['tasks.' + taskIndex + '.task.raced'] = true;
 						// @todo insert time at turnpoint (timeline display).
 						RaceEvents.update({'_id' : compId}, up);
-					})).on('close', Meteor.bindEnvironment(function() {
-						// Ready.
-						// if any source provided. Update RaceEvent Collection :
-						console.log('end stream race');
-						var update = {'$set' : {}};
-						// Raced attribute so we know tis task has been processed.
-						update['$set']['tasks.' + taskIndex + '.task.raced'] = true;
-						RaceEvents.update({'_id' : compId}, update);
-						// @todo... Get rid of replay files ???
-					}));
+					})).done(function() {
+						// @TODO get rid of unused files?
+					});
 				}));
 			}
 		},
