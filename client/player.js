@@ -57,40 +57,6 @@ Template.player.helpers({
 		var T = Template.instance();
 		return T.pilots.get().length > 0;	
 	},
-	showRaceProgress : function() {
-		var raceInfos = Session.get('raceInfos');
-		var raceEvent = RaceEvents.findOne({_id : raceInfos.id});
-		console.log(raceEvent);
-		return !raceEvent.tasks[raceInfos.task].task.raced;
-	},
-	isProgress : function() {
-		var T = Template.instance();
-		return T.raceIndex.get() < 1;
-	},
-	getProgress : function() {
-		var T = Template.instance();
-		var uid = Meteor.userId();
-		var query = Progress.findOne({uid : uid, pid : Session.get('processId'), type : "race"}, {sort : {created : -1}});
-		if (query) {
-			// Return Progress to be displayed.
-			var percent = parseInt(query.progress.substring(0, query.progress.indexOf('%')));
-			if (isNaN(percent)) {
-				percent = 0;
-			}
-			if (percent < 5 )  {
-				T.percentThreshold = true;
-			}
-			if (percent == 100 && T.percentThreshold) {
-				T.raceIndex.set(T.raceIndex.get() + 1);
-				T.percentThreshold = false;
-			}
-			return percent + ' %';
-		};
-	},
-	getStage : function() {
-		var T = Template.instance();
-		return T.raceStatus[T.raceIndex.get()];
-	},
 	onPlay : function() {
 		var T = Template.instance();
 		return T.play.get();
@@ -117,6 +83,7 @@ Template.player.onCreated (function onPlayerCreated() {
 	this.init = true;
 	this.performance = false;
 	this.onRequest = false;
+	this.sliderDelay = 0;
 
 	this.percentThreshold = false;
 	this.raceIndex = new ReactiveVar(0);
@@ -325,22 +292,24 @@ Template.player.events({
 	'input #replaySlide' : function(e) {
 		var T = Template.instance();
 		stop(T);
-		timeMoved(T, parseInt($(e.target).val()));
+		T.sliderDelay += 1;
+		if (T.sliderDelay > 10) {
+			T.sliderDelay = 0;
+			timeMoved(T, parseInt($(e.target).val()));
+		}
 	},
 	'change #replaySlide' : function(e) {
 		var T = Template.instance();
 		timeMoved(T, parseInt($(e.target).val()));
 	},
 	'click #close' : function(e) {
-		$('#timeline').toggle();
 		$('#timeMark').toggle();
 		$('#pilotList').toggle();
-		$('#raceAlert').toggle();
 	},
 	'click .pilot' : function() {
 		var id = $('.pilot').attr('rel');
 		var infos = Session.get('raceInfos');
-		//Meteor.call('test.watch', id, infos.id, infos.task, Session.get('progressId'));
+		//Meteor.call('task.watch', id, infos.id, infos.task, Session.get('progressId'));
 	},
 });
 

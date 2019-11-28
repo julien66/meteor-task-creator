@@ -63,8 +63,10 @@ html, body {
 #validateTask {
 }
 
-#buildRace, #validation {
+#validation {
 	box-shadow: 0px 0px 5px #000;
+	clear : both;
+	margin-top : 20px;	
 }
 
 #buildRace {

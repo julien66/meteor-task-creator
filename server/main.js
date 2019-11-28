@@ -264,8 +264,9 @@ Meteor.startup(() => {
 						// Insert json Snapshots into bulk operation.
 						bulkOp.insert({compId : compId, task : taskIndex, time : time, snapshot :  data});
 						// Dealing with progress again.
-						//counter++;
+						counter++;
 						//Progress.rawCollection().insert({uid : uid, type : 'replay', pid : processId, created : new Date().toIsoString, progress : counter/totalSnap});
+						//Progress.insert({uid : uid, type : 'replay', pid : processId, created : new Date().toISOString(), counter/totalSnap});
 					})
 					.done(Meteor.bindEnvironment(function() {
 						// Remove Progress
@@ -321,13 +322,11 @@ Meteor.startup(() => {
 					// Let's stream full race to database.
 					// Read Files.
 					var read = fs.createReadStream('/tmp/race_' + compId + '_' + taskIndex +'.json');
-					oboe(read).node('data', Meteor.bindEnvironment(function(data) {
-						// Nothing to do here.
-					})).node('ranking', Meteor.bindEnvironment(function(data) {
-						var ranking = data.ranking;
+					oboe(read).node('ranking.*', Meteor.bindEnvironment(function(data) {
+						var ranking = data;
 						var up = {'$set' : {}};
 						// uid <--> name mapping.
-						up['$set']['tasks.' + taskIndex + '.task.ranking'] = ranking;
+						up['$set']['tasks.' + taskIndex + '.task.ranking.pilots'] = ranking;
 						up['$set']['tasks.' + taskIndex + '.task.raced'] = true;
 						// @todo insert time at turnpoint (timeline display).
 						RaceEvents.update({'_id' : compId}, up);
