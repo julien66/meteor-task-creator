@@ -27,7 +27,7 @@ Template.waypointFiles.events({
 		// Removing all Turnpoints from this source.
 		Turnpoints.remove({'source' : source});
 		// Removing all Turnpoints into task with this source.
-		Task.update({_id : Session.get('taskId')}, {'$pull' : {turnpoints : {source : source}}});
+		Task.update({_id : Session.get('taskId')}, {'$set' : {opti : false}, '$pull' : {turnpoints : {source : source}}});
 	},
 	'click button' : function(e) {
 		// On click export Waypoint

@@ -2,7 +2,7 @@
 <div id="validateTask">
 	{{#if display}}
 	<div id="validation" class="alert alert-{{status}}">
-		<span class="status">{{status}}!</span> Task is {{#unless valid}} not {{/unless}} valid.<br/> 
+		<span class="status"> Task is {{#unless valid}} not {{/unless}} valid !<br/></span>
 		{{#unless valid}} Here's the latest report : <br/>
 			{{# each report}}
 			<div>{{this}}</div>

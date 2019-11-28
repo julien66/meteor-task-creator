@@ -61,9 +61,6 @@ html, body {
 	min-height : 100px;
 }
 #validateTask {
-	position : absolute;
-	z-index : 1000;
-	margin: 70px 0px;
 }
 
 #buildRace, #validation {
@@ -76,7 +73,7 @@ html, body {
 
 #validateTask .status {
 	font-weight : bold;
-	text-transform : capitalize;
+	text-transform : uppercase;
 }
 
 #player {
@@ -450,8 +447,9 @@ span.turnpointDistance {
  */
 #progress {
 	position : absolute;
-	bottom : 0px;
-	right : 0px;
+	top : 70px;
+	left : 0px;
+	z-index : 1001;
 }
 
 .loading {

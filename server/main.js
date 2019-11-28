@@ -37,7 +37,7 @@ Meteor.startup(() => {
 	});
 
 	// Given a compId and a taskIndex return x SnapRace from a given Time. 
-	Meteor.publish('SnapRace', function(compId, task, time) {
+	Meteor.publish('SnapRace', function(compId, task, time, limit) {
 		//console.log(compId, task, time);
 		/* @todo
 		30 is hard coded. Could be better to set more or less.
@@ -45,7 +45,10 @@ Meteor.startup(() => {
 		Too few means smaller but more frequent push to client.
 		Don't know which is better.
 		*/
-		return SnapRace.find({compId : compId, task : task, time : {$gte : time}}, {sort :{time : 1}, limit : 30});
+		if (!limit || limit > 30) {
+			limit = 30;
+		}
+		return SnapRace.find({compId : compId, task : task, time : {$gte : time}}, {sort :{time : 1}, limit : limit});
 	});	
 	
 	// Child Process for IGCLIB.

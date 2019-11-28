@@ -116,6 +116,7 @@ Template.player.onCreated (function onPlayerCreated() {
 	this.times = new ReactiveVar([]);
 	this.init = true;
 	this.performance = false;
+	this.onRequest = false;
 
 	this.percentThreshold = false;
 	this.raceIndex = new ReactiveVar(0);
@@ -129,7 +130,8 @@ Template.player.onCreated (function onPlayerCreated() {
 		var infos = Session.get('raceInfos');
       		if (infos && T.reqTime.get()) {
 			console.log('sub', infos.id, infos.task, T.reqTime.get());
-			T.subscribe('SnapRace', infos.id, infos.task, T.reqTime.get());
+			var limit = (T.play.get()) ? null : 1;
+			T.subscribe('SnapRace', infos.id, infos.task, T.reqTime.get(), limit);
   		}
 		// Getting mapping array to display proper names from uid.
 		// Getting times from the task (timeline display)
@@ -197,6 +199,13 @@ Template.player.onCreated (function onPlayerCreated() {
 			T.pilots.set(current.concat(ids.filter((item) => current.indexOf(item) < 0)));
 			var event = new CustomEvent('newPilots', {'detail': {ids : ids, ranking : T.ranking}});
 			window.dispatchEvent(event);
+			if (!T.play.get()) {
+				console.log('toMove');
+				var event = new CustomEvent('movePilots', { 'detail': T.buffer[seconds]});
+				window.dispatchEvent(event);
+				delete T.buffer[seconds];	
+			}
+			T.onRequest = false;
 		},
 	});
 });
@@ -224,10 +233,11 @@ var play = function (T) {
 			else {
 				var event = new CustomEvent('movePilots', { 'detail': T.buffer[currentTime]});
 				window.dispatchEvent(event);
-				delete T.buffer[currentTime];
 				if (T.buffer.length - currentTime < 5) {
+					T.onRequest = true;
 					T.reqTime.set(new Date('1970-01-01T'+ T.buffer[T.buffer.length - 1].hh));
 				}
+				delete T.buffer[currentTime];
 			}
 			//}
 			T.raceTime.set(currentTime + 1);
@@ -312,6 +322,11 @@ Template.player.events({
 			clearInterval(T.pressInterval);
 		}
 	},
+	'input #replaySlide' : function(e) {
+		var T = Template.instance();
+		stop(T);
+		timeMoved(T, parseInt($(e.target).val()));
+	},
 	'change #replaySlide' : function(e) {
 		var T = Template.instance();
 		timeMoved(T, parseInt($(e.target).val()));
@@ -334,4 +349,9 @@ var timeMoved = function(T, now) {
 	T.buffer = [];
 	// Set times accordingly.
 	T.raceTime.set(now);
+	//Subscribing.
+	if (!T.onRequest) {
+		T.reqTime.set(new Date('1970-01-01T'+ Helper.secondsToHH(now)));
+		T.onRequest = true;
+	}
 } 

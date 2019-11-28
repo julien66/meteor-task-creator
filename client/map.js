@@ -61,6 +61,7 @@ Template.map.onRendered( function onLeaf() {
 	};
 		
 	function movePilots(e) {
+		console.log('okMove');
 		if (e.detail && e.detail.snap) {
 			var snap = e.detail.snap;
 			//console.log(snap);
