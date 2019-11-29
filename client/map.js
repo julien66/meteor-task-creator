@@ -64,6 +64,7 @@ Template.map.onRendered( function onLeaf() {
 				var marker = L.marker([0, 0], {
   					icon: pilotIcon,
 				}).addTo(map);
+				marker.pilot = ranking[ids[i]];
 				pilots[ids[i]] = marker;
 			}
 		}
@@ -76,7 +77,15 @@ Template.map.onRendered( function onLeaf() {
 			//console.log(snap);
 			for (let [id, value] of Object.entries(snap)) {
 				if (pilots[id]) {
-					pilots[id].setLatLng(new L.LatLng(value.lat, value.lon));
+					var marker = pilots[id];
+					var pilot = marker.pilot;
+					marker.setLatLng(new L.LatLng(value.lat, value.lon));
+					var pilotIcon = L.divIcon({
+   						html: '<i class="fa fa-circle" style="text-shadow:0px 0px 5px ' + pilot.darkerColor + ';color:' + pilot.color + '"></i><div class="iconLabel">' + pilot.name + '<br/>' + value.altitude + 'm</div>',
+    						className: 'myDivIcon',
+						iconAnchor: [15, 45]
+					});
+					marker.setIcon(pilotIcon);
 				}
 				else {
 					//console.log(id);
