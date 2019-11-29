@@ -32,6 +32,15 @@ Template.map.onRendered( function onLeaf() {
 	
 	window.addEventListener('newPilots', addPilots);
 	window.addEventListener('movePilots', movePilots);
+	window.addEventListener('centerPilot', centerPilot);
+	
+	function centerPilot(e) {
+		var id = e.detail.id;
+		if (pilots[id]) {
+  			map.fitBounds(L.latLngBounds([pilots[id].getLatLng()]));
+		}
+	}
+	
 	function addPilots(e) {
 		var ids = e.detail.ids;
 		var ranking = e.detail.ranking;

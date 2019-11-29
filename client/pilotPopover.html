@@ -1,0 +1,8 @@
+<template name="pilotPopover">
+	<div id="pilotPopover">
+	<div class="pilotDistance">Distance flown : {{roundDistance distance}} meters</div>
+	<div class="pilotTime">Time to goal : {{getTime time}} </div>
+	<div id='{{id}}' class='findMap btn btn-light' rel='{{id}}'><span><i class="fa fa-search"></i></span> Find on map</div>
+	<div id='{{id}}' class='watch btn btn-light' rel='{{id}}'><span><i class="fa fa-bar-chart"></i></span> Get analytics</div>
+	</div>
+</template>

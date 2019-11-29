@@ -88,7 +88,18 @@ Template.player.onCreated (function onPlayerCreated() {
 	this.percentThreshold = false;
 	this.raceIndex = new ReactiveVar(0);
 	this.raceStatus = ['Validating Tracks', 'Updating database'];
-	
+
+	$(document).on("click", ".findMap", function(e) {
+    		var id = $(e.target).attr('id');
+		var event = new CustomEvent('centerPilot', {'detail': {id : id}});
+		window.dispatchEvent(event);
+	});
+
+	$(document).on("click", ".watch", function(e) {
+    		var id = $(e.target).attr('id');
+		var infos = Session.get('raceInfos');
+		Meteor.call('task.watch', id, infos.id, infos.task, Session.get('progressId'));	
+	});
 	// this will rerun whenever raceTime or raceInfos changes
   	this.autorun(function() {
     		// Subscribe for the current raceTime (only if one is selected). Note this
@@ -306,11 +317,17 @@ Template.player.events({
 		$('#timeMark').toggle();
 		$('#pilotList').toggle();
 	},
-	'click .pilot' : function() {
-		var id = $('.pilot').attr('rel');
-		var infos = Session.get('raceInfos');
-		//Meteor.call('task.watch', id, infos.id, infos.task, Session.get('progressId'));
+	'click .pilot' : function(e) {
+		var T = Template.instance();
+		var id = $(e.target).attr('rel');
+		// Get popover content.
+		var content = Blaze.toHTMLWithData(Template.pilotPopover, T.ranking[id]);
+		// Setup popover and show.
+		$(e.target).popover({trigger: 'focus', html : true, title : T.ranking[id].name, content : content}).popover('show');
 	},
+	'click .findMap' : function(e) {
+		console.log('ok');
+	}
 });
 
 var timeMoved = function(T, now) {
