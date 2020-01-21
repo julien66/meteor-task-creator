@@ -205,12 +205,31 @@ html, body {
   	cursor: pointer; /* Cursor on hover */
 }
 
+.info.magnetMap {
+	position: absolute;
+    	right: 60px;
+    	font-size: 20px;
+	cursor : pointer;
+}
+
+#magnetInfo {
+	color : #f0ad4e;
+}
+
 .pilot {
-	padding : 2px 5px;
+	padding : 0px;
 	text-overflow: ellipsis;
     	white-space: nowrap;
-	width : 100px;
 	overflow : hidden;
+	font-size:13px;
+	max-width: 20em;
+  	page-break-inside: avoid;   /* Chrome needs this */
+  	break-inside: avoid-column; /* IE10 and IE11 need this */
+	counter-increment: line-number;
+}
+
+.pilot:before {
+	content: counter(line-number)". ";
 }
 
 .pilot:hover {
@@ -234,6 +253,55 @@ html, body {
 	margin-left : -60px;
 }
 
+#results {
+	height: 200px;
+	column-width: 20em;
+	overflow-x: scroll;
+	counter-reset: line-number;
+}
+
+.pilot span {
+  pointer-events: none;
+}
+
+.pilot .name {
+	font-weight : bold;
+}
+
+.pilot .timeOrM {
+	float : right;
+}
+
+.pilot.selected {
+	background-color : #F0AD4E;
+	animation: blink-animation 1s steps(5, start) infinite;
+	-webkit-animation: blink-animation 1s steps(5, start) infinite;
+}
+
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+
+#searchPilot {
+	position: absolute;
+    	right: 16px;
+    	margin-top: -40px;
+}
+
+#pilotPopover .btn {
+	cursor : pointer;
+}
+
+#player a.nav-link {
+	color : #f0ad4e;
+}
 /*#autoImporter {
 	background : repeating-linear-gradient(
   		45deg,

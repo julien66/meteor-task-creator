@@ -8,9 +8,7 @@ Meteor.startup(() => {
 	AccountsGuest.anonymous = true;
 
 	var fs = Npm.require('fs');
-	var JSONStream = require('JSONStream');
 	var oboe = require('oboe');
-	var basePath = '/home/julien/meteor-task-creator/server/igclib';	
 	// Progress Collection stores IGCLib Progress to report to client.
 	Progress = new Mongo.Collection('progress');
 	// RaceEvents Collection stores Imported Races from crawler
@@ -101,7 +99,10 @@ Meteor.startup(() => {
 			// Set opti to false.
 			Task.update({'_id' : taskId}, {$set : {opti : false}});
 			// Spawn new optimize process to IGCLIB. Only provide b64 turnpoints array.
-			var child = igclib('optimize', {task : Buffer.from(JSON.stringify(task.turnpoints)).toString('base64')});
+			var child = igclib('optimize', {
+				task : Buffer.from(JSON.stringify(task.turnpoints)).toString('base64'),
+				output : '-',
+			});
 			// On stdout.
 			child.stdout.on('data', Meteor.bindEnvironment(function(data) {
   				// Update task opti with good object.
@@ -137,7 +138,7 @@ Meteor.startup(() => {
 			// Keeping track of the request uid
 			var uid = Meteor.userId();
 			//Spawn child to igclib.
-			var child = igclib('crawl', {provider: provider, year : year});
+			var child = igclib('crawl', {provider: provider, year : year, 'output' : '-'});
 			child.on('error', Meteor.bindEnvironment(function(err) {
 				console.log(err);
 			}));
@@ -218,8 +219,8 @@ Meteor.startup(() => {
 			};
 			// If this race has a raceEvents _id... Then switch the output to store the file properly.
 			if (compId) {
-				// .igclib extension will create both .json and .pkl file.
-				param.output = '/tmp/replay_' + compId + '_' + taskIndex + '.igclib';
+				// will return result on stdout (-) and .pkl file.
+				param.output = '- /tmp/race_' + compId + '_' + taskIndex + '.pkl';
 			}
 			
 			// Check if this task hasn't been replayed already
@@ -228,9 +229,45 @@ Meteor.startup(() => {
 				// If not, then proceed with igclib to "Replay".
 				// Merge defaut and custom parameters with Object.assign.
 				var child = igclib('replay', param);
-				child.stdout.on('data', Meteor.bindEnvironment(function(data) {
-					// Nothing here. Too much data. File Written directly on server.
+				// Stream full race to database.
+				// Remove all past snapRace docs for this task...
+				SnapRace.remove({compId : compId, task : taskIndex});
+				
+				// Initialise Unordered Bulk Operation.
+				var bulkOp = SnapRace.rawCollection().initializeUnorderedBulkOp();
+				var totalSnap = 0;
+				var counter = 0;
+				oboe(child.stdout).node('n_snaps', function(data) {
+					// On n_snaps.
+					console.log('n_snaps : ' + data);
+					totalSnap = data;
+				}).node('ranking.pilots' , Meteor.bindEnvironment(function(data) {
+					// On pilots.
+					var update = {'$set' : {}};
+					update['$set']['tasks.' + taskIndex + '.task.ranking.pilots'] = data;
+					RaceEvents.update({'_id' : compId}, update);
+				})).node('race.*', function(data, key) {
+					// For each snap race.
+					// Convert hh:mm:ss to timestamp as s from midnight.
+					var time = new Date('1970-01-01T' + key[1]);
+					// Insert json Snapshots into bulk operation.
+					bulkOp.insert({compId : compId, task : taskIndex, time : time, snapshot :  data});
+					// Dealing with progress again.
+					counter++;
+				})
+				.done(Meteor.bindEnvironment(function() {
+					// Insert it all via bulk.
+					bulkOp.execute();
+					// Remove Progress
+					Progress.remove({uid : uid, pid : processId, type : 'replay'});
+					// Replay attribute so we know this task has been processed.
+					var update = {'$set' : {}};
+					update['$set']['tasks.' + taskIndex + '.task.replay'] = true;
+					RaceEvents.update({'_id' : compId}, update);
+					// Directly go for a Race analysis.
+					Meteor.call('task.race', {}, compId, taskIndex, processId);
 				}));
+				
 				child.stderr.on('data', Meteor.bindEnvironment(function(data) {
 					// Keep track of process progress via "Progress Collection".
 					// IGCLib return Progress on stderr.
@@ -240,46 +277,6 @@ Meteor.startup(() => {
 				child.on('close', Meteor.bindEnvironment(function() {
 					//On process close, clean all Progress document for this uid.
 					Progress.remove({uid : uid, pid : processId, type : 'replay'});
-					// Stream full race to database.
-					// Remove all past snapRace docs for this task...
-					SnapRace.remove({compId : compId, task : taskIndex});
-					// Initialise Unordered Bulk Operation.
-					var bulkOp = SnapRace.rawCollection().initializeUnorderedBulkOp();
-					var totalSnap = 0;
-					var counter = 0;
-					// Oboe parser.
-					oboe(fs.createReadStream('/tmp/replay_' + compId + '_' + taskIndex + '.json')).node('n_snaps', function(data) {
-						// On n_snaps.
-						console.log('n_snaps : ' + data);
-						totalSnap = data;
-					}).node('ranking.pilots' , Meteor.bindEnvironment(function(data) {
-						// On pilots.
-						var update = {'$set' : {}};
-						update['$set']['tasks.' + taskIndex + '.task.ranking.pilots'] = data;
-						RaceEvents.update({'_id' : compId}, update);
-					})).node('race.*', function(data, key) {
-						// For each snap race.
-						// Convert hh:mm:ss to timestamp as s from midnight.
-						var time = new Date('1970-01-01T' + key[1]);
-						// Insert json Snapshots into bulk operation.
-						bulkOp.insert({compId : compId, task : taskIndex, time : time, snapshot :  data});
-						// Dealing with progress again.
-						counter++;
-						//Progress.rawCollection().insert({uid : uid, type : 'replay', pid : processId, created : new Date().toIsoString, progress : counter/totalSnap});
-						//Progress.insert({uid : uid, type : 'replay', pid : processId, created : new Date().toISOString(), counter/totalSnap});
-					})
-					.done(Meteor.bindEnvironment(function() {
-						// Remove Progress
-						//Progress.remove({uid : uid, pid : processId, type : 'replay'});
-						// Insert it all via bulk.
-						bulkOp.execute();
-						// Raced attribute so we know this task has been processed.
-						var update = {'$set' : {}};
-						update['$set']['tasks.' + taskIndex + '.task.replay'] = true;
-						RaceEvents.update({'_id' : compId}, update);
-						// Directly go for a Race analysis.
-						Meteor.call('task.race', {'path' : '/tmp/compid_'+ compId + '_' + taskIndex + '.pkl'}, compId, taskIndex, processId);
-					}));
 				}));
 				child.on('error', Meteor.bindEnvironment(function(err) {
 					console.log(err);
@@ -297,56 +294,67 @@ Meteor.startup(() => {
 			// If this race has a raceEvents _id... Then switch the output to store the file properly.
 			if (compId) {
 				// .igclib extension will create both .json and .pkl file.
-				commands.path = '/tmp/replay_' + compId + '_' + taskIndex + '.pkl'
-				commands.output = '/tmp/race_' + compId + '_' + taskIndex + '.igclib';
+				commands.path = '/tmp/race_' + compId + '_' + taskIndex + '.pkl'
+				commands.output = '- /tmp/race_' + compId + '_' + taskIndex + '.pkl';
 			}
 			
-			// Check if this task has been raced already
+			// Check if this task has been replayed already
 			var query = SnapRace.findOne({compId : compId, task : taskIndex});
 			if (query) {
 				// If it's the case, then proceed with igclib to "Race".
 				// Merge defaut and custom parameters with Object.assign.
 				var child = igclib('race', Object.assign(param, commands));
-				child.stdout.on('data', Meteor.bindEnvironment(function(data) {
-					// Nothing here. Too much data. File Written directly on server.
-				}));
+				oboe(child.stdout).node('ranking.pilots', Meteor.bindEnvironment(function(data) {
+					var ranking = data.sort(function(a, b) {
+						return a['time'] - b['time'];
+					});
+					console.log(ranking);
+					var up = {'$set' : {}};
+					// uid <--> name mapping.
+					up['$set']['tasks.' + taskIndex + '.task.ranking.pilots'] = ranking;
+					up['$set']['tasks.' + taskIndex + '.task.raced'] = true;
+					// @todo insert time at turnpoint (timeline display).
+					RaceEvents.update({'_id' : compId}, up);
+				})).done(function() {
+					// @TODO get rid of unused files?
+				});
 				child.stderr.on('data', Meteor.bindEnvironment(function(data) {
 					// Keep track of process progress via "Progress Collection".
 					// IGCLib return Progress on stderr.
 					Progress.insert({uid : uid, type : 'race', pid : processId, created : new Date().toISOString(), progress : data.toString()});
 					console.log('stderr : ' + data);
 				}));
+				child.on('finish', Meteor.bindEnvironment(function() {
+					//On process finish, clean all Progress document for this uid.
+					Progress.remove({uid : uid, pid : processId, type : 'race'});
+				}));
 				child.on('close', Meteor.bindEnvironment(function() {
 					//On process close, clean all Progress document for this uid.
 					Progress.remove({uid : uid, pid : processId, type : 'race'});
-					// Let's stream full race to database.
-					// Read Files.
-					var read = fs.createReadStream('/tmp/race_' + compId + '_' + taskIndex +'.json');
-					oboe(read).node('ranking.*', Meteor.bindEnvironment(function(data) {
-						var ranking = data;
-						var up = {'$set' : {}};
-						// uid <--> name mapping.
-						up['$set']['tasks.' + taskIndex + '.task.ranking.pilots'] = ranking;
-						up['$set']['tasks.' + taskIndex + '.task.raced'] = true;
-						// @todo insert time at turnpoint (timeline display).
-						RaceEvents.update({'_id' : compId}, up);
-					})).done(function() {
-						// @TODO get rid of unused files?
-					});
 				}));
 			}
 		},
 		'task.watch' : function(id, compId, taskId, processId) {
 			var uid = Meteor.userId();
-			var child = igclib('watch', {path : '/tmp/race_' + compId + '_' + taskId + '.pkl', pilot : id});
-			child.stdout.on('data', Meteor.bindEnvironment(function(data) {
-				// Nothing here. Too much data. File Written directly on server.
-				console.log('stdout : ' + data);
+			var child = igclib('watch', {
+				path : '/tmp/race_' + compId + '_' + taskId + '.pkl', pilot : 'all',
+				output : '-'
+			});
+			oboe(child.stdout).node('*', function(data) {
+			}).done(Meteor.bindEnvironment(function(data) {
+				if (data) {
+					console.log('stdout : watch');
+					var up = {'$set' : {}};
+					up['$set']['tasks.' + taskId + '.watch'] = data;
+					RaceEvents.update({'_id' : compId}, up);
+				}
 			}));
 			child.stderr.on('data', Meteor.bindEnvironment(function(data) {
 				console.log('stderr : ' + data);
+				Progress.insert({uid : uid, type : 'watch', pid : processId, created : new Date().toISOString(), progress : data.toString()});
 			}));
 			child.on('close', Meteor.bindEnvironment(function() {
+				Progress.remove({uid : uid, type : 'watch', pid : processId});
 				console.log('watch close');
 			}));
 		} 

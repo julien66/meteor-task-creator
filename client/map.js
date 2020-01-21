@@ -48,49 +48,50 @@ Template.map.onRendered( function onLeaf() {
 			if (!pilots[ids[i]]) {
 				var name = ids[i];
 				var color = "#f0ad4e";
-				var darkerColor = '#000';
-				var rankObj = ranking[ids[i]];
-				if(ranking[ids[i]]) {
+				var rankObj = ranking.find(function(elt) { return elt['id'] == ids[i] });
+				if(rankObj) {
 					name = rankObj.name;
 					color = rankObj.color;
-					//darkerColor = rankObj.darkerColor
-					var darkerColor = '#000';
 				}
 				var pilotIcon = L.divIcon({
-   					html: '<i class="fa fa-circle" style="text-shadow:0px 0px 5px ' + darkerColor + ';color:' + color + '"></i><div class="iconLabel">' + name + '</div>',
+   					html: '<i class="fa fa-circle" style="text-shadow:0px 0px 5px #000; color:' + color + '"></i><div class="iconLabel">' + name + '</div>',
     					className: 'myDivIcon',
 					iconAnchor: [15, 45]
 				});
 				var marker = L.marker([0, 0], {
   					icon: pilotIcon,
-				}).addTo(map);
-				marker.pilot = ranking[ids[i]];
-				pilots[ids[i]] = marker;
+				}).addTo(map).bindPopup('<h3 class="popover-header">' + rankObj.name + '</h3>' + Blaze.toHTMLWithData(Template.pilotPopover, rankObj));
+				marker.pilot = rankObj;
+				pilots[rankObj.id] = marker;
 			}
 		}
 	};
 		
 	function movePilots(e) {
-		console.log('okMove');
 		if (e.detail && e.detail.snap) {
 			var snap = e.detail.snap;
 			//console.log(snap);
 			for (let [id, value] of Object.entries(snap)) {
 				if (pilots[id]) {
 					var marker = pilots[id];
-					var pilot = marker.pilot;
+					//var pilot = marker.pilot;
 					marker.setLatLng(new L.LatLng(value.lat, value.lon));
-					var pilotIcon = L.divIcon({
+					/*var pilotIcon = L.divIcon({
    						html: '<i class="fa fa-circle" style="text-shadow:0px 0px 5px ' + pilot.darkerColor + ';color:' + pilot.color + '"></i><div class="iconLabel">' + pilot.name + '<br/>' + value.altitude + 'm</div>',
     						className: 'myDivIcon',
 						iconAnchor: [15, 45]
 					});
-					marker.setIcon(pilotIcon);
+					marker.setIcon(pilotIcon);*/
 				}
 				else {
 					//console.log(id);
 				}
 			}
+		}
+		var idMagnet = Session.get('magnet');
+		if (idMagnet) {
+			var marker = pilots[idMagnet];
+			map.panTo(marker.getLatLng());
 		}
 	}; 	
 	

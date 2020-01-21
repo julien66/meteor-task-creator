@@ -9,12 +9,9 @@ Template.player.helpers({
 	pilots : function() {
 		var T = Template.instance();
 		var pilots = T.pilots.get();
-		var ranking = T.ranking;
+		var ranking = T.ranking.get();
 		if (ranking.length > 0) {
-			// return a mapped object to Blaze. With every pilot id, name, distance, time.
-			return pilots.map(function(uid) {
-				return T.ranking[uid];
-			});
+			return ranking;
 		}
 	},
 	playable : function() {
@@ -60,6 +57,34 @@ Template.player.helpers({
 	onPlay : function() {
 		var T = Template.instance();
 		return T.play.get();
+	},
+	isAnalysis : function() {
+		var T = Template.instance();
+		var infos = Session.get('raceInfos');
+		var race = RaceEvents.findOne({'_id' : infos.id});
+		if (race) {
+			var task = race.tasks[infos.task]
+			if (task.watch && task.watch[Session.get('requestAnalysis')]) {
+				return true;
+			}	
+		}
+		return false;
+	},
+	timeOrDistance : function(id) {
+		var T = Template.instance();
+		var ranking = T.ranking.get();
+		var pilot = ranking.find(function(elt) {return elt.id == id});
+		return (pilot.time) ? pilot.time : Math.round(pilot.distance) + 'm';
+	},
+	magnet : function() {
+		var T = Template.instance();
+		var ranking = T.ranking.get();
+		var magnet = Session.get('magnet');
+		if (magnet) {
+			var pilot = ranking.find(function(elt) {return elt.id == magnet});
+			return pilot;
+		}
+		return false;
 	}
 });
 
@@ -69,7 +94,7 @@ Template.player.onCreated (function onPlayerCreated() {
 	// UID Array of pilot.
 	this.pilots = new ReactiveVar([]);
 	// UID <-> pilot name mapping come from ranking
-	this.ranking = [];
+	this.ranking = new ReactiveVar([]);
 	this.play = new ReactiveVar(false);
 	this.delay = new ReactiveVar(1000);
 	this.playInterval;
@@ -88,17 +113,25 @@ Template.player.onCreated (function onPlayerCreated() {
 	this.percentThreshold = false;
 	this.raceIndex = new ReactiveVar(0);
 	this.raceStatus = ['Validating Tracks', 'Updating database'];
+	Session.set('requestAnalysis', false);
+	Session.set('magnet');
 
 	$(document).on("click", ".findMap", function(e) {
     		var id = $(e.target).attr('id');
 		var event = new CustomEvent('centerPilot', {'detail': {id : id}});
 		window.dispatchEvent(event);
 	});
-
-	$(document).on("click", ".watch", function(e) {
+	$(document).on("click", ".magnetMap", function(e) {
     		var id = $(e.target).attr('id');
+		var magnet = Session.get('magnet');
+		Session.set('magnet', (magnet == id) ? false : id);
+	});
+	var tmp = this;
+	$(document).on("click", ".watch", function(e) {
+		var id = $(e.target).attr('id');
 		var infos = Session.get('raceInfos');
-		Meteor.call('task.watch', id, infos.id, infos.task, Session.get('progressId'));	
+		Session.set('requestAnalysis', parseInt(id));
+		Meteor.call('task.watch', id, infos.id, infos.task, Session.get('processId'));	
 	});
 	// this will rerun whenever raceTime or raceInfos changes
   	this.autorun(function() {
@@ -142,17 +175,25 @@ Template.player.onCreated (function onPlayerCreated() {
 				}
 				//Iterate throught ranking to map uid -> name.
 				if (task && task.ranking && task.ranking.pilots) {
+					var pilots = [];
 					Object.keys(task.ranking.pilots).forEach(function(uid) {
 						var pilot = task.ranking.pilots[uid];
 						// add random color for each pilot.
 						pilot.color = '#'+((1<<24)*(Math.random()+1)|0).toString(16).substr(1);
-						// add something darker to get contrast.
-						pilot.darkerColor = adjustColor(pilot.color, -30);
 						// Storing a friendly array with id key [id : {}, id {}] ; 
-						T.ranking[pilot['id']] = pilot;
+						pilots[pilot['id']] = pilot;
 					});
 					// All data collected for this race, No need to execute this block anymore.
-					T.init = false;		
+					if (task.raced) {
+						var keys = Object.keys(pilots);
+    						var sort = keys.sort(function(a,b) {
+							return ((Helper.HHtoSeconds(pilots[a].time) - Helper.HHtoSeconds(pilots[b].time)) || (pilots[b].distance - pilots[a].distance));
+						});
+						T.ranking.set(sort.map(function(elt) {
+							return pilots[elt];
+						}));
+						T.init = false;
+					}
 				}
 			}
 		}
@@ -175,7 +216,7 @@ Template.player.onCreated (function onPlayerCreated() {
 			var ids = Object.keys(snap.snapshot);
 			var current = T.pilots.get();
 			T.pilots.set(current.concat(ids.filter((item) => current.indexOf(item) < 0)));
-			var event = new CustomEvent('newPilots', {'detail': {ids : ids, ranking : T.ranking}});
+			var event = new CustomEvent('newPilots', {'detail': {ids : ids, ranking : T.ranking.get()}});
 			window.dispatchEvent(event);
 			if (!T.play.get()) {
 				console.log('toMove');
@@ -187,12 +228,6 @@ Template.player.onCreated (function onPlayerCreated() {
 		},
 	});
 });
-
-var adjustColor = function adjust(color, amount) {
-	return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
-}
-
-
 
 // Helper function at play.
 var play = function (T) {
@@ -315,19 +350,43 @@ Template.player.events({
 	},
 	'click #close' : function(e) {
 		$('#timeMark').toggle();
-		$('#pilotList').toggle();
+		$('#tabContainer').toggle();
 	},
 	'click .pilot' : function(e) {
 		var T = Template.instance();
 		var id = $(e.target).attr('rel');
+		var ranking = T.ranking.get(); 
+		var pilot = ranking.find(function(elt) { return elt['id'] == id});
 		// Get popover content.
-		var content = Blaze.toHTMLWithData(Template.pilotPopover, T.ranking[id]);
+		var content = Blaze.toHTMLWithData(Template.pilotPopover, pilot);
 		// Setup popover and show.
-		$(e.target).popover({trigger: 'focus', html : true, title : T.ranking[id].name, content : content}).popover('show');
+		$(e.target).popover({trigger: 'focus', html : true, title : pilot.name, content : content}).popover('show');
 	},
-	'click .findMap' : function(e) {
-		console.log('ok');
-	}
+	'input #searchPilot' : function(e) {
+		var T = Template.instance();
+		var ranking = T.ranking.get();
+		var names = ranking.reduce(function(acc, cur, i) {
+  			acc[cur.name] = i;
+  			return acc;
+		}, {});	
+		$('#inSearch').autocomplete({
+			source : names,
+			treshold : 3,
+			onSelectItem : function(item) {
+				var pilot = $('.pilot[index=' + item.value + ']');
+				var currentPosition = $('#results').scrollLeft();
+				$('#results').animate({
+    					scrollLeft: currentPosition + pilot.offset().left,
+				}, 1000);
+				pilot.addClass('selected');
+				setTimeout(function() {
+					$('.pilot').removeClass('selected');
+				}, 3000);
+				$('#inSearch').val('');
+				$('.dropdown-menu').hide();
+			},
+		});
+	},
 });
 
 var timeMoved = function(T, now) {
