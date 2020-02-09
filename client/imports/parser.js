@@ -2,6 +2,7 @@
  * @file
  * Waypoint file parser module for the task creator.
  */
+import * as openair from './formats/openair'
 import * as oziOld from './formats/oziOld';
 import * as ozi from './formats/ozi';
 import * as cup from './formats/cup';
@@ -14,7 +15,7 @@ import * as zip from './formats/zip';
 import * as pwca from './formats/pwca';
 import * as Validator from './validateTask';
 
-	var formats = [pwca, oziOld, ozi, cup, igc, geoJson, tsk, xctsk, gpx, zip]; 
+	var formats = [openair, pwca, oziOld, ozi, cup, igc, geoJson, tsk, xctsk, gpx, zip]; 
 	var parse = function(text, source) {
  	var result = formatCheck(text, source);
  	var format = result.format;
@@ -37,7 +38,10 @@ import * as Validator from './validateTask';
 			}
 		}
 	}
-    
+   
+	if (fileInfo.airspaces) {
+		console.log(fileInfo.airspaces);
+	}
    	/*if (fileInfo.tracks) {
       		var tracksInfos = fileInfo.tracks;
       		var l = tracksInfos.length;
