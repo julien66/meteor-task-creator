@@ -23,19 +23,41 @@
 						}}
 					</div>
 					<div class="sideComponent">
-						{{>autoImporter}}
-					</div>
-					<div class="sideComponent">
-						{{> customWaypoint}}
-					</div>
-					<div class="sideComponent">
 						{{> waypointFiles}}
 					</div>
-					<div class="sideComponent">
-						{{> taskBoard}}
-					</div>
-					<div class="sideComponent">
-						{{> validateTask}}
+					<ul class="nav nav-tabs" id="sideTab" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" id="task-tab" data-toggle="tab" href="#task" role="tab" aria-controls="task" aria-selected="true">Task</a>
+				 		</li>
+				 		<li class="nav-item">
+							<a class="nav-link" id="airspaces-tab" data-toggle="tab" href="#airspaces" role="tab" aria-controls="airspaces" aria-selected="false">Airspaces</a>
+			  			</li>
+						<li class="nav-item">
+							<a class="nav-link" id="race-tab" data-toggle="tab" href="#race" role="tab" aria-controls="race" aria-selected="true">Race</a>
+				 		</li>
+					</ul>
+					<div class="tab-content" id="sideTabContent">
+						<div class="tab-pane fade show active" id="task" role="tabpanel" aria-labelledby="task-tab">
+							<div class="sideComponent">
+								{{> validateTask}}
+							</div>
+							<div class="sideComponent">
+								{{> taskBoard}}
+							</div>
+							<div class="sideComponent">
+								{{> customWaypoint}}
+							</div>
+						</div>
+						<div class="tab-pane fade" id="airspaces" role="tabpanel" aria-labelledby="airspace-tab">
+							<div class="sideComponent">
+								{{> airspaces}}
+							</div>
+						</div>
+						<div class="tab-pane fade" id="race" role="tabpanel" aria-labelledby="race-tab">
+							<div class="sideComponent">
+								{{>autoImporter}}
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -7,6 +7,7 @@ import Parameters from './param';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-polylinedecorator';
+import 'leaflet-semicircle';
 
 Template.map.onRendered( function onLeaf() {
 	var param = Parameters.param;
@@ -25,6 +26,7 @@ Template.map.onRendered( function onLeaf() {
 
 	var markers = [];
 	var circles = [];
+	var zones = [];
 	var pilots = {};
 	var polyline;
 	var decorator;
@@ -119,7 +121,20 @@ Template.map.onRendered( function onLeaf() {
 		}
 	});
 
+	Airspaces.find().observe({
+		added : function(airspace) {
+			var zoneClass = airspace.class;
+			var color = param.airspaces.color[zoneClass] ? param.airspaces.color[zoneClass] : "#FFFFFF";
+			if (airspace.points) {
+				var polygon = L.polygon(airspace.points, {color : color});
+				polygon.airspace = airspace;
+				zones.push(polygon);
+				// Addind it all to map.
+				polygon.addTo(map).bindPopup('<h3 class="popover-header">' + airspace.name + '</h3>' + Blaze.toHTMLWithData(Template.airspacePopover, airspace));
+			}
+		},
 
+	});
 
 	Waypoints.find().observe({  
 		added: function(waypoint) {

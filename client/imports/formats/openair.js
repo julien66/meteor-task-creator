@@ -100,7 +100,6 @@
 				let w=lines[i].split(/(\w+)\s+(.*)/);
 				switch(w[1]){
 			    		case 'AC':
-						console.log(airspace);
 						if (airspace){
 				    			// new airpsace
 							airspace['points'] = points;
@@ -110,6 +109,7 @@
 						}
 						airspace = {};
 						airspace['class'] = w[2];
+						airspace.source = filename;
 						break;
 			    		case 'AN'://Name
 						airspace['name'] = w[2];
@@ -204,20 +204,20 @@
                     		alt.unit="ft";
                     		alt.ref='FL';
                    		alt.value=("000"+w[2]).slice(-3);
-                   		alt.internalvalue=Math.round(w[2]*100*0.3048);
+                   		alt.internalValue=Math.round(w[2]*100*0.3048);
                     		break;
                 	case 'GND':
                 	case 'SFC':
                     		alt.unit="m";
                     		alt.ref='SFC';
                     		alt.value=0;
-                    		alt.internalvalue=0;
+                    		alt.internalValue=0;
                     		break;
                 	case 'UNL':
                     		alt.unit="m";
                     		alt.ref='SFC';
                     		alt.value="Unlimited";
-                    		alt.internalvalue=Number.MAX_SAFE_INTEGER;
+                    		alt.internalValue=Number.MAX_SAFE_INTEGER;
                     		break;
                 	default:
                     		if (!w[4]){
@@ -228,7 +228,7 @@
                             		alt.unit="m";
                             		alt.ref=w[4];
                             		alt.value=w[2];
-                            		alt.internalvalue=parseInt(w[2]);
+                            		alt.internalValue=parseInt(w[2]);
                             		break;
                         	case 'F':
                         	case 'FT':
@@ -236,7 +236,7 @@
                             		alt.unit="ft";
                             		alt.ref=w[4];
                             		alt.value=w[2];
-                            		alt.internalvalue=Math.round(parseInt(w[2])*0.3048);
+                            		alt.internalValue=Math.round(parseInt(w[2])*0.3048);
                     	}
             	}
 		return alt;

@@ -28,6 +28,15 @@ html, body {
 	box-shadow : 0px 0px 5px #000;
 }
 
+#sidebar .nav-tabs {
+	clear : both;
+}
+
+#sidebar ul.nav-tabs a.nav-link {
+	color : #f0ad4e;
+	font-weight : bold;
+}
+
 #map {
 	padding : 0px;
 	background-color : transparent !important;
@@ -50,6 +59,7 @@ html, body {
 .sideComponent {
 	margin-bottom : 10px;
 	padding : 5px 0px;
+	clear : both;
 }
 
 #dz {
@@ -371,7 +381,7 @@ html, body {
 
 #taskboard {
 	clear: both;
-        margin: 40px 0px 10px 0px;
+        margin: 0px 0px 10px 0px;
 	min-height: 100px;
 	border: 1px solid #FFF;
 	border-radius: 2px;

@@ -40,7 +40,11 @@ import * as Validator from './validateTask';
 	}
    
 	if (fileInfo.airspaces) {
-		console.log(fileInfo.airspaces);
+      		for (var i = 0; i < fileInfo.airspaces.length; i++) {
+			// Prevent insert same waypoint multiple time.
+			var airspace = fileInfo.airspaces[i];
+			Airspaces.insert(airspace);
+		}
 	}
    	/*if (fileInfo.tracks) {
       		var tracksInfos = fileInfo.tracks;

@@ -34,6 +34,7 @@ Session.set('taskId', taskId);
 
 Turnpoints = new Mongo.Collection('turnpoints', {connection: null});
 Waypoints = new Mongo.Collection('waypoints', {connection: null});
+Airspaces = new Mongo.Collection('airspaces', {connection: null});
 
 Meteor.subscribe('Task');
 Meteor.subscribe('Progress');

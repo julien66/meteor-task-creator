@@ -8,6 +8,16 @@
 
   let param = {
     allowCumulativeFiles : true,
+    airspaces : {
+    	color : {
+		A : "#FF6666",
+		B : "#FF9933",
+		C : "#FF8000",
+		D : "#FF3333",
+		P : "#FF8888",
+		CTR : "#FF0000",
+	}
+    },
     map : {
       startLat : 42.514,
       startLon : 2.040,

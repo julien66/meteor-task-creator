@@ -1,0 +1,34 @@
+<template name="airspaces">
+	<div id="airspaces">
+		<div id="airspaces-header"><h5>Air Control</h5></div>
+		<div id="airspaces-content">
+			{{#unless airspaces}}
+				<div class="message"><h7>No custom airspaces defined yet. You can import a custom OpenAir or GeoJson file of your own or use pre-defined listed above.</h7></div>
+			{{/unless}}
+			{{#if airspaces}}
+				<div class="filterAirspace">
+					<h6> Filter Airspace : </h6>
+					<div id="airClass">	
+						A <input class="classA" name="A" type="checkbox" checked="checked">
+						B <input class="classA" name="B" type="checkbox" checked="checked">
+						C <input class="classA" name="B" type="checkbox" checked="checked">
+						D <input class="classA" name="B" type="checkbox" checked="checked">
+					
+					</div>
+					<div id="airFloor">
+						<input type="range" min="0" max="8000" step="500" value="0" id="altitudeSlide"/>
+						<br/>
+						Floor above : <span id="altitudeLimit"> 0 </span>m
+					</div>
+				</div>
+				<div class="listAirspace">
+					<ul>
+						{{#each validAirspaces}}
+							<li>{{name}}</li>
+						{{/each}}
+					</ul>
+				</div>
+			{{/if}}
+		</div>
+	</div>
+</template>

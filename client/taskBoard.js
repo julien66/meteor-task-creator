@@ -1,7 +1,6 @@
 /**
  * @file
  * JS Taskboard
- * Basically Task main model.
  */
 
 Task = new Mongo.Collection('task');

@@ -1,15 +1,16 @@
 /**
  * @file
  * JS Waypoints Files Handler.
+ * @TODO Convert this to a real file handler for airspace, task, tracks and... Waypoints. 
  */
 Template.waypointFiles.helpers({
 	waypointFiles : function() {
-		var distinctFile = _.uniq(Waypoints.find({}, {
+		var distinctWaypointFile = _.uniq(Waypoints.find({}, {
 			sort: {filename : 1}, field: {filename : true}
 		}).fetch().map(function(x) {
 			    return x.source;
 		}), true);
-		return distinctFile;
+		return distinctWaypointFile;
 	},
 	isShown : function() {
 		return Waypoints.find().fetch().length > 0;
