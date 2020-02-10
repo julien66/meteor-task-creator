@@ -103,7 +103,9 @@
 						if (airspace){
 				    			// new airpsace
 							airspace['points'] = points;
-				    			airspaces.push(airspace);
+				    			if (airspace.class !== 'FIR' && airspace.class !== 'SECTOR' && airspace.class !== 'D-OTHER') {
+								airspaces.push(airspace);
+							}
 							points = [];
 				    			airspace = false;
 						}

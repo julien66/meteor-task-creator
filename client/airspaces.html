@@ -9,16 +9,24 @@
 				<div class="filterAirspace">
 					<h6> Filter Airspace : </h6>
 					<div id="airClass">	
+						CTR <input class="classCTR" name="CTR" type="checkbox" checked="checked">
+						TMA <input class="classTMA" name="TMA" type="checkbox" checked="checked">
 						A <input class="classA" name="A" type="checkbox" checked="checked">
-						B <input class="classA" name="B" type="checkbox" checked="checked">
-						C <input class="classA" name="B" type="checkbox" checked="checked">
-						D <input class="classA" name="B" type="checkbox" checked="checked">
+						B <input class="classB" name="B" type="checkbox" checked="checked">
+						C <input class="classC" name="C" type="checkbox" checked="checked">
+						D <input class="classD" name="D" type="checkbox" checked="checked">
+						E <input class="classE" name="E" type="checkbox" checked="checked">
+						F <input class="classF" name="F" type="checkbox" checked="checked">
+						G <input class="classG" name="G" type="checkbox" checked="checked">
+						P <input class="classP" name="P" type="checkbox" checked="checked">
+						R <input class="classR" name="R" type="checkbox" checked="checked">
+						GP <input class="classGP" name="GP" type="checkbox" checked="checked">
 					
 					</div>
 					<div id="airFloor">
-						<input type="range" min="0" max="8000" step="500" value="0" id="altitudeSlide"/>
+						<input type="range" min="0" max="6000" step="50" value="1000" id="altitudeSlide"/>
 						<br/>
-						Floor above : <span id="altitudeLimit"> 0 </span>m
+						Floor altitude equal or below : <span id="altitudeLimit"> 1000 </span>m
 					</div>
 				</div>
 				<div class="listAirspace">

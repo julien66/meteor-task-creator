@@ -121,18 +121,38 @@ Template.map.onRendered( function onLeaf() {
 		}
 	});
 
+	function createAirspace(airspace) {
+		var zoneClass = airspace.class;
+		var color = param.airspaces.color[zoneClass] ? param.airspaces.color[zoneClass] : "#FFFFFF";
+		if (airspace.points) {
+			var polygon = L.polygon(airspace.points, {color : color});
+			polygon.airspace = airspace;
+			zones[airspace._id] = polygon;
+			// Addind it all to map.
+			polygon.addTo(map).bindPopup('<h3 class="popover-header">' + airspace.name + '</h3>' + Blaze.toHTMLWithData(Template.airspacePopover, airspace));
+		}
+	
+	}
+
 	Airspaces.find().observe({
 		added : function(airspace) {
-			var zoneClass = airspace.class;
-			var color = param.airspaces.color[zoneClass] ? param.airspaces.color[zoneClass] : "#FFFFFF";
-			if (airspace.points) {
-				var polygon = L.polygon(airspace.points, {color : color});
-				polygon.airspace = airspace;
-				zones.push(polygon);
-				// Addind it all to map.
-				polygon.addTo(map).bindPopup('<h3 class="popover-header">' + airspace.name + '</h3>' + Blaze.toHTMLWithData(Template.airspacePopover, airspace));
+			if (airspace.floor.internalValue <= 1000) {
+				createAirspace(airspace);
 			}
 		},
+		changed : function(airspace) {
+			if (zones[airspace._id]) {
+				if (airspace.toHide) {
+					map.removeLayer(zones[airspace._id]);
+					delete zones[airspace._id];
+				}
+			}
+			else {
+				if (airspace.toHide === false) {
+					createAirspace(airspace);
+				}
+			}
+		}
 
 	});
 

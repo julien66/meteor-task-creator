@@ -10,12 +10,18 @@
     allowCumulativeFiles : true,
     airspaces : {
     	color : {
-		A : "#FF6666",
-		B : "#FF9933",
-		C : "#FF8000",
+		TMA : "#DB401E",
+		A : "#DB401E",
+		B : "#DB401E",
+		C : "#DB401E",
 		D : "#FF3333",
-		P : "#FF8888",
-		CTR : "#FF0000",
+		E : "#39F936",
+		F : "#39F936",
+		G : "#39F936",
+		P : "#DB401E",
+		R : "#DB401E",
+		CTR : "#DB401E",
+		GP : "#D8DB1E",
 	}
     },
     map : {
