@@ -11,18 +11,31 @@
     	}
     
     	function bearing(src, dest){
-        	if (src.equals(dest)) {
+        	if (src.lat == dest.lat && src.lng == dest.lng) {
           		return 0;
         	}
         	var lat1 = toRad(src.lat);
         	var lon1 = toRad(src.lng);
         	var lat2 = toRad(dest.lat);
-        	var lon2 = toRad(dest.lat);
-        	var angle = - Math.atan2( Math.sin( lon1 - lon2 ) * Math.cos( lat2 ), Math.cos( lat1 ) * Math.sin( lat2 ) - Math.sin( lat1 ) * Math.cos( lat2 ) * Math.cos( lon1 - lon2 ) );
-        	if ( angle < 0.0 ) angle  += Math.PI * 2.0;
-        	if ( angle > Math.PI ) angle -= Math.PI * 2.0; 
-        	return parseFloat(angle.toDeg());
+        	var lon2 = toRad(dest.lng);
+        	var y = Math.sin(lon2 - lon1) * Math.cos(lat2);
+  		var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
+  		var bearing = Math.atan2(y, x);
+  		//bearing = toDeg(bearing);
+  		return bearing;
     	}
+
+	function computeOffset(point, bearing, distance) {
+		distance = distance / 6371;
+   		var lat1 = toRad(point.lat);
+		var lon1 = toRad(point.lng);
+
+   		var lat2 = Math.asin(Math.sin(lat1) * Math.cos(distance) + Math.cos(lat1) * Math.sin(distance) * Math.cos(bearing));
+   		var lon2 = lon1 + Math.atan2(Math.sin(bearing) * Math.sin(distance) * Math.cos(lat1), Math.cos(distance) - Math.sin(lat1) * Math.sin(lat2));
+   		if (isNaN(lat2) || isNaN(lon2)) return null;
+   		return [toDeg(lat2), toDeg(lon2)];
+	}	
+
     	// Check OpenAir format
  	var check = function(text, filename) {
         	var lines = text.split("\n");
@@ -100,12 +113,13 @@
 				let w=lines[i].split(/(\w+)\s+(.*)/);
 				switch(w[1]){
 			    		case 'AC':
+						//console.log(w[2]);
 						if (airspace){
 				    			// new airpsace
 							airspace['points'] = points;
-				    			if (airspace.class !== 'FIR' && airspace.class !== 'SECTOR' && airspace.class !== 'D-OTHER') {
+				    			//if (airspace.class !== 'FIR' && airspace.class !== 'SECTOR' && airspace.class !== 'D-OTHER') {
 								airspaces.push(airspace);
-							}
+							//}
 							points = [];
 				    			airspace = false;
 						}
@@ -150,6 +164,7 @@
 						}
 						break;
 				    	case 'DA'://Arc Angle+radius
+						//console.log(airspace, w[2]);
 						break;
 				    	case 'DB'://Arc
 						//Adding points to simulate the arc				
@@ -158,13 +173,30 @@
 						let pt2={ lat: convertDDMMSStoDDdddd(q[3]), lng: convertDDMMSStoDDdddd(q[4]) };
 						let r1=getDistance(pt1,tmp);
 						let r2=getDistance(pt2,tmp);
-
+						let radius = (r1 + r2)*0.5;
+						var bearing1 = bearing(tmp, pt1);
+						var bearing2 = bearing(tmp, pt2);
+						var step = (bearing1 < bearing2) ? + 0.01 : -0.01;
+						//console.log(airspace,tmp, pt1, pt2, bearing1, bearing2, radius, step);
+						while(bearing1 <= bearing2) {
+							var point = computeOffset(tmp, bearing1, radius/1000);
+							bearing1 += step;
+							points.push(point);
+						}
 						break;
 					case 'DC': //Circle
 						//@todo : check if it's NM or KM
 						//Assume NM
 						airspace['circle'] = [tmp,w[2]];
+						console.log(airspace);
+						var angle = 0;
+						while(angle <= 360) {
+							var point = computeOffset(tmp, toRad(angle), w[2] * 1.852);
+							angle += 10;
+							points.push(point);
+						}
 				    	case 'DY': // Airway ?
+						console.log(airspace, w[2]);
 						break;
 				   	 default:
 						console.warn(w[1] + " not supported");
