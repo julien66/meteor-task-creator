@@ -22,6 +22,8 @@ import * as Validator from './validateTask';
 
     	var fileInfo = format.parse(text, source);
     	var parseInfo = {};
+	
+	Files.insert({filename : source, format : format.name, infos : fileInfo});
 
     	if (fileInfo.waypoints) {
 		// We destroy past waypoints if there is a task to display.	
@@ -41,21 +43,16 @@ import * as Validator from './validateTask';
    
 	if (fileInfo.airspaces) {
       		for (var i = 0; i < fileInfo.airspaces.length; i++) {
-			// Prevent insert same waypoint multiple time.
 			var airspace = fileInfo.airspaces[i];
 			Airspaces.insert(airspace);
 		}
 	}
-   	/*if (fileInfo.tracks) {
-      		var tracksInfos = fileInfo.tracks;
-      		var l = tracksInfos.length;
-      		var tracksArray = Array();
-      		for (var i = 0; i < l; i++) {
-        		var track = tracks.addTrack(tracksInfos[i]);
-        		tracksArray.push(track);
+   	
+	if (fileInfo.tracks) {
+      		for (var i = 0; i < fileInfo.tracks.length; i++) {
+        		Tracks.insert(fileInfo.tracks[i]);
       		}
-      		parseInfo.tracks = tracksArray;
-    	}*/
+    	}
    
     	if (fileInfo.task) {
 		// Task reference from parser.
@@ -81,7 +78,7 @@ import * as Validator from './validateTask';
 					turnpointsArray.push(T);
 					// When all document turnpoints are correctly cached into turnpoints Array.
 					if (turnpointsArray.length == task.turnpoints.length) {
-						// Update whole Task.
+						// Update whole Task document.
 						Task.update({_id: Session.get('taskId')}, {'$set' : {
 							close : task.close,
 							end : task.end,
@@ -89,7 +86,9 @@ import * as Validator from './validateTask';
 							start : task.start,
 							turnpoints : turnpointsArray
 						}});
+						// Run a Validator check on the Task
 						Validator.check();
+						// Call the optimizer.
 						Meteor.call('task.optimiser', Session.get('taskId'), Session.get('processId'));
 					}
 				});

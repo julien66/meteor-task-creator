@@ -10,18 +10,22 @@
 					{{#each turnpoints}}
 					<li class="taskboard-item" rel="{{this._id}}">
 						<span class="badge badge-default" style="background-color : {{ fillColor this.role }}"> {{ shortName this.role }}</span>
-							<span class="turnpointId"> {{this.name}} </span>
-							<span> - </span>
-							<span class="turnpointName"> {{this.description}} </span>
-							<span class="turnpointDistance">
-								{{roundDistance this.previous}}
-							</span>
-						</li>
+						<span class="turnpointId"> {{this.name}} </span>
+						<span> - </span>
+						<span class="turnpointName"> {{this.description}} </span>
+						<span class="turnpointDistance">
+							{{roundDistance this.previous}}
+						</span>
+					</li>
 					{{/each }}
 				</ul>
-				{{#unless noTurnpoints}}<div id="task-distance">{{getTaskDistance}}</div>{{/unless}}	
+				{{#unless noTurnpoints}}
+					<div id="task-distance">Total Distance : {{getTaskDistance}}</div>
+					<div id="fullBoard"> 
+						<i class="fa fa-lg fa-search"></i> FullBoard
+					</div>
+				{{/unless}}
 			</div>
 		</div>
 	</div>
-	{{#unless noTurnpoints}}<button id="fullBoard" class="btn btn-dark pull-right">FullBoard</button>{{/unless}}
 </template>

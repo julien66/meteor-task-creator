@@ -1,6 +1,18 @@
 <template name="airspaces">
 	<div id="airspaces">
 		<div id="airspaces-content">
+			<div id="presetAirspace">
+				<h5>
+					<i class="fa fa-lg fa-plane" aria-hidden="true"></i>
+					Preset Airspace
+					<i class="fa fa-lg fa-expand" aria-hidden="true"></i>
+				</h5>
+				<div class="presetFiles">
+					<ul>
+						<li>French Openair (SIA Parser) <input class="AirspaceSIA" name="url_goes_here" type ="checkbox"></li>
+					</ul>
+				</div>
+			</div>
 			{{#unless airspaces}}
 				<div class="message"><h7>No custom airspaces defined yet. You can import a custom OpenAir or GeoJson file of your own or use pre-defined listed above.</h7></div>
 			{{/unless}}

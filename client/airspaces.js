@@ -23,6 +23,10 @@ Template.airspaces.onCreated( function onAirspacesCreated() {
 	this.showClass = new ReactiveVar();
 });
 
+Template.airspaces.onRendered( function onAirspaceRendered() {
+	$('.presetFiles').hide();
+});
+
 function toggleAirspace(T) {
 	Airspaces.update({$or : [{'class' : {$nin : T.showClass.get()}} , {'floor.internalValue' : {$gt : T.showFloor.get()}}]}, {$set : {toHide : true}}, {multi : true});
 	Airspaces.update({$and : [{'class' : {$in : T.showClass.get()}}, {'floor.internalValue' : {$lte : T.showFloor.get()}}]}, {$set : {toHide : false}}, {multi : true});
@@ -44,5 +48,8 @@ Template.airspaces.events({
 		});
 		T.showClass.set(selected);
 		toggleAirspace(T);
-	} 
+	},
+	'click #presetAirspace h5' : function(e) {
+		$('.presetFiles').toggle();
+	}
 })

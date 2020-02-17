@@ -27,6 +27,7 @@ Template.map.onRendered( function onLeaf() {
 	var markers = [];
 	var circles = [];
 	var zones = [];
+	var flights = [];
 	var pilots = {};
 	var polyline;
 	var decorator;
@@ -152,8 +153,38 @@ Template.map.onRendered( function onLeaf() {
 					createAirspace(airspace);
 				}
 			}
+		},
+		removed : function(airspace) {
+			if (zones[airspace._id]) {
+				// Get rid of the Polygon on the map.
+				map.removeLayer(zones[airspace._id]);
+				// cleaning local reference.
+				delete zones[airspace._id];
+			}
 		}
 
+	});
+
+	Tracks.find().observe({
+		added : function(track) {
+			if (track.points) {
+				var color = '#'+((1<<24)*(Math.random()+1)|0).toString(16).substr(1);
+				var polyline = L.polyline(track.points, {color : color});
+				polyline.track = track;
+				flights[track._id] = polyline;
+				// Addind it all to map.
+				polyline.addTo(map)
+				map.fitBounds(polyline.getBounds());
+			}
+		},
+		removed : function(track) {
+			if (flights[track._id]) {
+				// Get rid of the Polyline on the map.
+				map.removeLayer(flights[track._id]);
+				// cleaning local reference.
+				delete flights[track._id];
+			}
+		}
 	});
 
 	Waypoints.find().observe({  

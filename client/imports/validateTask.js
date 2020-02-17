@@ -15,7 +15,7 @@ Template.validateTask.helpers({
 	'status' : function() {
 		var t = Template.instance();
 		var valid = Session.get('validator').valid;
-		return (valid) ? 'success' : 'danger';
+		return (valid) ? 'success' : 'warning';
 	},
 	'report' : function() {
 		var t = Template.instance();

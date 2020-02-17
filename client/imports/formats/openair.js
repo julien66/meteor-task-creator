@@ -188,7 +188,6 @@
 						//@todo : check if it's NM or KM
 						//Assume NM
 						airspace['circle'] = [tmp,w[2]];
-						console.log(airspace);
 						var angle = 0;
 						while(angle <= 360) {
 							var point = computeOffset(tmp, toRad(angle), w[2] * 1.852);
@@ -196,7 +195,6 @@
 							points.push(point);
 						}
 				    	case 'DY': // Airway ?
-						console.log(airspace, w[2]);
 						break;
 				   	 default:
 						console.warn(w[1] + " not supported");

@@ -1,0 +1,15 @@
+<template name="fileManager">
+	{{#if isShown}}
+	<div id="fileManager">
+		<ul>
+			{{#each allFiles}}
+			<li>
+				<span id="format" class="badge badge-dark"> {{this.format}}</span>
+				<span id="filename"> {{this.filename}}</span>
+				<i class="fa fa-trash" rel='{{this._id}}'></i>
+			</li>	
+			{{/each}}
+		</ul>
+	</div>
+	{{/if}}
+</template>

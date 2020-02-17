@@ -32,9 +32,11 @@ var taskId = Task.insert({
 // Reset Session.
 Session.set('taskId', taskId);
 
-Turnpoints = new Mongo.Collection('turnpoints', {connection: null});
-Waypoints = new Mongo.Collection('waypoints', {connection: null});
 Airspaces = new Mongo.Collection('airspaces', {connection: null});
+Files = new Mongo.Collection('files', {connection: null});
+Turnpoints = new Mongo.Collection('turnpoints', {connection: null});
+Tracks = new Mongo.Collection('tracks', {connection: null});
+Waypoints = new Mongo.Collection('waypoints', {connection: null});
 
 Meteor.subscribe('Task');
 Meteor.subscribe('Progress');

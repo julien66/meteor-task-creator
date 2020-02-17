@@ -30,6 +30,7 @@ html, body {
 
 #sidebar .nav-tabs {
 	clear : both;
+	margin-top : 10px;
 }
 
 #sidebar ul.nav-tabs a.nav-link {
@@ -57,8 +58,7 @@ html, body {
 }
 
 .sideComponent {
-	margin-bottom : 10px;
-	padding : 5px 0px;
+	padding : 0px;
 	clear : both;
 }
 
@@ -327,24 +327,28 @@ html, body {
 	);
 }*/
 
-#autoImporter h5 {
+#autoImporter h5, #presetAirspace h5 {
 	text-align : center;
 	border :1px solid #FFF;
 	padding : 15px;
 }
 
-#autoImporter h5:hover {
+#autoImporter h5:hover, #presetAirspace h5:hover {
 	cursor : pointer;
 }
 
-#autoImporter h5 .fa-expand {
+#autoImporter h5 .fa-expand, #presetAirspace h5 .fa-expand {
 	font-size : 12px;
 	float :right;
 }
 
-#autoImporter h5 .fa-expand:hover {
+#autoImporter h5 .fa-expand:hover, #presetAirspace h5 .fa-expand:hover {
 	cursor: pointer;
 	font-size : 14px;
+}
+
+#presetAirspace {
+	margin-bottom : 20px;
 }
 
 #autoImporter .form-group {
@@ -370,18 +374,32 @@ html, body {
 	width : 50% !important;
 }
 
-#waypointFiles li {
+#fileManager li {
 	list-style-type : none;
 }
 
-#waypointFiles ul {
-  	background: repeating-linear-gradient(45deg, #343A40, #343A40 20px, darkslategrey 20px, darkslategrey 40px);
+#fileManager ul {
+  	/*background: repeating-linear-gradient(45deg, #343A40, #343A40 20px, darkslategrey 20px, darkslategrey 40px);*/
 	border: 1px solid #FFF;
 	padding: 10px;
 }
 
-#waypointFiles li a {
+#fileManager li a {
 	color : #FFF;
+}
+
+#fileManager #filename {
+    text-overflow: ellipsis;
+    max-width: 12em;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 12px;
+    line-height: 10px;
+    display: inline-block;
+}
+
+#fileManager .fa-trash {
+	cursor : pointer;
 }
 
 #taskboard {
@@ -431,6 +449,10 @@ html, body {
 	text-shadow: 0px 0px 10px #000;
 }
 
+#taskboard-content li:hover {
+	text-decoration : underline;
+}
+
 #turnpoint-content {
 	padding : 10px 40px 0px 20px
 }
@@ -451,19 +473,26 @@ span.turnpointDistance {
 }
 
 #taskboard #task-distance {
-    margin-top: 20px;
     text-align: right;
-    font-size: 1.5em;
-    text-shadow: 0px 0px 10px #000;
-    font-style: italic;
     padding-right: 10px;
-    font-weight: bold;
     clear: both;
 }
 
 /**
  * Fullboard
  */
+#taskboard-content #fullBoard {
+	text-align : right;
+	font-weight : bold;
+	padding : 10px 10px 10px 0px;
+	text-shadow : 0px 0px 10px #000;
+}
+
+#taskboard-content #fullBoard:hover {
+	color : #f0ad4e;
+	cursor : pointer;
+}
+
 #fullboard-content .row {
 	padding : 10px;
 }
@@ -504,7 +533,7 @@ span.turnpointDistance {
 }
 
 #fullBoardModal h5 {
-  color : #ac2925;
+  color : #f0ad4e;
 }
 
 #fullboard-content span.tp-id {
@@ -578,6 +607,6 @@ span.turnpointDistance {
  * Xavier Murillo hommage.
  */
 span#fullboard-xm {
- 	font-size: 2px;
+ 	font-size: 1px;
   	user-select : none;
 }

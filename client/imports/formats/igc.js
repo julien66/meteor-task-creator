@@ -15,7 +15,8 @@
       // Replace all bad formated whitespace at the begining and end of the line..
       lines[i] = lines[i].replace(/^\s\s*/, '').replace(/\s\s*$/, '');
       // If the first character is a "B" and total # of charaters = 35.
-      if (lines[i].length == 35 && lines[i].charAt(0) == 'B') {
+      console.log(lines[i]);
+      if (lines[i].length >= 35 && lines[i].charAt(0) == 'B') {
         return true;
       }
     }
@@ -30,7 +31,7 @@
       // Replace all bad formated whitespace at the begining and end of the line..
       lines[i] = lines[i].replace(/^\s\s*/, '').replace(/\s\s*$/, '');
       // If the first character is a "B" and total # of charaters = 35.
-      if (lines[i].length == 35 && lines[i].charAt(0) == 'B') {
+      if (lines[i].length >= 35 && lines[i].charAt(0) == 'B') {
         var point = {
           'time' : lines[i].substring(1, 7),
           'lat' : formatLatLng(lines[i].substring(7, 15)),
@@ -46,7 +47,7 @@
     return {
       'tracks' : Array({
         'points' : points,
-        'source' : source,
+        'source' : filename,
       }),
     }
   };
