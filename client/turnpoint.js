@@ -3,6 +3,7 @@
  * Turnpoint JS for the task-creator.
  **/
 import * as Validator from './imports/validateTask';
+import * as Helper from './imports/helper';
 
 Template.turnpoint.helpers({
 	notNew : function() {
@@ -22,6 +23,9 @@ Template.turnpoint.helpers({
 		// "Filling" inputs with current data.
 		var data = Template.instance().data;
 		if (data && data[key]) {
+			if (key === 'open' || key === 'close') {
+				return Helper.secondsToHH(data[key]);
+			}
 			return data[key];
 		}
 		return value;

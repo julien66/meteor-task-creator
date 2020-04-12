@@ -5,7 +5,6 @@
 import './export/xctrack.html';
 
 	var converter = function (key, opposite) {
-		console.log(key, opposite);
 		var conv = {
     			"RACE" : "RACE",
     			"ENTER" : "ENTER",

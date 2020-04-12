@@ -2,6 +2,8 @@
  * @file
  * JS file for fullboard.
  */
+import * as Helper from './imports/helper';
+
 Template.fullboard.helpers({
 	'tp' : function(role) {
 		return Turnpoints.find({'role' : role});
@@ -10,9 +12,9 @@ Template.fullboard.helpers({
 		return finish !== 'line';
 	},
 	'time' : function(role, direction) {
-		var tp = Turnpoints.findOne({role : role});
+		var tp = Turnpoints.findOne({role : role.toUpperCase()});
 		if (typeof tp !== 'undefined') {
-			return tp[direction];
+			return Helper.secondsToHH(tp[direction]);
 		}
 		return '00:00:00';
 	}

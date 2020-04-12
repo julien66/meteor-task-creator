@@ -36,7 +36,13 @@ Template.map.onRendered( function onLeaf() {
 	window.addEventListener('newPilots', addPilots);
 	window.addEventListener('movePilots', movePilots);
 	window.addEventListener('centerPilot', centerPilot);
-	
+
+	$(document).on('collapser', function () {
+		console.log('map resize');
+		setTimeout(function(){ map.invalidateSize()}, 400);
+		//map.invalidateSize(); // doesn't seem to do anything
+	});
+
 	function centerPilot(e) {
 		var id = e.detail.id;
 		if (pilots[id]) {
@@ -165,6 +171,11 @@ Template.map.onRendered( function onLeaf() {
 
 	});
 
+	function quasiSame(click, point) {
+		console.log(click, point);
+		return false;
+	}
+
 	Tracks.find().observe({
 		added : function(track) {
 			if (track.points) {
@@ -174,6 +185,9 @@ Template.map.onRendered( function onLeaf() {
 				flights[track._id] = polyline;
 				// Addind it all to map.
 				polyline.addTo(map)
+				polyline.on('click', function(e) {
+					console.log(e);
+				});
 				map.fitBounds(polyline.getBounds());
 			}
 		},

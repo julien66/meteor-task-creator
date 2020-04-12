@@ -17,9 +17,9 @@ var destroyFromFile = function(file) {
 		// Removing all Waypoints from this source.
 		Waypoints.remove({source : file.filename});
 		// Removing all Turnpoints from this source.
-		Turnpoints.remove({'source' : file.filename});
+		Turnpoints.remove({source : file.filename});
 		// Removing all Turnpoints into task with this source.
-		Task.update({_id : Session.get('taskId')}, {'$set' : {opti : false}, '$pull' : {turnpoints : {source : filename}}});	
+		Task.update({_id : Session.get('taskId')}, {'$set' : {opti : false}, '$pull' : {turnpoints : {source : file.filename}}});	
 	}
 
 	if (infos.airspaces) {
@@ -41,7 +41,6 @@ Template.fileManager.events({
 		// Getting file Id.
 		var fileId = $(e.target).attr('rel');
 		// Getting File from mini mongo.
-		console.log(fileId);
 		var file = Files.findOne({_id : fileId});
 		destroyFromFile(file);
 	},

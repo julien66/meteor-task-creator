@@ -13,9 +13,10 @@ import * as gpx from './formats/gpx';
 import * as xctsk from './formats/xctrack';
 import * as zip from './formats/zip';
 import * as pwca from './formats/pwca';
+import * as jsonRace from './formats/jsonRace';
 import * as Validator from './validateTask';
 
-	var formats = [openair, pwca, oziOld, ozi, cup, igc, geoJson, tsk, xctsk, gpx, zip]; 
+	var formats = [jsonRace, openair, pwca, oziOld, ozi, cup, igc, geoJson, tsk, xctsk, gpx, zip]; 
 	var parse = function(text, source) {
  	var result = formatCheck(text, source);
  	var format = result.format;
@@ -36,6 +37,7 @@ import * as Validator from './validateTask';
 			// Prevent insert same waypoint multiple time.
 			var waypoint = fileInfo.waypoints[i];
 			if (!Waypoints.find({lat : waypoint.lat, lon : waypoint.lon}).fetch().length > 0) {
+				waypoint.source = source;
 				Waypoints.insert(waypoint);
 			}
 		}
@@ -67,9 +69,13 @@ import * as Validator from './validateTask';
 			// for Each turnpoints into new task.
 			task.turnpoints.forEach(function (turnpoint) {
 				// Find the matching waypoint.
-				var waypoint = Waypoints.findOne({lat : turnpoint.wp.lat, lon : turnpoint.wp.lon});
+				var waypoint = Waypoints.findOne({lat : turnpoint.lat, lon : turnpoint.lon});
 				// Store waypoints id as reference.
-				turnpoint.wp._id = waypoint._id;
+				turnpoint.wp = waypoint;
+				// Set role to uppercase.
+				turnpoint.role = turnpoint.role.toUpperCase();
+				// Set turnpoint source.
+				turnpoint.source = source;
 				// Insert turnpoint into Mongo.
 				Turnpoints.insert(turnpoint, function(error, result) {
 					// Get full document turnpoint.
@@ -80,11 +86,11 @@ import * as Validator from './validateTask';
 					if (turnpointsArray.length == task.turnpoints.length) {
 						// Update whole Task document.
 						Task.update({_id: Session.get('taskId')}, {'$set' : {
-							close : task.close,
-							end : task.end,
-							open : task.open,
-							start : task.start,
-							turnpoints : turnpointsArray
+							close : task.takeoff ? task.takeoff.close : null,
+							end : task.goal ? task.goal.close : null,
+							open : task. takeoff ? task.takeoff.open : null,
+							start : task.start ? task.start.open : null,
+							turnpoints : turnpointsArray,
 						}});
 						// Run a Validator check on the Task
 						Validator.check();

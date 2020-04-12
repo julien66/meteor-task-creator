@@ -1,8 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 
 Meteor.startup(() => {
-  	// code to run on server at startup
-	
+  	// code to run on server at startup	
 	// Do not require acccounts-password and make guests anonymous.
 	// @see https://atmospherejs.com/artwells/accounts-guest
 	AccountsGuest.anonymous = true;

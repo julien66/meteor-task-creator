@@ -21,7 +21,7 @@ reader.onload = function(e) {
 				// @todo check if task is valid
 				if (Session.get('validTask')) {
 					Meteor.call('task.race', function(error, result) {
-						console.log("race");
+						//console.log("race");
 					});
 				}
 			}
@@ -84,5 +84,4 @@ Template.dropzone.onRendered(function () {
 
 function handleProgress(event) {
 	var percent = (event.loaded*100)/event.total;
-	console.log(percent);
 }

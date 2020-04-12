@@ -14,67 +14,67 @@
               <div class="row">
                 <div id="fullboard-takeoff">
                   <h5><i class="fa fa-plane"></i>Take off</h5>
-		    <ol>
+		    <ul>
 		    {{#each tp 'TAKEOFF'}}
 		      <li class="turnpoint tp-takeoff" index="{{@index}}">
-			<span class="tp-name badge badge-default">{{name}}</span> 
+			<span class="tp-name badge badge-takeoff">{{name}}</span> 
 			<span class="tp-description">{{description}}</span>
 			<span class="tp-radius badge badge-dark">{{radius}}m</span>
 		      </li>
 		    {{/each}}
-		    </ol>
+		    </ul>
               	</div>
               </div>
               <div class="row">
                 <div id="fullboard-start">
                   <h5><i class="fa fa-play"></i>Start</h5>
-		  <ol>
+		  <ul>
 		  {{#each tp 'START'}}
 		    <li class="turnpoint tp-start" index="{{@index}}">
-		      <span class="tp-name badge badge-default">{{name}}</span> 
+		      <span class="tp-name badge badge-start">{{name}}</span> 
 		      <span class="tp-description">{{description}}</span>
 		      <span class="tp-{{mode}} badge badge-warning">{{direction}}</span>
 		      <span class="tp-radius badge badge-dark">{{radius}}m</span>
 		    </li>
 		  {{/each}}
-		  </ol>
+		  </ul>
                 </div>
               </div>
               <div class="row">
-                <span id="fullboard-turnpoint">
+                <div id="fullboard-turnpoint">
                   <h5><i class="fa fa-forward"></i>Turnpoint</h5> 
-		  <ol>
+		  <ul>
 		  {{#each tp 'TURNPOINT'}}
 		    <li class="turnpoint tp-turnpoint" index="{{@index}}">
-		      <span class="tp-name badge badge-default">{{name}}</span> 
+		      <span class="tp-name badge badge-turnpoint">{{name}}</span> 
 		      <span class="tp-description">{{description}}</span>
 		      <span class="tp-radius badge badge-dark">{{radius}}m</span>
 		    </li>
 		  {{/each}}
-		  </ol>
-                </span>
+		  </ul>
+                </div>
               </div>
               <div class="row">
-                <span id="fullboard-ess">
+                <div id="fullboard-ess">
                   <h5><i class="fa fa-stop"></i>End of speed section</h5>
-		  <ol>
+		  <ul>
 		  {{#each tp 'ESS'}}
 		    <li class="turnpoint tp-ess" index="{{@index}}">
-		      <span class="tp-name badge badge-default">{{name}}</span> 
+		      <span class="tp-name badge badge-ess">{{name}}</span> 
 		      <span class="tp-description">{{description}}</span>
 		      <span class="tp-radius badge badge-dark">{{radius}}m</span>
 		    </li>
 		  {{/each}}
-		  </ol>
-                </span>
+		  </ul>
+                </div>
               </div>
               <div class="row">
-                <span id="fullboard-goal">
+                <div id="fullboard-goal">
                   <h5><i class="fa fa-thumbs-up"></i>Goal</h5> 
-		  <ol>
+		  <ul>
 		  {{#each tp 'GOAL'}}
 		   <li class="turnpoint tp-goal" index="{{@index}}">
-		     <span class="tp-name badge badge-default">{{id}}</span> 
+		     <span class="tp-name badge badge-goal">{{name}}</span> 
 		     <span class="tp-description">{{description}}</span>
 		     <span class="tp-{{finish}} badge badge-warning">{{finish}}</span>
 		     {{#if hasCylinder finish}}
@@ -82,22 +82,20 @@
 		     {{/if}}
 		   </li>
 		  {{/each}}
-		  </ol>
-		</span>
+		  </ul>
+		</div>
               </div>
             </div>
             <div id="rightPanel" class="col-sm-6">
               <div class="row">
-                <div class="form-group">
-                  <div class="form-group" id="fullboard-type">
-                    <label for="fullboard-type-select" class="form-control-label">Type</label>
+                  <div class="form-group row" id="fullboard-type">
+			  <h5><label for="fullboard-type-select" class="col-sm-2 col-form-label">Type</label></h5>
 		    <select id="fullboard-type-select" class="form-control" autocomplete="off" name="type">
 			<option>Race To Goal</option>
 			<option>Elapsed Time</option>
 			<option>Clock Start</option>
 		    </select>
                   </div>
-                </div>
               </div>
               <div id="fullboard-right-infos">
                   <div class="row">

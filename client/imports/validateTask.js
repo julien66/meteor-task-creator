@@ -50,7 +50,6 @@ var check = function (task) {
 	if (!task) {
 		var task = Task.findOne();
 	}
-	console.log(task);
 	var report = [];
 	var valid = true;
 	
@@ -96,7 +95,7 @@ var check = function (task) {
 	});
 	
 	// If takeoff 'open' is upper or equal takeoff close.
-	if (Helper.HHtoSeconds(task.open) >= Helper.HHtoSeconds(task.close) ) {
+	if (task.open >= task.close) {
 		// Set valid to false;
 		valid = false;
 		// Add bad start report.
@@ -104,7 +103,7 @@ var check = function (task) {
 	}	
 	
 	// If takeoff 'open' is upper or equal task start.
-	if (Helper.HHtoSeconds(task.open) >= Helper.HHtoSeconds(task.start) ) {
+	if (task.open >= task.start) {
 		// Set valid to false;
 		valid = false;
 		// Add bad start report.
@@ -112,11 +111,11 @@ var check = function (task) {
 	}	
 	
 	// If task start is upper or equal task end.
-	if (Helper.HHtoSeconds(task.start) >= Helper.HHtoSeconds(task.end) ) {
+	if (task.start >= task.end ) {
 		// Set valid to false;
 		valid = false;
 		// Add bad start report.
-		report.push('START time should be lower than than ESS close time.');
+		report.push('START time should be lower than than GOAL close time.');
 	}	
 	
 	Task.update({_id : Session.get('taskId')}, {$set : {isValid : valid}});

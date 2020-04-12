@@ -19,10 +19,12 @@ import 'jquery-ui/ui/widgets/sortable';
 // Import chartjs
 import 'chart.js/dist/Chart';
 
-import './main.html';
+import  * as fileParser from './imports/parser';
+
+import './templates/main.html';
+
 // Bootstrap 4 plugin. Toggle.
 const pkg = require('bootstrap4-toggle');
-//Modal.allowMultiple = true;
 
 var taskId = Task.insert({
 	uid : Meteor.userId(),
@@ -41,4 +43,15 @@ Waypoints = new Mongo.Collection('waypoints', {connection: null});
 Meteor.subscribe('Task');
 Meteor.subscribe('Progress');
 
-Meteor.startup(function() {});
+var files = location.search.split('files=')[1];
+if (files) {
+	$.get(files, function(data) {
+ 		var parseInfo = fileParser.parse(data, files);
+    	});
+}
+
+
+Meteor.startup(function() {
+
+
+});

@@ -15,7 +15,6 @@
       // Replace all bad formated whitespace at the begining and end of the line..
       lines[i] = lines[i].replace(/^\s\s*/, '').replace(/\s\s*$/, '');
       // If the first character is a "B" and total # of charaters = 35.
-      console.log(lines[i]);
       if (lines[i].length >= 35 && lines[i].charAt(0) == 'B') {
         return true;
       }
@@ -40,10 +39,11 @@
           'z' : parseInt(lines[i].substring(25, 30), 10),
           'zGps' : parseInt(lines[i].substring(30, 35), 10),
         }
+	
         points.push(point);
       }
     }
-
+    console.log(points);
     return {
       'tracks' : Array({
         'points' : points,
