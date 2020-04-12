@@ -5,16 +5,17 @@
 <body>
 	<div class="container-fluid"> 
 		<div class="row main">
-			<span class="cog col-md-9">
+			<span class="cog col-lg-8">
 				<center>
 					<i class="fa fa-cog fa-spin"></i>
 					<div class="loader">LOADING...</div>
 				</center>
 			</span>
 			{{> map}}
-			{{>collapser}}
-			<div id="sidebar"  class="col-md-3">
+            {{>expander}}
+            <div id="sidebar"  class="col-lg-4">
 				<div id="sidebar-inner">
+                    {{>collapser}}
 					<div class="sideComponent">
 						{{> dropzone url='/upload' 
 							id='dz' 
@@ -56,8 +57,7 @@
 						</div>
 						<div class="tab-pane fade" id="race" role="tabpanel" aria-labelledby="race-tab">
 							<div class="sideComponent">
-								<h5 style="text-align: center">Coming soon!</h5>
-								<!--{{>autoImporter}}-->
+							    {{>autoImporter}}
 							</div>
 						</div>
 					</div>

@@ -16,7 +16,7 @@ html, body {
 }
 
 #map {
-	min-height: 300px;
+	min-height: 400px;
 	transition: all 0.5s ease;
 	padding : 0px;
 	background-color : transparent !important;
@@ -35,7 +35,7 @@ html, body {
 	font-size : 20px;
 }
 
-#collapser {
+#collapser, #expander {
 	position : absolute;
 	z-index : 1000;
 	background-color : #f0ad4e;
@@ -43,8 +43,15 @@ html, body {
 	color : #FFF;
 	border-radius : 3px 0px 0px 3px;
 	bottom : 20px;
+	left : -40px;
 	cursor : pointer;
 	max-width : 40px;
+}
+
+#expander {
+	display : none;
+	right : 0px;
+	left : inherit;
 }
 
 #sidebar.collapsed {
@@ -54,9 +61,9 @@ html, body {
 #sidebar {
  	background-color: darkslategrey;
  	color : #FFF;
- 	overflow : auto;
 	border-left : 15px solid #f0ad4e;
 	box-shadow : 0px 0px 5px #000;
+	display: inline-table;
 }
 
 #sidebar .nav-tabs {
@@ -185,7 +192,7 @@ html, body {
  	-webkit-appearance: none;
   	width: 100%;
   	height: 10px;
- 	border-radius: 5px;  
+ 	border-radius: 5px;
   	background: #FFF;
   	outline: none;
   	margin: 7px 10px;
@@ -196,7 +203,7 @@ html, body {
   	appearance: none;
   	width: 20px;
   	height: 20px;
-  	border-radius: 50%; 
+  	border-radius: 50%;
   	background: #f0ad4e;
   	cursor: pointer;
 }
@@ -211,7 +218,7 @@ html, body {
 
 #innerTime {
 	width: 100%;
-	user-select: none; 
+	user-select: none;
 }
 
 .replaySlider {
@@ -274,7 +281,7 @@ html, body {
 	cursor : pointer;
 }
 
-#timeMark { 
+#timeMark {
 	height : 30px;
 }
 
@@ -441,7 +448,7 @@ html, body {
 	text-align : center;
 }
 
-.sideComponent:last-child {	
+.sideComponent:last-child {
 	padding-bottom : 50px;
 }
 
@@ -571,7 +578,7 @@ span.turnpointDistance {
 
 #fullboard-content span.tp-id {
   cursor : pointer;
-} 
+}
 
 #fullboard-times .label {
   margin-right : 5px;
@@ -672,7 +679,24 @@ span.turnpointDistance {
 	float : right;
 	font-size : 9px;
 	font-weight : bold;
-} 
+}
+
+/**
+ * Airspace tab
+ */
+#altitudeSlide {
+	-webkit-appearance: none;
+	width : 105px;
+	border-radius : 5px;
+}
+
+#altitudeSlide::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 20px;
+	height: 20px;
+	background: #f0ad4e;
+}
 
 /**
  * Xavier Murillo hommage.
