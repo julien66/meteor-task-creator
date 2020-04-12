@@ -34,7 +34,7 @@ var taskId = Task.insert({
 // Reset Session.
 Session.set('taskId', taskId);
 
-Airspaces = new Mongo.Collection('airspaces', {connection: null});
+Airspaces = new Mongo.Collection('airspaces');
 Files = new Mongo.Collection('files', {connection: null});
 Turnpoints = new Mongo.Collection('turnpoints', {connection: null});
 Tracks = new Mongo.Collection('tracks', {connection: null});

@@ -705,3 +705,12 @@ span#fullboard-xm {
  	font-size: 1px;
   	user-select : none;
 }
+
+.small {
+	font-style : italic;
+	font-size : 0.8em;
+}
+
+#airspaces .message {
+	text-align : justify;
+}

@@ -2,15 +2,15 @@
  * @file
  * JS file exporter
  */
-import * as oziOld from './formats/oziOld';
-import * as ozi from './formats/ozi';
-import * as cup from './formats/cup';
-import * as igc from './formats/igc';
-import * as geoJson from './formats/geoJson';
-import * as tsk from './formats/tsk';
-import * as gpx from './formats/gpx';
-import * as xctsk from './formats/xctrack';
-import * as kml from './formats/kml';
+import * as oziOld from '../../imports/formats/oziOld';
+import * as ozi from '../../imports/formats/ozi';
+import * as cup from '../../imports/formats/cup';
+import * as igc from '../../imports/formats/igc';
+import * as geoJson from '../../imports/formats/geoJson';
+import * as tsk from '../../imports/formats/tsk';
+import * as gpx from '../../imports/formats/gpx';
+import * as xctsk from '../../imports/formats/xctrack';
+import * as kml from '../../imports/formats/kml';
 
 var wpFormats = [ozi, cup, gpx];
 var taskFormats = [xctsk, tsk, kml];

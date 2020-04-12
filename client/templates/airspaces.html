@@ -13,10 +13,13 @@
 					</ul>
 				</div>
 				<i class="fa fa-warning"></i>WARNING Un-official information.
-				<p>Use Airspace data at your own risk. Graphic display mabe wrong.</p>
-			</div>
+                <p>
+                    <span class="small">Use Airspace data at your own risk.</span> <br>
+                    <span class="small">Graphic display on map may be wrong.</span>
+                </p>
+            </div>
 			{{#unless airspaces}}
-				<div class="message"><h7>No custom airspaces defined yet. You can import a custom OpenAir or GeoJson file of your own or use pre-defined listed above.</h7></div>
+				<div class="message"><h7>No custom airspaces defined yet. You can import a custom OpenAir or GeoJson file of your own or use a preset listed above.</h7></div>
 			{{/unless}}
 			{{#if airspaces}}
 				<div class="filterAirspace row">
