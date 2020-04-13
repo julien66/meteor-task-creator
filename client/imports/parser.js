@@ -46,7 +46,8 @@ import * as Validator from './validateTask';
 	if (fileInfo.airspaces) {
       		for (var i = 0; i < fileInfo.airspaces.length; i++) {
 			var airspace = fileInfo.airspaces[i];
-			Airspaces.insert(airspace);
+			// Insert is done only localy. _collection ensure it's not push to the server.
+			Airspaces._collection.insert(airspace);
 		}
 	}
    	

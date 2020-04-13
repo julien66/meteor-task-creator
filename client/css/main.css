@@ -15,6 +15,10 @@ html, body {
 	background-color : darkslategray;
 }
 
+form.container-fluid {
+	background-color : #FFFFFF;
+}
+
 #map {
 	min-height: 400px;
 	transition: all 0.5s ease;
@@ -83,7 +87,7 @@ html, body {
 }
 
 #sidebar-inner {
-  	padding: 10px;
+  	padding: 10px 0px;
 }
 
 .sideComponent {
@@ -102,8 +106,8 @@ html, body {
 
 #airFloor input {
 	transform : rotate(-90deg);
-	width : 150px;
-	margin-top : 80px;
+	width : 100px;
+	margin-top : 50px;
 	margin-bottom : 50px;
 }
 
@@ -263,7 +267,7 @@ html, body {
 .pilot {
 	padding : 0px;
 	text-overflow: ellipsis;
-    	white-space: nowrap;
+	white-space: nowrap;
 	overflow : hidden;
 	font-size:13px;
 	max-width: 20em;
@@ -377,7 +381,7 @@ html, body {
 }
 
 #presetAirspace {
-	margin-bottom : 20px;
+	margin-bottom : 10px;
 }
 
 #autoImporter .form-group {
@@ -687,14 +691,15 @@ span.turnpointDistance {
 #altitudeSlide {
 	-webkit-appearance: none;
 	width : 105px;
-	border-radius : 5px;
+	border-radius : 10px;
+	height: 10px;
 }
 
 #altitudeSlide::-webkit-slider-thumb {
 	-webkit-appearance: none;
 	appearance: none;
-	width: 20px;
-	height: 20px;
+	width: 10px;
+	height: 10px;
 	background: #f0ad4e;
 }
 
@@ -711,6 +716,44 @@ span#fullboard-xm {
 	font-size : 0.8em;
 }
 
+#airspaceWarning {
+	margin : 0px -15px;
+	background-color : #f0ad4e;
+	padding : 10px;
+	text-align : center;
+}
+
+#airspaces ul {
+	padding : 0px;
+}
+
+#airClass li {
+	display : inline-block;
+}
+
+#airspaces li {
+	list-style-type: none;
+}
+
 #airspaces .message {
 	text-align : justify;
+}
+
+.listAirspace {
+	height : 130px;
+	overflow-y : scroll;
+	border : 1px solid #FFF;
+	padding : 10px;
+}
+
+.listAirspace li{
+	max-width : 230px;
+	overflow : hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.listAirspace li:hover {
+	background-color : rgba(0,0,0,0.3);
+	cursor : pointer;
 }

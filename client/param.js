@@ -10,19 +10,19 @@
     allowCumulativeFiles : true,
     airspaces : {
     	color : {
-		TMA : "#DB401E",
-		A : "#DB401E",
-		B : "#DB401E",
-		C : "#DB401E",
-		D : "#FF3333",
-		E : "#39F936",
-		F : "#39F936",
-		G : "#39F936",
-		P : "#DB401E",
-		R : "#DB401E",
-		CTR : "#DB401E",
-		GP : "#D8DB1E",
-	}
+		  TMA : "#DB401E",
+		  A : "#DB401E",
+		  B : "#DB401E",
+		  C : "#DB401E",
+		  D : "#FF3333",
+		  E : "#39F936",
+		  F : "#39F936",
+		  G : "#39F936",
+		  P : "#DB401E",
+		  R : "#DB401E",
+		  CTR : "#DB401E",
+		  GP : "#D8DB1E",
+	  }
     },
     map : {
       startLat : 42.514,

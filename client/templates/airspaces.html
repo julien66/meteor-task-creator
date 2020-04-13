@@ -9,14 +9,16 @@
 				</h5>
 				<div class="presetFiles">
 					<ul>
-						<li>French Openair (SIA Parser) <input class="AirspaceSIA" name="url_goes_here" type ="checkbox"></li>
+						<li>French Openair (FFVV) <input class="AirspaceFFVV" name="FFVV" type ="checkbox"></li>
 					</ul>
 				</div>
-				<i class="fa fa-warning"></i>WARNING Un-official information.
-                <p>
-                    <span class="small">Use Airspace data at your own risk.</span> <br>
-                    <span class="small">Graphic display on map may be wrong.</span>
-                </p>
+                <div id="airspaceWarning">
+				    <i class="fa fa-warning"></i>Un-official information.
+                    <p>
+                        <span class="small">Use Airspace data at your own risk.</span> <br>
+                        <span class="small">Graphic display on map may be wrong.</span>
+                    </p>
+                </div>
             </div>
 			{{#unless airspaces}}
 				<div class="message"><h7>No custom airspaces defined yet. You can import a custom OpenAir or GeoJson file of your own or use a preset listed above.</h7></div>
@@ -36,10 +38,22 @@
 						<span id="altitudeLimit"> 1000 </span>m
 					</div>
 				</div>
+                <div id="searchAirspace">
+                    <label class="sr-only" for="inlineFormInputGroup">Search Airspace</label>
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text"><i class='fa fa-search'></i></div>
+                        </div>
+                        <input type="text" class="form-control form-control-sm" id="inSearch" placeholder="Search Airspace">
+                    </div>
+                </div>
 				<div class="listAirspace">
 					<ul>
 						{{#each validAirspaces}}
-							<li>{{name}}</li>
+                            <li>
+                                <span class="badge badge-default" style="background-color:{{classColor class}}">{{class}}</span>
+                                <span class="name">{{name}}</span>
+                            </li>
 						{{/each}}
 					</ul>
 				</div>

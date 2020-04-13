@@ -129,6 +129,10 @@ Template.map.onRendered( function onLeaf() {
 	});
 
 	function createAirspace(airspace) {
+		if (airspace.toHide) {
+			// Don't show airspace to Hide.
+			return;
+		}
 		var zoneClass = airspace.class;
 		var color = param.airspaces.color[zoneClass] ? param.airspaces.color[zoneClass] : "#FFFFFF";
 		if (airspace.points) {
@@ -143,7 +147,7 @@ Template.map.onRendered( function onLeaf() {
 
 	Airspaces.find().observe({
 		added : function(airspace) {
-			if (airspace.floor.internalValue <= 1000) {
+			if (airspace.floor && airspace.floor.internalValue <= 1000) {
 				createAirspace(airspace);
 			}
 		},
