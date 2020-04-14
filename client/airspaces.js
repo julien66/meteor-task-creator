@@ -3,19 +3,29 @@
  * JS Airspaces
  */
 import Parameters from './param';
+import * as Helper from "./imports/helper";
 
 Template.airspaces.helpers({	
 	airspaces : function() {
-		return Airspaces.find({}, {sort : {class : 1}}).fetch();
+		var T = Template.instance();
+		var airspaces = Airspaces.find({}, {sort : {class : 1}}).fetch();
+		var names = airspaces.reduce(function(acc, cur, i) {
+			acc[cur.name] = i;
+			return acc;
+		}, {});
+		T.nameIndex.set(names);
+		return airspaces;
 	},
 	classColor : function(zoneClass) {
 		return Parameters.param.airspaces.color[zoneClass] ? Parameters.param.airspaces.color[zoneClass] : "#f0ad4e";
 	},
 	classes : function() {
+		var T = Template.instance();
 		// Request all kind of existing classes in DB.
 		var allClasses = _.uniq(Airspaces.find({}, {sort: {class: 1}, fields: {class: true}}).fetch().map(function(x) {
     			return x.class;
 		}), true);
+		T.showClass.set(allClasses);
 		return allClasses;
 	},
 	validAirspaces : function() {
@@ -27,10 +37,10 @@ Template.airspaces.helpers({
 Template.airspaces.onCreated( function onAirspacesCreated() {
 	this.showFloor = new ReactiveVar(1000);
 	this.showClass = new ReactiveVar();
+	this.nameIndex = new ReactiveVar();
 });
 
 Template.airspaces.onRendered( function onAirspaceRendered() {
-	$('.presetFiles').hide();
 });
 
 // Updates are only done on local minimongo. Adding _collection does the magic.
@@ -41,6 +51,11 @@ function toggleAirspace(T) {
 }
 
 Template.airspaces.events({
+	'input #altitudeSlide' : function(e) {
+		var T = Template.instance();
+		var value = parseInt($(e.target).val());
+		$('#altitudeLimit').html(value);
+	},
 	'change #altitudeSlide' : function(e) {
 		var T = Template.instance();
 		var value = parseInt($(e.target).val());
@@ -65,7 +80,34 @@ Template.airspaces.events({
 			return;
 		}
 	},
-	'click #presetAirspace h5' : function(e) {
-		$('.presetFiles').toggle();
-	}
-})
+	'click .listAirspace li' : function(e) {
+		var id = $(e.target).attr('ref');
+		if (!id) {
+			id = $(e.target).parent().attr('ref');
+		}
+		console.log(id);
+		var e = new CustomEvent('airspaceRequest', {'detail' : id});
+		window.dispatchEvent(e);
+	},
+	'input #searchAirspace' : function(e) {
+		var T = Template.instance();
+		var names = T.nameIndex.get();
+		$('#inSearch').autocomplete({
+			source : names,
+			treshold : 3,
+			onSelectItem : function(item) {
+				var airspace = $('.airspace[index=' + item.value + ']');
+				var currentPosition = $('.listAirspace').scrollTop();
+				$('.listAirspace').animate({
+					scrollTop: airspace.offset().top,
+				}, 1000);
+				airspace.addClass('selected');
+				setTimeout(function() {
+					$('.airspace').removeClass('selected');
+				}, 3000);
+				$('#inSearch').val('');
+				$('.dropdown-menu').hide();
+			},
+		});
+	},
+});

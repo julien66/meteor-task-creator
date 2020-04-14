@@ -5,11 +5,10 @@
 				<h5>
 					<i class="fa fa-lg fa-plane" aria-hidden="true"></i>
 					Preset Airspace
-					<i class="fa fa-lg fa-expand" aria-hidden="true"></i>
 				</h5>
 				<div class="presetFiles">
 					<ul>
-						<li>French Openair (FFVV) <input class="AirspaceFFVV" name="FFVV" type ="checkbox"></li>
+						<li><input class="AirspaceFFVV" name="FFVV" type ="checkbox"> French OpenAir FFVV</li>
 					</ul>
 				</div>
                 <div id="airspaceWarning">
@@ -50,7 +49,7 @@
 				<div class="listAirspace">
 					<ul>
 						{{#each validAirspaces}}
-                            <li>
+                            <li class="airspace" ref="{{_id}}" index="{{@index}}">
                                 <span class="badge badge-default" style="background-color:{{classColor class}}">{{class}}</span>
                                 <span class="name">{{name}}</span>
                             </li>

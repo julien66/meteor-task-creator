@@ -36,6 +36,7 @@ Template.map.onRendered( function onLeaf() {
 	window.addEventListener('newPilots', addPilots);
 	window.addEventListener('movePilots', movePilots);
 	window.addEventListener('centerPilot', centerPilot);
+	window.addEventListener('airspaceRequest', clickAirspace)
 
 	$(document).on('collapser', function () {
 		console.log('map resize');
@@ -142,7 +143,13 @@ Template.map.onRendered( function onLeaf() {
 			// Addind it all to map.
 			polygon.addTo(map).bindPopup('<h3 class="popover-header">' + airspace.name + '</h3>' + Blaze.toHTMLWithData(Template.airspacePopover, airspace));
 		}
-	
+	}
+
+	// Emulate click on a Zone.
+	//Called from Airspace.js through CustomEvent.
+	function clickAirspace(e) {
+		var polygon = zones[e.detail];
+		polygon.fire('click');
 	}
 
 	Airspaces.find().observe({
