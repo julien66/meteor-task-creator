@@ -14,7 +14,7 @@
     "decompress-zip": "^0.2.2",
     "i": "^0.3.6",
     "jquery": "^3.4.1",
-    "jquery-ui": "^1.12.1",
+    "jquery-ui": "^1.13.0",
     "leaflet": "^1.6.0",
     "leaflet-polylinedecorator": "^1.6.0",
     "leaflet-semicircle": "^2.0.4",
